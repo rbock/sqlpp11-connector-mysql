@@ -43,6 +43,6 @@ sqlpp11-connector-mysql makes use of C++11 and requires a recent compiler and ST
   * clang-3.2 on Ubuntu-12.4
   * g++-4.8 on Ubuntu-12.4
 
-__Database Connector:__
+__C++ SQL Layer:__
 sqlpp11-connector-mysql is meant to be used with sqlpp11 (https://github.com/rbock/sqlpp11).
 
