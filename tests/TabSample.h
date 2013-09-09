@@ -146,7 +146,7 @@ namespace TabSample_
 		using _value_type = sqlpp::boolean;
 		struct _column_type
 		{
-			using _require_insert = sqlpp::tag_yes;
+			using _require_insert = sqlpp::tag_no;
 		};
 	};
 }

@@ -73,6 +73,7 @@ int main()
 	};
 
 	// insert
+	db.run(insert_into(tab));
 	db.run(insert_into(tab).set(tab.gamma = true));
 
 	// update

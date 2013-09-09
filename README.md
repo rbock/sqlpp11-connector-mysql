@@ -46,3 +46,6 @@ sqlpp11-connector-mysql makes use of C++11 and requires a recent compiler and ST
 __C++ SQL Layer:__
 sqlpp11-connector-mysql is meant to be used with sqlpp11 (https://github.com/rbock/sqlpp11).
 
+__mysqlclient:__
+libmysqlclient version 5.5 and up.
+
