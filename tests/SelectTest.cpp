@@ -88,8 +88,8 @@ int main()
 	db.run(select(max(tab.alpha)).from(tab));
 	db.run(select(min(tab.alpha)).from(tab));
 	db.run(select(exists(select(tab.alpha).from(tab).where(tab.alpha > 7))).from(tab));
-	db.run(select(not_exists(select(tab.alpha).from(tab).where(tab.alpha > 7))).from(tab));
 	db.run(select(tab).from(tab).where(tab.alpha == any(select(tab.alpha).from(tab).where(tab.alpha < 3))));
+	db.run(select(tab).from(tab).where(tab.alpha == some(select(tab.alpha).from(tab).where(tab.alpha < 3))));
 
 	db.run(select(tab).from(tab).where(tab.alpha + tab.alpha > 3));
 	db.run(select(tab).from(tab).where((tab.beta + tab.beta) == ""));
