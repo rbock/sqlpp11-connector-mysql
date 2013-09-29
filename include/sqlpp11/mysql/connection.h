@@ -32,7 +32,6 @@
 #include <sqlpp11/connection.h>
 #include <sqlpp11/mysql/result.h>
 #include <sqlpp11/mysql/connection_config.h>
-#include <sqlpp11/detail/tag.h>
 
 namespace sqlpp
 {
@@ -52,7 +51,7 @@ namespace sqlpp
 			using _result_t = ::sqlpp::mysql::result;
 			struct _tags
 			{
-				using _has_empty_list_insert = tag_yes;
+				using _has_empty_list_insert = std::true_type;
 			};
 			connection(const std::shared_ptr<connection_config>& config);
 			~connection();

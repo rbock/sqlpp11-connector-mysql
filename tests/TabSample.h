@@ -88,10 +88,10 @@ namespace TabSample_
 		using _value_type = sqlpp::bigint;
 		struct _column_type
 		{
-			using _must_not_insert = sqlpp::tag_yes;
-			using _must_not_update = sqlpp::tag_yes;
-			using _can_be_null = sqlpp::tag_yes;
-			using _trivial_value_is_null = sqlpp::tag_yes;
+			using _must_not_insert = std::true_type;
+			using _must_not_update = std::true_type;
+			using _can_be_null = std::true_type;
+			using _trivial_value_is_null = std::true_type;
 			using _foreign_key = decltype(TabFoo::omega);
 		};
 	};
@@ -110,9 +110,9 @@ namespace TabSample_
 		using _value_type = sqlpp::varchar;
 		struct _column_type
 		{
-			using _can_be_null = sqlpp::tag_yes;
-			using _trivial_value_is_null = sqlpp::tag_yes;
-			using _must_not_update = sqlpp::tag_yes;
+			using _can_be_null = std::true_type;
+			using _trivial_value_is_null = std::true_type;
+			using _must_not_update = std::true_type;
 		};
 	};
 
@@ -130,7 +130,7 @@ namespace TabSample_
 		using _value_type = sqlpp::boolean;
 		struct _column_type
 		{
-			using _require_insert = sqlpp::tag_no;
+			using _require_insert = std::false_type;
 		};
 	};
 }
