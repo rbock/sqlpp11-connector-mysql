@@ -66,11 +66,20 @@ int main()
 		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
 	};
 	// selecting two multicolumns
-	for(const auto& row : sqlpp::select(multi_column(left, tab.alpha, tab.beta, tab.gamma), multi_column(tab, tab)).from(tab).run(db))
+	for(const auto& row : db.run(
+						select(tab.alpha,
+								 multi_column(left, tab.alpha, tab.beta, tab.gamma), 
+								 multi_column(tab, all_of(tab)))
+						.from(tab)))
 	{
-		std::cerr << "row.left.alpha: " << row.left.alpha << ", row.left.beta: " << row.left.beta << ", row.left.gamma: " << row.left.gamma <<  std::endl;
-		std::cerr << "row.tabSample.alpha: " << row.tabSample.alpha << ", row.tabSample.beta: " << row.tabSample.beta << ", row.tabSample.gamma: " << row.tabSample.gamma <<  std::endl;
+		std::cerr << "row.left.alpha: " << row.left.alpha 
+							<< ", row.left.beta: " << row.left.beta 
+							<< ", row.left.gamma: " << row.left.gamma <<  std::endl;
+		std::cerr << "row.tabSample.alpha: " << row.tabSample.alpha 
+							<< ", row.tabSample.beta: " << row.tabSample.beta 
+							<< ", row.tabSample.gamma: " << row.tabSample.gamma <<  std::endl;
 	};
+
 
 	// insert
 	db.run(insert_into(tab));
