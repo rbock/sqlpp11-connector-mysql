@@ -66,7 +66,7 @@ struct TabFoo: sqlpp::table_base_t<
 			};
 	};
 	template<typename Db>
-		void serialize(std::ostream& os, Db& db) const
+		void serialize_impl(std::ostream& os, Db& db) const
 		{
 			os << _name_t::_get_name();
 		}
@@ -153,7 +153,7 @@ struct TabSample: sqlpp::table_base_t<
 			};
 	};
 	template<typename Db>
-		void serialize(std::ostream& os, Db& db) const
+		void serialize_impl(std::ostream& os, Db& db) const
 		{
 			os << _name_t::_get_name();
 		}
