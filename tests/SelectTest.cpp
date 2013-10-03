@@ -60,40 +60,40 @@ int main()
 	TabSample tab;
 
 	// explicit all_of(tab)
-	for(const auto& row : sqlpp::select(all_of(tab)).from(tab).run(db))
+	for(const auto& row : select(all_of(tab)).from(tab).run(db))
 	{
 		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
 	};
 	// selecting a table implicitly expands to all_of(tab)
-	for(const auto& row : sqlpp::select(tab).from(tab).run(db))
+	for(const auto& row : select(all_of(tab)).from(tab).run(db))
 	{
 		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
 	};
 	// selecting two multicolumns
-	for(const auto& row : sqlpp::select(multi_column(left, tab.alpha, tab.beta, tab.gamma), multi_column(tab, tab)).from(tab).run(db))
+	for(const auto& row : select(multi_column(left, tab.alpha, tab.beta, tab.gamma), multi_column(tab, all_of(tab))).from(tab).run(db))
 	{
 		std::cerr << "row.left.alpha: " << row.left.alpha << ", row.left.beta: " << row.left.beta << ", row.left.gamma: " << row.left.gamma <<  std::endl;
 		std::cerr << "row.tabSample.alpha: " << row.tabSample.alpha << ", row.tabSample.beta: " << row.tabSample.beta << ", row.tabSample.gamma: " << row.tabSample.gamma <<  std::endl;
 	};
 
 	// test functions and operators
-	db.run(select(tab).from(tab).where(tab.alpha.is_null()));
-	db.run(select(tab).from(tab).where(tab.alpha.is_not_null()));
-	db.run(select(tab).from(tab).where(tab.alpha.in(1, 2, 3)));
-	db.run(select(tab).from(tab).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
-	db.run(select(tab).from(tab).where(tab.alpha.not_in(1, 2, 3)));
-	db.run(select(tab).from(tab).where(tab.alpha.not_in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+	db.run(select(all_of(tab)).from(tab).where(tab.alpha.is_null()));
+	db.run(select(all_of(tab)).from(tab).where(tab.alpha.is_not_null()));
+	db.run(select(all_of(tab)).from(tab).where(tab.alpha.in(1, 2, 3)));
+	db.run(select(all_of(tab)).from(tab).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+	db.run(select(all_of(tab)).from(tab).where(tab.alpha.not_in(1, 2, 3)));
+	db.run(select(all_of(tab)).from(tab).where(tab.alpha.not_in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
 	db.run(select(count(tab.alpha)).from(tab));
 	db.run(select(avg(tab.alpha)).from(tab));
 	db.run(select(max(tab.alpha)).from(tab));
 	db.run(select(min(tab.alpha)).from(tab));
 	db.run(select(exists(select(tab.alpha).from(tab).where(tab.alpha > 7))).from(tab));
-	db.run(select(tab).from(tab).where(tab.alpha == any(select(tab.alpha).from(tab).where(tab.alpha < 3))));
-	db.run(select(tab).from(tab).where(tab.alpha == some(select(tab.alpha).from(tab).where(tab.alpha < 3))));
+	db.run(select(all_of(tab)).from(tab).where(tab.alpha == any(select(tab.alpha).from(tab).where(tab.alpha < 3))));
+	db.run(select(all_of(tab)).from(tab).where(tab.alpha == some(select(tab.alpha).from(tab).where(tab.alpha < 3))));
 
-	db.run(select(tab).from(tab).where(tab.alpha + tab.alpha > 3));
-	db.run(select(tab).from(tab).where((tab.beta + tab.beta) == ""));
-	db.run(select(tab).from(tab).where((tab.beta + tab.beta).like("%'\"%")));
+	db.run(select(all_of(tab)).from(tab).where(tab.alpha + tab.alpha > 3));
+	db.run(select(all_of(tab)).from(tab).where((tab.beta + tab.beta) == ""));
+	db.run(select(all_of(tab)).from(tab).where((tab.beta + tab.beta).like("%'\"%")));
 
 	// insert
 	db.run(insert_into(tab).set(tab.gamma = true));
@@ -106,12 +106,12 @@ int main()
 	db.run(remove_from(tab).where(tab.alpha == tab.alpha + 3));
 
 
-	auto result = db.run(select(tab).from(tab));
+	auto result = db.run(select(all_of(tab)).from(tab));
 	std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha << std::endl;
 	std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
 
 	auto tx = start_transaction(db);
-	if (const auto& row = *db.run(select(tab, select(max(tab.alpha)).from(tab)).from(tab)).begin())
+	if (const auto& row = *db.run(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab)).begin())
 	{
 		int x = row.alpha;
 		int a = row.max;
