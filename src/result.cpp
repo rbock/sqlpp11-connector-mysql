@@ -34,7 +34,8 @@ namespace sqlpp
 {
 	namespace mysql
 	{
-		result::result()
+		result::result():
+			_debug(false)
 		{}
 		result::result(std::unique_ptr<detail::result_handle>&& handle, const bool debug):
 			_handle(std::move(handle)),
