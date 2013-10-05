@@ -46,6 +46,7 @@ namespace sqlpp
 			bool _debug;
 
 		public:
+			result();
 			result(std::unique_ptr<detail::result_handle>&& handle, const bool debug);
 			result(const result&) = delete;
 			result(result&& rhs);

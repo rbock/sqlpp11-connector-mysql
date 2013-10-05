@@ -99,7 +99,8 @@ int main()
 	db.run(remove_from(tab).where(tab.alpha == tab.alpha + 3));
 
 
-	auto result = db.run(select(all_of(tab)).from(tab));
+	decltype(db.run(select(all_of(tab)))) result;
+	result = db.run(select(all_of(tab)).from(tab));
 	std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha << std::endl;
 	std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
 
@@ -112,13 +113,9 @@ int main()
 	}
 	tx.commit();
 
+
 	TabFoo foo;
 	for (const auto& row : db.run(select(tab.alpha).from(tab.join(foo).on(tab.alpha == foo.omega))))
-	{
-		std::cerr << row.alpha << std::endl;
-	}
-
-	for (const auto& row : db.run(select(tab.alpha).from(tab.cross_join(foo).on(tab.alpha == foo.omega))))
 	{
 		std::cerr << row.alpha << std::endl;
 	}
