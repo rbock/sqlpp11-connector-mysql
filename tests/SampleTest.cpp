@@ -32,6 +32,7 @@
 
 
 SQLPP_ALIAS_PROVIDER_GENERATOR(left);
+SQLPP_ALIAS_PROVIDER_GENERATOR(right);
 
 namespace mysql = sqlpp::mysql;
 int main()
@@ -50,13 +51,23 @@ int main()
 		throw;
 	}
 	mysql::connection db(config);
+	db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
+	db.execute(R"(CREATE TABLE tab_sample (
+		alpha bigint(20) DEFAULT NULL,
+			beta bool DEFAULT NULL,
+			gamma varchar(255) DEFAULT NULL
+			))");
+	db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
+	db.execute(R"(CREATE TABLE tab_foo (
+		omega bigint(20) DEFAULT NULL
+			))");
 
 	TabSample tab;
 	// clear the table
 	db.run(remove_from(tab));
 
 	// explicit all_of(tab)
-	for(const auto& row : sqlpp::select(all_of(tab)).from(tab).run(db))
+	for(const auto& row : select(all_of(tab)).from(tab).run(db))
 	{
 		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
 	};
@@ -100,6 +111,22 @@ int main()
 		std::cerr << "-----------------------------" << row.beta << std::endl;
 	}
 	tx.commit();
+
+	TabFoo foo;
+	for (const auto& row : db.run(select(tab.alpha).from(tab.join(foo).on(tab.alpha == foo.omega))))
+	{
+		std::cerr << row.alpha << std::endl;
+	}
+
+	for (const auto& row : db.run(select(tab.alpha).from(tab.cross_join(foo).on(tab.alpha == foo.omega))))
+	{
+		std::cerr << row.alpha << std::endl;
+	}
+
+	for (const auto& row : db.run(select(tab.alpha).from(tab.left_outer_join(foo).on(tab.alpha == foo.omega))))
+	{
+		std::cerr << row.alpha << std::endl;
+	}
 
 	return 0;
 }

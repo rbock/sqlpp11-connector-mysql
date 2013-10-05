@@ -56,6 +56,17 @@ int main()
 		throw;
 	}
 	mysql::connection db(config);
+	db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
+	db.execute(R"(CREATE TABLE tab_sample (
+		alpha bigint(20) DEFAULT NULL,
+			beta bool DEFAULT NULL,
+			gamma varchar(255) DEFAULT NULL
+			))");
+	db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
+	db.execute(R"(CREATE TABLE tab_foo (
+		omega bigint(20) DEFAULT NULL
+			))");
+
 
 	TabSample tab;
 
