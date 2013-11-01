@@ -37,8 +37,22 @@ namespace sqlpp
 	{
 		namespace
 		{
+			struct MySqlThreadInitializer
+			{
+				MySqlThreadInitializer()
+				{
+					mysql_thread_init();
+				}
+				~MySqlThreadInitializer()
+				{
+					mysql_thread_end();
+				}
+			};
+
 			void execute_query(detail::connection_handle& handle, const std::string& query)
 			{
+				thread_local MySqlThreadInitializer threadInitializer;
+
 				if (handle.config->debug)
 					std::cerr << "MySQL debug: Executing: '" << query << "'" << std::endl;
 
