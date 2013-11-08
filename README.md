@@ -40,7 +40,7 @@ Requirements:
 __Compiler:__
 sqlpp11-connector-mysql makes use of C++11 and requires a recent compiler and STL. The following compilers are known to compile the test programs:
 
-  * clang-3.2 on Ubuntu-12.4
+  * clang-3.4 on Ubuntu-12.4 (requires thread_local)
   * g++-4.8 on Ubuntu-12.4
 
 __C++ SQL Layer:__
