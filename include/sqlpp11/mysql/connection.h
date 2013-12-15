@@ -29,6 +29,7 @@
 #define SQLPP_MYSQL_CONNECTION_H
 
 #include <string>
+#include <sstream>
 #include <sqlpp11/connection.h>
 #include <sqlpp11/mysql/result.h>
 #include <sqlpp11/mysql/connection_config.h>
@@ -46,7 +47,10 @@ namespace sqlpp
 		{
 			std::unique_ptr<detail::connection_handle> _handle;
 			bool _transaction_active = false;
+			template<typename Select>
+				using _result_t = ::sqlpp::mysql::result<typename Select::_result_row_t, typename Select::_dynamic_names_t>;
 
+			detail::result_impl_t select_impl(const std::string& query);
 		public:
 			// join types
 			static constexpr bool _supports_inner_join = true;
@@ -79,7 +83,6 @@ namespace sqlpp
 			static constexpr bool _use_concat_operator = false;
 			static constexpr bool _use_concat_function = true;
 
-			using _result_t = ::sqlpp::mysql::result;
 			struct _tags
 			{
 				using _has_empty_list_insert = std::true_type;
@@ -92,7 +95,15 @@ namespace sqlpp
 			connection& operator=(connection&&) = delete;
 
 			//! select returns a result (which can be iterated row by row)
-			_result_t select(const std::string& query);
+			template<typename Select>
+			_result_t<Select> select(const Select& s)
+			{
+				std::ostringstream oss;
+				s.serialize(oss, *this);
+				return {select_impl(oss.str())};
+				//_result_t<Select> r(select_impl(oss.str()));
+				//return r;
+			}
 
 			//! insert returns the last auto_incremented id (or zero, if there is none)
 			size_t insert(const std::string& query);

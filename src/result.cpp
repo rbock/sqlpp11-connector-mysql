@@ -34,38 +34,40 @@ namespace sqlpp
 {
 	namespace mysql
 	{
-		result::result():
-			_debug(false)
-		{}
-		result::result(std::unique_ptr<detail::result_handle>&& handle, const bool debug):
-			_handle(std::move(handle)),
-			_debug(debug)
+		namespace detail
 		{
-			if (_debug)
-				std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
-		}
+			result_impl_t::result_impl_t()
+			{}
 
-		result::~result() = default;
-		result::result(result&& rhs) = default;
-		result& result::operator=(result&&) = default;
+			result_impl_t::result_impl_t(std::unique_ptr<detail::result_handle>&& handle):
+				_handle(std::move(handle))
+			{
+				if (_handle and _handle->debug)
+					std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
+			}
 
-		raw_result_row_t result::next()
-		{
-			if (_debug)
-				std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
+			result_impl_t::~result_impl_t() = default;
+			result_impl_t::result_impl_t(result_impl_t&& rhs) = default;
+			result_impl_t& result_impl_t::operator=(result_impl_t&&) = default;
 
-			return _handle 
-				? raw_result_row_t{ const_cast<const char**>(mysql_fetch_row(_handle->mysql_res)), mysql_fetch_lengths(_handle->mysql_res) }
+			raw_result_row_t result_impl_t::next()
+			{
+				if (_handle and _handle->debug)
+					std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
+
+				return _handle 
+					? raw_result_row_t{ const_cast<const char**>(mysql_fetch_row(_handle->mysql_res)), mysql_fetch_lengths(_handle->mysql_res) }
 				: raw_result_row_t{ nullptr, nullptr };
-		}
+			}
 
-		size_t result::num_cols() const
-		{
-			return _handle
-				? mysql_num_fields(_handle->mysql_res)
-				: 0;
-		}
+			size_t result_impl_t::num_cols() const
+			{
+				return _handle
+					? mysql_num_fields(_handle->mysql_res)
+					: 0;
+			}
 
+		}
 	}
 }
 

@@ -67,7 +67,7 @@ int main()
 	db.run(remove_from(tab));
 
 	// explicit all_of(tab)
-	for(const auto& row : select(all_of(tab)).from(tab).run(db))
+	for(const auto& row : db.run(select(all_of(tab)).from(tab)))
 	{
 		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
 	};

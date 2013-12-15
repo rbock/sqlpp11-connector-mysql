@@ -39,9 +39,11 @@ namespace sqlpp
 			struct result_handle
 			{
 				MYSQL_RES* mysql_res;
+				bool debug;
 
-				result_handle(MYSQL_RES* res)
-					: mysql_res(res)
+				result_handle(MYSQL_RES* res, bool debug_):
+					mysql_res(res),
+					debug(debug_)
 				{}
 
 				result_handle(const result_handle&) = delete;

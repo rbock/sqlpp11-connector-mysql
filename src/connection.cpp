@@ -81,16 +81,16 @@ namespace sqlpp
 		{
 		}
 
-		connection::_result_t connection::select(const std::string& query)
+		detail::result_impl_t connection::select_impl(const std::string& query)
 		{
 			execute_query(*_handle, query);
-			std::unique_ptr<detail::result_handle> result_handle(new detail::result_handle(mysql_store_result(_handle->mysql.get())));
+			std::unique_ptr<detail::result_handle> result_handle(new detail::result_handle(mysql_store_result(_handle->mysql.get()), _handle->config->debug));
 			if (!result_handle)
 			{
 				throw sqlpp::exception("MySQL error: Could not store result set: " + std::string(mysql_error(_handle->mysql.get())));
 			}
 
-			return result(std::move(result_handle), _handle->config->debug);
+			return {std::move(result_handle)};
 		}
 
 		size_t connection::insert(const std::string& query)

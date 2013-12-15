@@ -38,29 +38,61 @@ namespace sqlpp
 		namespace detail
 		{
 			struct result_handle;
+			class result_impl_t
+			{
+				std::unique_ptr<result_handle> _handle;
+
+			public:
+				result_impl_t();
+				result_impl_t(std::unique_ptr<detail::result_handle>&& handle);
+				result_impl_t(const result_impl_t&) = delete;
+				result_impl_t(result_impl_t&& rhs);
+				result_impl_t& operator=(const result_impl_t&) = delete;
+				result_impl_t& operator=(result_impl_t&&);
+				~result_impl_t();
+
+				bool operator==(const result_impl_t& rhs) const
+				{
+					return _handle == rhs._handle;
+				}
+
+				raw_result_row_t next();
+				size_t num_cols() const;
+			};
 		}
 
-		class result
+		template<typename ResultRow, typename DynamicNames>
+		struct result
 		{
-			std::unique_ptr<detail::result_handle> _handle;
-			bool _debug;
+			using result_row_t = ResultRow;
+			using dynamic_names_t = DynamicNames;
+			detail::result_impl_t _impl;
+			result_row_t _result_row;
 
-		public:
-			result();
-			result(std::unique_ptr<detail::result_handle>&& handle, const bool debug);
+			result()
+			{}
+
+			result(detail::result_impl_t&& impl):
+				_impl(std::move(impl))
+			{}
+
 			result(const result&) = delete;
-			result(result&& rhs);
+			result(result&& rhs) = default;
 			result& operator=(const result&) = delete;
-			result& operator=(result&&);
-			~result();
+			result& operator=(result&&) = default;
+			~result() = default;
 
 			bool operator==(const result& rhs) const
 			{
-				return _handle == rhs._handle;
+				return _impl == rhs._impl;
 			}
 
-			//! return the next row from the result or nullptr, if there is no next row
-			raw_result_row_t next();
+			const result_row_t& next()
+			{
+				_result_row = _impl.next();
+				return _result_row;
+			};
+
 			size_t num_cols() const;
 		};
 

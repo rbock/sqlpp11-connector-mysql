@@ -105,6 +105,7 @@ int main()
 	db.run(select(all_of(tab)).from(tab).where(tab.alpha + tab.alpha > 3));
 	db.run(select(all_of(tab)).from(tab).where((tab.beta + tab.beta) == ""));
 	db.run(select(all_of(tab)).from(tab).where((tab.beta + tab.beta).like("%'\"%")));
+	db.run(select(all_of(tab)).from(sqlpp::verbatim_table("tab_sample")).where((tab.beta + tab.beta).like("%'\"%")));
 
 	// insert
 	db.run(insert_into(tab).set(tab.gamma = true));
