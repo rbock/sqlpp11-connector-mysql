@@ -53,9 +53,9 @@ int main()
 	mysql::connection db(config);
 	db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
 	db.execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) DEFAULT NULL,
-			beta bool DEFAULT NULL,
-			gamma varchar(255) DEFAULT NULL
+			alpha bigint(20) DEFAULT NULL,
+			beta varchar(255) DEFAULT NULL,
+			gamma bool DEFAULT NULL
 			))");
 	db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
 	db.execute(R"(CREATE TABLE tab_foo (
@@ -67,8 +67,14 @@ int main()
 	db.run(remove_from(tab));
 
 	// explicit all_of(tab)
+	std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
+	select(all_of(tab)).from(tab);
+	std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
+	db.run(select(all_of(tab)).from(tab));
+	std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
 	for(const auto& row : db.run(select(all_of(tab)).from(tab)))
 	{
+		std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
 		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
 	};
 	// selecting two multicolumns
@@ -89,7 +95,7 @@ int main()
 
 	// insert
 	db.run(insert_into(tab));
-	db.run(insert_into(tab).set(tab.gamma = true));
+	db.run(insert_into(tab).set(tab.beta = "kaesekuchen", tab.gamma = true));
 
 	// update
 	db.run(update(tab).set(tab.gamma = false).where(tab.alpha.in(1)));
@@ -99,6 +105,12 @@ int main()
 	db.run(remove_from(tab).where(tab.alpha == tab.alpha + 3));
 
 
+		std::cerr << "+++++++++++++++++++++++++++"  << std::endl;
+	for (const auto& row: db.run(select(all_of(tab)).from(tab)))
+	{
+		std::cerr << __LINE__ << " row.beta: " << row.beta << std::endl;
+	}
+	std::cerr << "+++++++++++++++++++++++++++"  << std::endl;
 	decltype(db.run(select(all_of(tab)))) result;
 	result = db.run(select(all_of(tab)).from(tab));
 	std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha << std::endl;
@@ -109,7 +121,7 @@ int main()
 	{
 		int x = row.alpha;
 		int a = row.max;
-		std::cerr << "-----------------------------" << row.beta << std::endl;
+		std::cerr << __LINE__ << " row.alpha: "  << row.alpha << std::endl;
 	}
 	tx.commit();
 

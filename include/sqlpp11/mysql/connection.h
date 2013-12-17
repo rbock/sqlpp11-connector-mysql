@@ -51,6 +51,7 @@ namespace sqlpp
 				using _result_t = ::sqlpp::mysql::result<typename Select::_result_row_t, typename Select::_dynamic_names_t>;
 
 			detail::result_impl_t select_impl(const std::string& query);
+			void prepare_impl(const std::string& query);
 		public:
 			// join types
 			static constexpr bool _supports_inner_join = true;
@@ -100,9 +101,7 @@ namespace sqlpp
 			{
 				std::ostringstream oss;
 				s.serialize(oss, *this);
-				return {select_impl(oss.str())};
-				//_result_t<Select> r(select_impl(oss.str()));
-				//return r;
+				return {select_impl(oss.str()), s.get_dynamic_names()};
 			}
 
 			//! insert returns the last auto_incremented id (or zero, if there is none)
@@ -124,7 +123,7 @@ namespace sqlpp
 			template<typename T>
 				auto run(const T& t) -> decltype(t.run(*this))
 				{
-					return t.run(*this);
+					return {t.run(*this)};
 				}
 
 			//! start transaction

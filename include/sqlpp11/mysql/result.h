@@ -72,9 +72,11 @@ namespace sqlpp
 			result()
 			{}
 
-			result(detail::result_impl_t&& impl):
-				_impl(std::move(impl))
-			{}
+			result(detail::result_impl_t&& impl, const dynamic_names_t& dynamic_names):
+				_impl(std::move(impl)),
+				_result_row(_impl.next(), dynamic_names)
+			{
+			}
 
 			result(const result&) = delete;
 			result(result&& rhs) = default;
@@ -87,10 +89,14 @@ namespace sqlpp
 				return _impl == rhs._impl;
 			}
 
-			const result_row_t& next()
+			const result_row_t& front() const
+			{
+				return _result_row;
+			};
+
+			void pop_front()
 			{
 				_result_row = _impl.next();
-				return _result_row;
 			};
 
 			size_t num_cols() const;

@@ -30,8 +30,8 @@
 #include <sqlpp11/remove.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/transaction.h>
-#include <sqlpp11/mysql/connection.h>
 #include <sqlpp11/multi_column.h>
+#include <sqlpp11/mysql/connection.h>
 
 #include <iostream>
 #include <vector>
