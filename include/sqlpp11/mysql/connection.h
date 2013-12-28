@@ -31,6 +31,7 @@
 #include <string>
 #include <sstream>
 #include <sqlpp11/connection.h>
+#include <sqlpp11/mysql/prepared_query.h>
 #include <sqlpp11/mysql/result.h>
 #include <sqlpp11/mysql/connection_config.h>
 
@@ -47,12 +48,20 @@ namespace sqlpp
 		{
 			std::unique_ptr<detail::connection_handle> _handle;
 			bool _transaction_active = false;
-			template<typename Select>
-				using _result_t = ::sqlpp::mysql::result<typename Select::_result_row_t, typename Select::_dynamic_names_t>;
 
 			detail::result_impl_t select_impl(const std::string& query);
-			void prepare_impl(const std::string& query);
+			detail::prepared_query_impl_t prepare_impl(const std::string& query);
 		public:
+			template<typename Select>
+				using _result_t = ::sqlpp::mysql::result_t<typename Select::_result_row_t, typename Select::_dynamic_names_t>;
+			template<typename Select>
+				using _prepared_query_t = ::sqlpp::mysql::prepared_query_t<typename Select::_result_row_t, typename Select::_dynamic_names_t>;
+
+			// prepared statements
+			static constexpr bool _supports_prepared = true;
+			static constexpr bool _use_questionmark_parameter = true;
+			static constexpr bool _use_positional_dollar_parameter = false;
+
 			// join types
 			static constexpr bool _supports_inner_join = true;
 			static constexpr bool _supports_outer_join = true;
@@ -104,6 +113,18 @@ namespace sqlpp
 				return {select_impl(oss.str()), s.get_dynamic_names()};
 			}
 
+			template<typename Select>
+				_prepared_query_t<Select> prepare_select(const Select& s)
+			{
+				std::ostringstream oss;
+				s.serialize(oss, *this);
+				return {prepare_impl(oss.str()), s.get_dynamic_names()};
+			}
+
+			template<typename PreparedSelect>
+			//_result_t<PreparedSelect> run_prepared_select(const PreparedSelect& s);
+			int run_prepared_select(const PreparedSelect& s);
+
 			//! insert returns the last auto_incremented id (or zero, if there is none)
 			size_t insert(const std::string& query);
 
@@ -123,7 +144,14 @@ namespace sqlpp
 			template<typename T>
 				auto run(const T& t) -> decltype(t.run(*this))
 				{
-					return {t.run(*this)};
+					return t.run(*this);
+				}
+
+			//! call prepare on the argument
+			template<typename T>
+				auto prepare(const T& t) -> decltype(t.prepare(*this))
+				{
+					return t.prepare(*this);
 				}
 
 			//! start transaction

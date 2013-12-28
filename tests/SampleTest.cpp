@@ -137,5 +137,7 @@ int main()
 		std::cerr << row.alpha << std::endl;
 	}
 
+	auto ps = db.prepare(select(all_of(tab)).from(tab).where(tab.alpha == parameter(tab.alpha)));
+
 	return 0;
 }

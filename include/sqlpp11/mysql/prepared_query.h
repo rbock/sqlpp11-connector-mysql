@@ -25,11 +25,10 @@
  */
 
 
-#ifndef SQLPP_MYSQL_RESULT_H
-#define SQLPP_MYSQL_RESULT_H
+#ifndef SQLPP_MYSQL_PREPARED_QUERY_H
+#define SQLPP_MYSQL_PREPARED_QUERY_H
 
 #include <memory>
-#include <sqlpp11/raw_result_row.h>
 
 namespace sqlpp
 {
@@ -37,69 +36,54 @@ namespace sqlpp
 	{
 		namespace detail
 		{
-			struct result_handle;
-			class result_impl_t
+			struct prepared_query_handle_t;
+			class prepared_query_impl_t
 			{
-				std::unique_ptr<result_handle> _handle;
+				std::unique_ptr<prepared_query_handle_t> _handle;
 
 			public:
-				result_impl_t();
-				result_impl_t(std::unique_ptr<detail::result_handle>&& handle);
-				result_impl_t(const result_impl_t&) = delete;
-				result_impl_t(result_impl_t&& rhs);
-				result_impl_t& operator=(const result_impl_t&) = delete;
-				result_impl_t& operator=(result_impl_t&&);
-				~result_impl_t();
+				prepared_query_impl_t();
+				prepared_query_impl_t(std::unique_ptr<detail::prepared_query_handle_t>&& handle);
+				prepared_query_impl_t(const prepared_query_impl_t&) = delete;
+				prepared_query_impl_t(prepared_query_impl_t&& rhs);
+				prepared_query_impl_t& operator=(const prepared_query_impl_t&) = delete;
+				prepared_query_impl_t& operator=(prepared_query_impl_t&&);
+				~prepared_query_impl_t();
 
-				bool operator==(const result_impl_t& rhs) const
+				bool operator==(const prepared_query_impl_t& rhs) const
 				{
 					return _handle == rhs._handle;
 				}
-
-				raw_result_row_t next();
-				size_t num_cols() const;
 			};
 		}
 
 		template<typename ResultRow, typename DynamicNames>
-		struct result_t
+		struct prepared_query_t
 		{
 			using result_row_t = ResultRow;
 			using dynamic_names_t = DynamicNames;
-			detail::result_impl_t _impl;
-			result_row_t _result_row;
+			detail::prepared_query_impl_t _impl;
+			dynamic_names_t _dynamic_names;
 
-			result_t()
+			prepared_query_t()
 			{}
 
-			result_t(detail::result_impl_t&& impl, const dynamic_names_t& dynamic_names):
+			prepared_query_t(detail::prepared_query_impl_t&& impl, const dynamic_names_t& dynamic_names):
 				_impl(std::move(impl)),
-				_result_row(_impl.next(), dynamic_names)
+				_dynamic_names(dynamic_names)
 			{
 			}
 
-			result_t(const result_t&) = delete;
-			result_t(result_t&& rhs) = default;
-			result_t& operator=(const result_t&) = delete;
-			result_t& operator=(result_t&&) = default;
-			~result_t() = default;
+			prepared_query_t(const prepared_query_t&) = delete;
+			prepared_query_t(prepared_query_t&& rhs) = default;
+			prepared_query_t& operator=(const prepared_query_t&) = delete;
+			prepared_query_t& operator=(prepared_query_t&&) = default;
+			~prepared_query_t() = default;
 
-			bool operator==(const result_t& rhs) const
+			bool operator==(const prepared_query_t& rhs) const
 			{
 				return _impl == rhs._impl;
 			}
-
-			const result_row_t& front() const
-			{
-				return _result_row;
-			};
-
-			void pop_front()
-			{
-				_result_row = _impl.next();
-			};
-
-			size_t num_cols() const;
 		};
 
 	}
