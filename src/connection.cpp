@@ -26,6 +26,7 @@
 
 
 #include <iostream>
+#include <mysql/errmsg.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/connection.h>
 #include "detail/prepared_query_handle.h"
@@ -63,14 +64,33 @@ namespace sqlpp
         }
 			}
 
-			std::unique_ptr<detail::prepared_query_handle_t> prepare_query(detail::connection_handle& handle, const std::string& query)
+			void execute_prepared_query(detail::prepared_query_handle_t& prepared_query)
+			{
+				if (prepared_query.debug)
+					std::cerr << "MySQL debug: Executing prepared_query" << std::endl;
+
+				if (0 and mysql_stmt_bind_param(prepared_query.mysql_stmt, prepared_query.stmt_params.data()))
+				{
+					throw sqlpp::exception("MySQL error: Could not bind parameters to statement");
+				}
+
+				if (int error = mysql_stmt_execute(prepared_query.mysql_stmt))
+        {
+					const std::string msg = [&]() -> std::string {
+						return client_errors[error];
+					}();
+					throw sqlpp::exception("MySQL error: Could not execute prepared query: " + msg); // FIXME: Need a translation for the error code here
+        }
+			}
+
+			std::unique_ptr<detail::prepared_query_handle_t> prepare_query(detail::connection_handle& handle, const std::string& query, size_t no_of_parameters, size_t no_of_columns)
 			{
 				thread_local MySqlThreadInitializer threadInitializer;
 
 				if (handle.config->debug)
 					std::cerr << "MySQL debug: Preparing: '" << query << "'" << std::endl;
 
-				std::unique_ptr<detail::prepared_query_handle_t> prepared_query(new detail::prepared_query_handle_t(mysql_stmt_init(handle.mysql.get()), handle.config->debug));
+				std::unique_ptr<detail::prepared_query_handle_t> prepared_query(new detail::prepared_query_handle_t(mysql_stmt_init(handle.mysql.get()), no_of_parameters, no_of_columns, handle.config->debug));
 				if (not prepared_query)
 				{
 					throw sqlpp::exception("MySQL error: Could not allocate prepared query\n");
@@ -80,30 +100,7 @@ namespace sqlpp
 					throw sqlpp::exception("MySQL error: Could not prepare query: " + std::string(mysql_error(handle.mysql.get())) + " (query was >>" + query + "<<\n");
 				}
 
-				/*
-				MYSQL_BIND params[1] = {};
-				int64_t some;
-				size_t size = sizeof(some);
-
-				params[0].buffer_type = MYSQL_TYPE_LONGLONG;
-				params[0].buffer = &some;
-				params[0].buffer_length = sizeof(some);
-				params[0].length = &size;
-				params[0].is_null = nullptr;
-				params[0].is_unsigned = false;
-				params[0].error = nullptr;
-
-				std::cerr << "start: " << ::time(0) << std::endl;
-				for (size_t i = 0; i < 1000000; ++i)
-					if (mysql_stmt_bind_param(statement, params))
-					{
-						throw sqlpp::exception("MySQL error: Could not bind parameters to statement: " + std::string(mysql_error(handle.mysql.get())) + " (query was >>" + query + "<<\n");
-					}
-				std::cerr << "end: " << ::time(0) << std::endl;
-				*/
-
 				return std::move(prepared_query);
-
 			}
 		}
 
@@ -137,9 +134,14 @@ namespace sqlpp
 			return {std::move(result_handle)};
 		}
 
-		detail::prepared_query_impl_t connection::prepare_impl(const std::string& query)
+		void connection::run_prepared_select_impl(prepared_query_t& prepared_query)
 		{
-			return prepare_query(*_handle, query);
+			execute_prepared_query(*prepared_query._handle);
+		}
+
+		prepared_query_t connection::prepare_impl(const std::string& query, size_t no_of_parameters, size_t no_of_columns)
+		{
+			return prepare_query(*_handle, query, no_of_parameters, no_of_columns);
 		}
 
 		size_t connection::insert(const std::string& query)

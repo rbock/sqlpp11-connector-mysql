@@ -29,63 +29,47 @@
 #define SQLPP_MYSQL_PREPARED_QUERY_H
 
 #include <memory>
+#include <sqlpp11/integral.h>
 
 namespace sqlpp
 {
 	namespace mysql
 	{
+		struct connection;
+
 		namespace detail
 		{
 			struct prepared_query_handle_t;
-			class prepared_query_impl_t
-			{
-				std::unique_ptr<prepared_query_handle_t> _handle;
-
-			public:
-				prepared_query_impl_t();
-				prepared_query_impl_t(std::unique_ptr<detail::prepared_query_handle_t>&& handle);
-				prepared_query_impl_t(const prepared_query_impl_t&) = delete;
-				prepared_query_impl_t(prepared_query_impl_t&& rhs);
-				prepared_query_impl_t& operator=(const prepared_query_impl_t&) = delete;
-				prepared_query_impl_t& operator=(prepared_query_impl_t&&);
-				~prepared_query_impl_t();
-
-				bool operator==(const prepared_query_impl_t& rhs) const
-				{
-					return _handle == rhs._handle;
-				}
-			};
 		}
 
-		template<typename ResultRow, typename DynamicNames>
-		struct prepared_query_t
+		class prepared_query_t
 		{
-			using result_row_t = ResultRow;
-			using dynamic_names_t = DynamicNames;
-			detail::prepared_query_impl_t _impl;
-			dynamic_names_t _dynamic_names;
+			friend ::sqlpp::mysql::connection;
+			std::unique_ptr<detail::prepared_query_handle_t> _handle;
 
-			prepared_query_t()
-			{}
-
-			prepared_query_t(detail::prepared_query_impl_t&& impl, const dynamic_names_t& dynamic_names):
-				_impl(std::move(impl)),
-				_dynamic_names(dynamic_names)
-			{
-			}
-
+		public:
+			prepared_query_t() = delete;
+			prepared_query_t(std::unique_ptr<detail::prepared_query_handle_t>&& handle);
 			prepared_query_t(const prepared_query_t&) = delete;
-			prepared_query_t(prepared_query_t&& rhs) = default;
+			prepared_query_t(prepared_query_t&& rhs);
 			prepared_query_t& operator=(const prepared_query_t&) = delete;
-			prepared_query_t& operator=(prepared_query_t&&) = default;
-			~prepared_query_t() = default;
+			prepared_query_t& operator=(prepared_query_t&&);
+			~prepared_query_t();
 
 			bool operator==(const prepared_query_t& rhs) const
 			{
-				return _impl == rhs._impl;
+				return _handle == rhs._handle;
 			}
-		};
 
+			template<typename T>
+				void bind_param(size_t index, const T& t)
+				{
+					bind_param_impl(index, t.value(), t.is_null());
+				}
+
+		private:
+			void bind_param_impl(size_t index, const int64_t* value, bool is_null);
+		};
 	}
 }
 #endif

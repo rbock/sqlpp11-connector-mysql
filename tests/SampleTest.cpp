@@ -138,6 +138,7 @@ int main()
 	}
 
 	auto ps = db.prepare(select(all_of(tab)).from(tab).where(tab.alpha == parameter(tab.alpha)));
+	db.run_prepared_select(ps);
 
 	return 0;
 }

@@ -28,6 +28,7 @@
 #ifndef SQLPP_MYSQL_DETAIL_PREPARED_QUERY_HANDLE_H
 #define SQLPP_MYSQL_DETAIL_PREPARED_QUERY_HANDLE_H
 
+#include <vector>
 #include <mysql/mysql.h>
 
 namespace sqlpp
@@ -39,10 +40,16 @@ namespace sqlpp
 			struct prepared_query_handle_t
 			{
 				MYSQL_STMT* mysql_stmt;
+				std::vector<MYSQL_BIND> stmt_params;
+				std::vector<my_bool> stmt_param_is_null;
+				std::vector<MYSQL_BIND> result_params;
 				bool debug;
 
-				prepared_query_handle_t(MYSQL_STMT* stmt, bool debug_):
+				prepared_query_handle_t(MYSQL_STMT* stmt, size_t no_of_parameters, size_t no_of_columns, bool debug_):
 					mysql_stmt(stmt),
+					stmt_params(no_of_parameters, MYSQL_BIND{}),
+					stmt_param_is_null(no_of_parameters, false),
+					result_params(no_of_columns, MYSQL_BIND{}),
 					debug(debug_)
 				{}
 

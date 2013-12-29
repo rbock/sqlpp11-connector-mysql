@@ -50,12 +50,13 @@ namespace sqlpp
 			bool _transaction_active = false;
 
 			detail::result_impl_t select_impl(const std::string& query);
-			detail::prepared_query_impl_t prepare_impl(const std::string& query);
+			prepared_query_t prepare_impl(const std::string& query, size_t no_of_parameters, size_t no_of_columns);
+			void run_prepared_select_impl(prepared_query_t& prepared_query);
+
 		public:
 			template<typename Select>
 				using _result_t = ::sqlpp::mysql::result_t<typename Select::_result_row_t, typename Select::_dynamic_names_t>;
-			template<typename Select>
-				using _prepared_query_t = ::sqlpp::mysql::prepared_query_t<typename Select::_result_row_t, typename Select::_dynamic_names_t>;
+			using _prepared_query_t = ::sqlpp::mysql::prepared_query_t;
 
 			// prepared statements
 			static constexpr bool _supports_prepared = true;
@@ -114,16 +115,22 @@ namespace sqlpp
 			}
 
 			template<typename Select>
-				_prepared_query_t<Select> prepare_select(const Select& s)
+			_prepared_query_t prepare_select(const Select& s)
 			{
 				std::ostringstream oss;
 				s.serialize(oss, *this);
-				return {prepare_impl(oss.str()), s.get_dynamic_names()};
+				_prepared_query_t p = prepare_impl(oss.str(), s.get_no_of_parameters(), s.get_no_of_result_columns());
+
+				return std::move(p);
 			}
 
 			template<typename PreparedSelect>
-			//_result_t<PreparedSelect> run_prepared_select(const PreparedSelect& s);
-			int run_prepared_select(const PreparedSelect& s);
+			//_result_t<PreparedSelect> run_prepared_select(const PreparedSelect& s)
+			void run_prepared_select(const PreparedSelect& s)
+			{
+				s.bind_params();
+				run_prepared_select_impl(s._prepared_query);
+			}
 
 			//! insert returns the last auto_incremented id (or zero, if there is none)
 			size_t insert(const std::string& query);
