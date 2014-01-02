@@ -25,11 +25,11 @@
  */
 
 
-#ifndef SQLPP_MYSQL_RESULT_H
-#define SQLPP_MYSQL_RESULT_H
+#ifndef SQLPP_MYSQL_CHAR_RESULT_H
+#define SQLPP_MYSQL_CHAR_RESULT_H
 
 #include <memory>
-#include <sqlpp11/raw_result_row.h>
+#include <sqlpp11/char_result_row.h>
 
 namespace sqlpp
 {
@@ -38,68 +38,39 @@ namespace sqlpp
 		namespace detail
 		{
 			struct result_handle;
-			class result_impl_t
-			{
-				std::unique_ptr<result_handle> _handle;
-
-			public:
-				result_impl_t();
-				result_impl_t(std::unique_ptr<detail::result_handle>&& handle);
-				result_impl_t(const result_impl_t&) = delete;
-				result_impl_t(result_impl_t&& rhs);
-				result_impl_t& operator=(const result_impl_t&) = delete;
-				result_impl_t& operator=(result_impl_t&&);
-				~result_impl_t();
-
-				bool operator==(const result_impl_t& rhs) const
-				{
-					return _handle == rhs._handle;
-				}
-
-				raw_result_row_t next();
-				size_t num_cols() const;
-			};
 		}
 
-		template<typename ResultRow, typename DynamicNames>
-		struct result_t
+		class char_result_t
 		{
-			using result_row_t = ResultRow;
-			using dynamic_names_t = DynamicNames;
-			detail::result_impl_t _impl;
-			result_row_t _result_row;
+			std::unique_ptr<detail::result_handle> _handle;
+			char_result_row_t _char_result_row;
 
-			result_t()
-			{}
+		public:
+			char_result_t();
+			char_result_t(std::unique_ptr<detail::result_handle>&& handle);
+			char_result_t(const char_result_t&) = delete;
+			char_result_t(char_result_t&& rhs);
+			char_result_t& operator=(const char_result_t&) = delete;
+			char_result_t& operator=(char_result_t&&);
+			~char_result_t();
 
-			result_t(detail::result_impl_t&& impl, const dynamic_names_t& dynamic_names):
-				_impl(std::move(impl)),
-				_result_row(_impl.next(), dynamic_names)
+			bool operator==(const char_result_t& rhs) const
 			{
+				return _handle == rhs._handle;
 			}
 
-			result_t(const result_t&) = delete;
-			result_t(result_t&& rhs) = default;
-			result_t& operator=(const result_t&) = delete;
-			result_t& operator=(result_t&&) = default;
-			~result_t() = default;
-
-			bool operator==(const result_t& rhs) const
+			template<typename ResultRow>
+			void next(ResultRow& result_row)
 			{
-				return _impl == rhs._impl;
-			}
-
-			const result_row_t& front() const
-			{
-				return _result_row;
+				next_impl();
+				if (_char_result_row.data)
+					result_row = _char_result_row;
+				else
+					result_row.invalidate();
 			};
 
-			void pop_front()
-			{
-				_result_row = _impl.next();
-			};
-
-			size_t num_cols() const;
+		private:
+			void next_impl();
 		};
 
 	}

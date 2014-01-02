@@ -32,7 +32,7 @@
 #include <sstream>
 #include <sqlpp11/connection.h>
 #include <sqlpp11/mysql/prepared_query.h>
-#include <sqlpp11/mysql/result.h>
+#include <sqlpp11/mysql/char_result.h>
 #include <sqlpp11/mysql/connection_config.h>
 
 namespace sqlpp
@@ -49,13 +49,11 @@ namespace sqlpp
 			std::unique_ptr<detail::connection_handle> _handle;
 			bool _transaction_active = false;
 
-			detail::result_impl_t select_impl(const std::string& query);
+			char_result_t select_impl(const std::string& query);
 			prepared_query_t prepare_impl(const std::string& query, size_t no_of_parameters, size_t no_of_columns);
 			void run_prepared_select_impl(prepared_query_t& prepared_query);
 
 		public:
-			template<typename Select>
-				using _result_t = ::sqlpp::mysql::result_t<typename Select::_result_row_t, typename Select::_dynamic_names_t>;
 			using _prepared_query_t = ::sqlpp::mysql::prepared_query_t;
 
 			// prepared statements
@@ -105,13 +103,12 @@ namespace sqlpp
 			connection& operator=(const connection&) = delete;
 			connection& operator=(connection&&) = delete;
 
-			//! select returns a result (which can be iterated row by row)
 			template<typename Select>
-			_result_t<Select> select(const Select& s)
+			char_result_t select(const Select& s)
 			{
 				std::ostringstream oss;
 				s.serialize(oss, *this);
-				return {select_impl(oss.str()), s.get_dynamic_names()};
+				return select_impl(oss.str());
 			}
 
 			template<typename Select>
@@ -125,7 +122,7 @@ namespace sqlpp
 			}
 
 			template<typename PreparedSelect>
-			//_result_t<PreparedSelect> run_prepared_select(const PreparedSelect& s)
+			//bind_result_t run_prepared_select(const PreparedSelect& s)
 			void run_prepared_select(const PreparedSelect& s)
 			{
 				s.bind_params();
