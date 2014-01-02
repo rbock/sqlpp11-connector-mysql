@@ -56,7 +56,7 @@ namespace sqlpp
 					std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
 
 				return _handle 
-					? raw_result_row_t{ const_cast<const char**>(mysql_fetch_row(_handle->mysql_res)), mysql_fetch_lengths(_handle->mysql_res) }
+					? raw_result_row_t{ mysql_fetch_row(_handle->mysql_res), mysql_fetch_lengths(_handle->mysql_res) }
 				: raw_result_row_t{ nullptr, nullptr };
 			}
 

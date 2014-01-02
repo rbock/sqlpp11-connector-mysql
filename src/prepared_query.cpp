@@ -45,8 +45,10 @@ namespace sqlpp
 		prepared_query_t::prepared_query_t(prepared_query_t&& rhs) = default;
 		prepared_query_t& prepared_query_t::operator=(prepared_query_t&&) = default;
 
-		void prepared_query_t::bind_param_impl(size_t index, const int64_t* value, bool is_null)
+		void prepared_query_t::bind_integral_parameter(size_t index, const int64_t* value, bool is_null)
 		{
+			if (_handle->debug)
+				std::cerr << "binding integral parameter " << *value << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
 			_handle->stmt_param_is_null[index] = is_null;
 			MYSQL_BIND& param = _handle->stmt_params[index];
 			param.buffer_type = MYSQL_TYPE_LONGLONG;

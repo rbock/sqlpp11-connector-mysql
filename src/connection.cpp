@@ -69,7 +69,7 @@ namespace sqlpp
 				if (prepared_query.debug)
 					std::cerr << "MySQL debug: Executing prepared_query" << std::endl;
 
-				if (0 and mysql_stmt_bind_param(prepared_query.mysql_stmt, prepared_query.stmt_params.data()))
+				if (mysql_stmt_bind_param(prepared_query.mysql_stmt, prepared_query.stmt_params.data()))
 				{
 					throw sqlpp::exception("MySQL error: Could not bind parameters to statement");
 				}
@@ -79,7 +79,7 @@ namespace sqlpp
 					const std::string msg = [&]() -> std::string {
 						return client_errors[error];
 					}();
-					throw sqlpp::exception("MySQL error: Could not execute prepared query: " + msg); // FIXME: Need a translation for the error code here
+					throw sqlpp::exception("MySQL error: Could not execute prepared query: " + msg);
         }
 			}
 

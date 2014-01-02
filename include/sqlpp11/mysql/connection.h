@@ -130,6 +130,9 @@ namespace sqlpp
 			{
 				s.bind_params();
 				run_prepared_select_impl(s._prepared_query);
+
+				typename PreparedSelect::_result_row_t r;
+				r._bind(s._prepared_query);
 			}
 
 			//! insert returns the last auto_incremented id (or zero, if there is none)

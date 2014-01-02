@@ -61,14 +61,14 @@ namespace sqlpp
 				return _handle == rhs._handle;
 			}
 
-			template<typename T>
-				void bind_param(size_t index, const T& t)
-				{
-					bind_param_impl(index, t.value(), t.is_null());
-				}
+			void bind_boolean_parameter(size_t index, const bool* value, bool is_null);
+			void bind_boolean_result(size_t index, bool* value, bool* is_null);
 
-		private:
-			void bind_param_impl(size_t index, const int64_t* value, bool is_null);
+			void bind_integral_parameter(size_t index, const int64_t* value, bool is_null);
+			void bind_integral_result(size_t index, int64_t* value, bool* is_null);
+
+			void bind_text_parameter(size_t index, const char* value, size_t len);
+			void bind_text_result(size_t index, char** text, size_t* len);
 		};
 	}
 }

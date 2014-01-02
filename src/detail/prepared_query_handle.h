@@ -37,12 +37,20 @@ namespace sqlpp
 	{
 		namespace detail
 		{
+			struct result_meta_data_t
+			{
+				unsigned long length;
+				my_bool is_null;
+				my_bool error;
+			};
+
 			struct prepared_query_handle_t
 			{
 				MYSQL_STMT* mysql_stmt;
 				std::vector<MYSQL_BIND> stmt_params;
 				std::vector<my_bool> stmt_param_is_null;
 				std::vector<MYSQL_BIND> result_params;
+				std::vector<result_meta_data_t> result_param_meta_data;
 				bool debug;
 
 				prepared_query_handle_t(MYSQL_STMT* stmt, size_t no_of_parameters, size_t no_of_columns, bool debug_):
@@ -50,6 +58,7 @@ namespace sqlpp
 					stmt_params(no_of_parameters, MYSQL_BIND{}),
 					stmt_param_is_null(no_of_parameters, false),
 					result_params(no_of_columns, MYSQL_BIND{}),
+					result_param_meta_data(no_of_columns, result_meta_data_t{}),
 					debug(debug_)
 				{}
 
