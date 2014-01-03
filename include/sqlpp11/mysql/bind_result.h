@@ -25,46 +25,73 @@
  */
 
 
-#ifndef SQLPP_MYSQL_PREPARED_QUERY_H
-#define SQLPP_MYSQL_PREPARED_QUERY_H
+#ifndef SQLPP_MYSQL_BIND_RESULT_H
+#define SQLPP_MYSQL_BIND_RESULT_H
 
 #include <memory>
-#include <sqlpp11/integral.h>
 
 namespace sqlpp
 {
 	namespace mysql
 	{
-		struct connection;
-
 		namespace detail
 		{
 			struct prepared_query_handle_t;
 		}
 
-		class prepared_query_t
+		class bind_result_t
 		{
-			friend ::sqlpp::mysql::connection;
 			std::shared_ptr<detail::prepared_query_handle_t> _handle;
+			void* _result_row_address = nullptr;
 
 		public:
-			prepared_query_t() = delete;
-			prepared_query_t(std::shared_ptr<detail::prepared_query_handle_t>&& handle);
-			prepared_query_t(const prepared_query_t&) = delete;
-			prepared_query_t(prepared_query_t&& rhs) = default;
-			prepared_query_t& operator=(const prepared_query_t&) = delete;
-			prepared_query_t& operator=(prepared_query_t&&) = default;
-			~prepared_query_t() = default;
+			bind_result_t() = default;
+			bind_result_t(const std::shared_ptr<detail::prepared_query_handle_t>& handle);
+			bind_result_t(const bind_result_t&) = delete;
+			bind_result_t(bind_result_t&& rhs) = default;
+			bind_result_t& operator=(const bind_result_t&) = delete;
+			bind_result_t& operator=(bind_result_t&&) = default;
+			~bind_result_t() = default;
 
-			bool operator==(const prepared_query_t& rhs) const
+			bool operator==(const bind_result_t& rhs) const
 			{
 				return _handle == rhs._handle;
 			}
 
-			void bind_boolean_parameter(size_t index, const bool* value, bool is_null);
-			void bind_integral_parameter(size_t index, const int64_t* value, bool is_null);
-			void bind_text_parameter(size_t index, const char* value, size_t len);
+			template<typename ResultRow>
+			void next(ResultRow& result_row)
+			{
+				if (&result_row != _result_row_address)
+				{
+					result_row._bind(*this);
+					bind_impl();
+					_result_row_address = &result_row;
+				}
+				if (next_impl())
+				{
+					std::cerr << "There is a next row" << std::endl;
+					if (not result_row)
+					{
+						std::cerr << "Need to validate" << std::endl;
+						result_row.validate();
+					}
+				}
+				else
+				{
+					if (result_row)
+						result_row.invalidate();
+				}
+			};
+
+			void bind_boolean_result(size_t index, bool* value, bool* is_null);
+			void bind_integral_result(size_t index, int64_t* value, bool* is_null);
+			void bind_text_result(size_t index, char** text, size_t* len);
+
+		private:
+			void bind_impl();
+			bool next_impl();
 		};
+
 	}
 }
 #endif

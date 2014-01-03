@@ -34,16 +34,12 @@ namespace sqlpp
 {
 	namespace mysql
 	{
-		prepared_query_t::prepared_query_t(std::unique_ptr<detail::prepared_query_handle_t>&& handle):
+		prepared_query_t::prepared_query_t(std::shared_ptr<detail::prepared_query_handle_t>&& handle):
 			_handle(std::move(handle))
 		{
 			if (_handle and _handle->debug)
 				std::cerr << "MySQL debug: Constructing prepared_query, using handle at " << _handle.get() << std::endl;
 		}
-
-		prepared_query_t::~prepared_query_t() = default;
-		prepared_query_t::prepared_query_t(prepared_query_t&& rhs) = default;
-		prepared_query_t& prepared_query_t::operator=(prepared_query_t&&) = default;
 
 		void prepared_query_t::bind_integral_parameter(size_t index, const int64_t* value, bool is_null)
 		{
@@ -52,7 +48,7 @@ namespace sqlpp
 			_handle->stmt_param_is_null[index] = is_null;
 			MYSQL_BIND& param = _handle->stmt_params[index];
 			param.buffer_type = MYSQL_TYPE_LONGLONG;
-			param.buffer = &value;
+			param.buffer = const_cast<int64_t*>(value);
 			param.buffer_length = sizeof(*value);
 			param.length = &param.buffer_length;
 			param.is_null = &_handle->stmt_param_is_null[index];

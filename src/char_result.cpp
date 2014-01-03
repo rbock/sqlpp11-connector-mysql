@@ -26,7 +26,7 @@
 
 
 #include <iostream>
-#include <sqlpp11/mysql/result.h>
+#include <sqlpp11/mysql/char_result.h>
 #include "detail/result_handle.h"
 
 
@@ -34,40 +34,30 @@ namespace sqlpp
 {
 	namespace mysql
 	{
-		namespace detail
+		char_result_t::char_result_t()
+		{}
+
+		char_result_t::char_result_t(std::unique_ptr<detail::result_handle>&& handle):
+			_handle(std::move(handle))
 		{
-			result_impl_t::result_impl_t()
-			{}
-
-			result_impl_t::result_impl_t(std::unique_ptr<detail::result_handle>&& handle):
-				_handle(std::move(handle))
-			{
-				if (_handle and _handle->debug)
-					std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
-			}
-
-			result_impl_t::~result_impl_t() = default;
-			result_impl_t::result_impl_t(result_impl_t&& rhs) = default;
-			result_impl_t& result_impl_t::operator=(result_impl_t&&) = default;
-
-			raw_result_row_t result_impl_t::next()
-			{
-				if (_handle and _handle->debug)
-					std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
-
-				return _handle 
-					? raw_result_row_t{ mysql_fetch_row(_handle->mysql_res), mysql_fetch_lengths(_handle->mysql_res) }
-				: raw_result_row_t{ nullptr, nullptr };
-			}
-
-			size_t result_impl_t::num_cols() const
-			{
-				return _handle
-					? mysql_num_fields(_handle->mysql_res)
-					: 0;
-			}
-
+			if (_handle and _handle->debug)
+				std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
 		}
+
+		char_result_t::~char_result_t() = default;
+		char_result_t::char_result_t(char_result_t&& rhs) = default;
+		char_result_t& char_result_t::operator=(char_result_t&&) = default;
+
+		void char_result_t::next_impl()
+		{
+			if (_handle and _handle->debug)
+				std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
+
+			_char_result_row = _handle 
+				? char_result_row_t{ mysql_fetch_row(_handle->mysql_res), mysql_fetch_lengths(_handle->mysql_res) }
+			: char_result_row_t{ nullptr, nullptr };
+		}
+
 	}
 }
 

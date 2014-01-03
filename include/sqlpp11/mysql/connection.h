@@ -31,9 +31,10 @@
 #include <string>
 #include <sstream>
 #include <sqlpp11/connection.h>
-#include <sqlpp11/mysql/prepared_query.h>
-#include <sqlpp11/mysql/char_result.h>
-#include <sqlpp11/mysql/connection_config.h>
+#include "prepared_query.h"
+#include "char_result.h"
+#include "bind_result.h"
+#include "connection_config.h"
 
 namespace sqlpp
 {
@@ -51,7 +52,7 @@ namespace sqlpp
 
 			char_result_t select_impl(const std::string& query);
 			prepared_query_t prepare_impl(const std::string& query, size_t no_of_parameters, size_t no_of_columns);
-			void run_prepared_select_impl(prepared_query_t& prepared_query);
+			bind_result_t run_prepared_select_impl(prepared_query_t& prepared_query);
 
 		public:
 			using _prepared_query_t = ::sqlpp::mysql::prepared_query_t;
@@ -122,14 +123,10 @@ namespace sqlpp
 			}
 
 			template<typename PreparedSelect>
-			//bind_result_t run_prepared_select(const PreparedSelect& s)
-			void run_prepared_select(const PreparedSelect& s)
+			bind_result_t run_prepared_select(const PreparedSelect& s)
 			{
 				s.bind_params();
-				run_prepared_select_impl(s._prepared_query);
-
-				typename PreparedSelect::_result_row_t r;
-				r._bind(s._prepared_query);
+				return run_prepared_select_impl(s._prepared_query);
 			}
 
 			//! insert returns the last auto_incremented id (or zero, if there is none)

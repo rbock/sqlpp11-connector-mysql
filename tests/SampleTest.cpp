@@ -53,9 +53,10 @@ int main()
 	mysql::connection db(config);
 	db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
 	db.execute(R"(CREATE TABLE tab_sample (
-			alpha bigint(20) DEFAULT NULL,
+			alpha bigint(20) AUTO_INCREMENT DEFAULT NULL,
 			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL
+			gamma bool DEFAULT NULL,
+			PRIMARY KEY (alpha)
 			))");
 	db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
 	db.execute(R"(CREATE TABLE tab_foo (
@@ -137,8 +138,12 @@ int main()
 		std::cerr << row.alpha << std::endl;
 	}
 
-	auto ps = db.prepare(select(all_of(tab)).from(tab).where(tab.alpha == parameter(tab.alpha)));
-	db.run_prepared_select(ps);
+	auto ps = db.prepare(select(tab.alpha).from(tab).where(tab.alpha != parameter(tab.alpha)));
+	ps.params.alpha = 7;
+	for (const auto& row: db.run(ps))
+	{
+		std::cerr << "bound result: alpha: " << row.alpha << std::endl;
+	}
 
 	return 0;
 }

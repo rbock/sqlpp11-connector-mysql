@@ -39,9 +39,11 @@ namespace sqlpp
 		{
 			struct result_meta_data_t
 			{
-				unsigned long length;
-				my_bool is_null;
-				my_bool error;
+				unsigned long bound_len;
+				my_bool bound_is_null;
+				my_bool bound_error;
+				size_t* len;
+				bool* is_null;
 			};
 
 			struct prepared_query_handle_t

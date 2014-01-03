@@ -83,14 +83,14 @@ namespace sqlpp
         }
 			}
 
-			std::unique_ptr<detail::prepared_query_handle_t> prepare_query(detail::connection_handle& handle, const std::string& query, size_t no_of_parameters, size_t no_of_columns)
+			std::shared_ptr<detail::prepared_query_handle_t> prepare_query(detail::connection_handle& handle, const std::string& query, size_t no_of_parameters, size_t no_of_columns)
 			{
 				thread_local MySqlThreadInitializer threadInitializer;
 
 				if (handle.config->debug)
 					std::cerr << "MySQL debug: Preparing: '" << query << "'" << std::endl;
 
-				std::unique_ptr<detail::prepared_query_handle_t> prepared_query(new detail::prepared_query_handle_t(mysql_stmt_init(handle.mysql.get()), no_of_parameters, no_of_columns, handle.config->debug));
+				auto prepared_query = std::make_shared<detail::prepared_query_handle_t>(mysql_stmt_init(handle.mysql.get()), no_of_parameters, no_of_columns, handle.config->debug);
 				if (not prepared_query)
 				{
 					throw sqlpp::exception("MySQL error: Could not allocate prepared query\n");
@@ -100,7 +100,7 @@ namespace sqlpp
 					throw sqlpp::exception("MySQL error: Could not prepare query: " + std::string(mysql_error(handle.mysql.get())) + " (query was >>" + query + "<<\n");
 				}
 
-				return std::move(prepared_query);
+				return prepared_query;
 			}
 		}
 
@@ -122,7 +122,7 @@ namespace sqlpp
 		{
 		}
 
-		detail::result_impl_t connection::select_impl(const std::string& query)
+		char_result_t connection::select_impl(const std::string& query)
 		{
 			execute_query(*_handle, query);
 			std::unique_ptr<detail::result_handle> result_handle(new detail::result_handle(mysql_store_result(_handle->mysql.get()), _handle->config->debug));
@@ -134,9 +134,10 @@ namespace sqlpp
 			return {std::move(result_handle)};
 		}
 
-		void connection::run_prepared_select_impl(prepared_query_t& prepared_query)
+		bind_result_t connection::run_prepared_select_impl(prepared_query_t& prepared_query)
 		{
 			execute_prepared_query(*prepared_query._handle);
+			return prepared_query._handle;
 		}
 
 		prepared_query_t connection::prepare_impl(const std::string& query, size_t no_of_parameters, size_t no_of_columns)
