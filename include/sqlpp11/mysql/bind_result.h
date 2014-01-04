@@ -61,6 +61,12 @@ namespace sqlpp
 			template<typename ResultRow>
 			void next(ResultRow& result_row)
 			{
+				if (!_handle)
+				{
+					result_row.invalidate();
+					return;
+				}
+
 				if (&result_row != _result_row_address)
 				{
 					result_row._bind(*this);
@@ -69,10 +75,8 @@ namespace sqlpp
 				}
 				if (next_impl())
 				{
-					std::cerr << "There is a next row" << std::endl;
 					if (not result_row)
 					{
-						std::cerr << "Need to validate" << std::endl;
 						result_row.validate();
 					}
 				}

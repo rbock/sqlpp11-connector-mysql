@@ -138,11 +138,12 @@ int main()
 		std::cerr << row.alpha << std::endl;
 	}
 
-	auto ps = db.prepare(select(tab.alpha).from(tab).where(tab.alpha != parameter(tab.alpha)));
+	auto ps = db.prepare(select(tab.alpha, tab.beta).from(tab).where(tab.alpha != parameter(tab.alpha)));
 	ps.params.alpha = 7;
 	for (const auto& row: db.run(ps))
 	{
 		std::cerr << "bound result: alpha: " << row.alpha << std::endl;
+		std::cerr << "bound result: beta: " << row.beta << std::endl;
 	}
 
 	return 0;

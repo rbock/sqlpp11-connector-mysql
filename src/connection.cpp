@@ -26,7 +26,6 @@
 
 
 #include <iostream>
-#include <mysql/errmsg.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/connection.h>
 #include "detail/prepared_query_handle.h"
@@ -71,15 +70,12 @@ namespace sqlpp
 
 				if (mysql_stmt_bind_param(prepared_query.mysql_stmt, prepared_query.stmt_params.data()))
 				{
-					throw sqlpp::exception("MySQL error: Could not bind parameters to statement");
+					throw sqlpp::exception(std::string("MySQL error: Could not bind parameters to statement") + mysql_stmt_error(prepared_query.mysql_stmt));
 				}
 
-				if (int error = mysql_stmt_execute(prepared_query.mysql_stmt))
+				if (mysql_stmt_execute(prepared_query.mysql_stmt))
         {
-					const std::string msg = [&]() -> std::string {
-						return client_errors[error];
-					}();
-					throw sqlpp::exception("MySQL error: Could not execute prepared query: " + msg);
+					throw sqlpp::exception(std::string("MySQL error: Could not execute prepared query: ") + mysql_stmt_error(prepared_query.mysql_stmt));
         }
 			}
 
