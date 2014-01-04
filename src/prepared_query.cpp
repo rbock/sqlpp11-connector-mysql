@@ -41,6 +41,21 @@ namespace sqlpp
 				std::cerr << "MySQL debug: Constructing prepared_query, using handle at " << _handle.get() << std::endl;
 		}
 
+		void prepared_query_t::bind_boolean_parameter(size_t index, const signed char* value, bool is_null)
+		{
+			if (_handle->debug)
+				std::cerr << "binding boolean parameter " << (*value ? "true":"false") << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
+			_handle->stmt_param_is_null[index] = is_null;
+			MYSQL_BIND& param = _handle->stmt_params[index];
+			param.buffer_type = MYSQL_TYPE_TINY;
+			param.buffer = const_cast<signed char*>(value);
+			param.buffer_length = sizeof(*value);
+			param.length = &param.buffer_length;
+			param.is_null = &_handle->stmt_param_is_null[index];
+			param.is_unsigned = false;
+			param.error = nullptr;
+		}
+
 		void prepared_query_t::bind_integral_parameter(size_t index, const int64_t* value, bool is_null)
 		{
 			if (_handle->debug)
@@ -50,6 +65,21 @@ namespace sqlpp
 			param.buffer_type = MYSQL_TYPE_LONGLONG;
 			param.buffer = const_cast<int64_t*>(value);
 			param.buffer_length = sizeof(*value);
+			param.length = &param.buffer_length;
+			param.is_null = &_handle->stmt_param_is_null[index];
+			param.is_unsigned = false;
+			param.error = nullptr;
+		}
+
+		void prepared_query_t::bind_text_parameter(size_t index, const std::string* value, bool is_null)
+		{
+			if (_handle->debug)
+				std::cerr << "binding integral parameter " << *value << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
+			_handle->stmt_param_is_null[index] = is_null;
+			MYSQL_BIND& param = _handle->stmt_params[index];
+			param.buffer_type = MYSQL_TYPE_STRING;
+			param.buffer = const_cast<char*>(value->data());
+			param.buffer_length = value->size();
 			param.length = &param.buffer_length;
 			param.is_null = &_handle->stmt_param_is_null[index];
 			param.is_unsigned = false;

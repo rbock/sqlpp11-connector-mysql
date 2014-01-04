@@ -140,8 +140,10 @@ int main()
 		std::cerr << row.alpha << std::endl;
 	}
 
-	auto ps = db.prepare(select(all_of(tab)).from(tab).where(tab.alpha != parameter(tab.alpha)));
+	auto ps = db.prepare(select(all_of(tab)).from(tab).where(tab.alpha != parameter(tab.alpha) and tab.beta != parameter(tab.beta) and tab.gamma != parameter(tab.gamma)));
 	ps.params.alpha = 7;
+	ps.params.beta = "wurzelbrunft";
+	ps.params.alpha = true;
 	for (const auto& row: db.run(ps))
 	{
 		std::cerr << "bound result: alpha: " << row.alpha << std::endl;

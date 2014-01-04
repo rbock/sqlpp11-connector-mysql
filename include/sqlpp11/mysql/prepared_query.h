@@ -29,7 +29,7 @@
 #define SQLPP_MYSQL_PREPARED_QUERY_H
 
 #include <memory>
-#include <sqlpp11/integral.h>
+#include <string>
 
 namespace sqlpp
 {
@@ -61,9 +61,9 @@ namespace sqlpp
 				return _handle == rhs._handle;
 			}
 
-			void bind_boolean_parameter(size_t index, const char* value, bool is_null);
+			void bind_boolean_parameter(size_t index, const signed char* value, bool is_null);
 			void bind_integral_parameter(size_t index, const int64_t* value, bool is_null);
-			void bind_text_parameter(size_t index, const char* value, size_t len);
+			void bind_text_parameter(size_t index, const std::string* value, bool is_null);
 		};
 	}
 }
