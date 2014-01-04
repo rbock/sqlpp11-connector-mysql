@@ -61,7 +61,7 @@ namespace sqlpp
 				return _handle == rhs._handle;
 			}
 
-			void bind_boolean_parameter(size_t index, const bool* value, bool is_null);
+			void bind_boolean_parameter(size_t index, const char* value, bool is_null);
 			void bind_integral_parameter(size_t index, const int64_t* value, bool is_null);
 			void bind_text_parameter(size_t index, const char* value, size_t len);
 		};

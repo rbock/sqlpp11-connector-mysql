@@ -42,6 +42,26 @@ namespace sqlpp
 				std::cerr << "MySQL debug: Constructing bind result, using handle at " << _handle.get() << std::endl;
 		}
 
+		void bind_result_t::bind_boolean_result(size_t index, signed char* value, bool* is_null)
+		{
+			if (_handle->debug)
+				std::cerr << "binding boolean result " << *value << " at index: " << index << std::endl;
+
+			detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
+			meta_data.index = index;
+			meta_data.len = nullptr;
+			meta_data.is_null = is_null;
+
+			MYSQL_BIND& param = _handle->result_params[index];
+			param.buffer_type = MYSQL_TYPE_TINY;
+			param.buffer = value;
+			param.buffer_length = sizeof(*value);
+			param.length = &meta_data.bound_len;
+			param.is_null = &meta_data.bound_is_null;
+			param.is_unsigned = false;
+			param.error = &meta_data.bound_error;
+		}
+
 		void bind_result_t::bind_integral_result(size_t index, int64_t* value, bool* is_null)
 		{
 			if (_handle->debug)
@@ -108,21 +128,29 @@ namespace sqlpp
 					{
 						if (r.len)
 						{
-							if (r.bound_len > r.bound_text_buffer.size())
+							if (r.bound_is_null)
 							{
-								if (_handle->debug)
-									std::cerr << "MySQL debug: Need to reallocate buffer at index " << r.index << " for handle at " << _handle.get() << std::endl;
-								need_to_rebind = true;
-								r.bound_text_buffer.resize(r.bound_len);
-								MYSQL_BIND& param = _handle->result_params[r.index];
-								param.buffer = r.bound_text_buffer.data();
-								param.buffer_length = r.bound_text_buffer.size();
-
-								if (mysql_stmt_fetch_column(_handle->mysql_stmt, _handle->result_params.data() + r.index, r.index, 0))
-									throw sqlpp::exception(std::string("Fetch column after reallocate failed: ") + mysql_stmt_error(_handle->mysql_stmt));
+								*r.text_buffer = nullptr;
+								*r.len = 0;
 							}
-							*r.text_buffer = r.bound_text_buffer.data();
-							*r.len = r.bound_len;
+							else
+							{
+								if (r.bound_len > r.bound_text_buffer.size())
+								{
+									if (_handle->debug)
+										std::cerr << "MySQL debug: Need to reallocate buffer at index " << r.index << " for handle at " << _handle.get() << std::endl;
+									need_to_rebind = true;
+									r.bound_text_buffer.resize(r.bound_len);
+									MYSQL_BIND& param = _handle->result_params[r.index];
+									param.buffer = r.bound_text_buffer.data();
+									param.buffer_length = r.bound_text_buffer.size();
+
+									if (mysql_stmt_fetch_column(_handle->mysql_stmt, _handle->result_params.data() + r.index, r.index, 0))
+										throw sqlpp::exception(std::string("Fetch column after reallocate failed: ") + mysql_stmt_error(_handle->mysql_stmt));
+								}
+								*r.text_buffer = r.bound_text_buffer.data();
+								*r.len = r.bound_len;
+							}
 						}
 						if (r.is_null)
 							*r.is_null = r.bound_is_null;

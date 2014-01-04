@@ -97,10 +97,12 @@ int main()
 	// insert
 	db.run(insert_into(tab));
 	db.run(insert_into(tab).set(tab.beta = "kaesekuchen", tab.gamma = true));
+	db.run(insert_into(tab));
+	db.run(insert_into(tab).set(tab.beta = "", tab.gamma = true));
 
 	// update
-	db.run(update(tab).set(tab.gamma = false).where(tab.alpha.in(1)));
 	db.run(update(tab).set(tab.gamma = false).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+	db.run(update(tab).set(tab.gamma = true).where(tab.alpha.in(1)));
 
 	// remove
 	db.run(remove_from(tab).where(tab.alpha == tab.alpha + 3));
@@ -138,12 +140,13 @@ int main()
 		std::cerr << row.alpha << std::endl;
 	}
 
-	auto ps = db.prepare(select(tab.alpha, tab.beta).from(tab).where(tab.alpha != parameter(tab.alpha)));
+	auto ps = db.prepare(select(all_of(tab)).from(tab).where(tab.alpha != parameter(tab.alpha)));
 	ps.params.alpha = 7;
 	for (const auto& row: db.run(ps))
 	{
 		std::cerr << "bound result: alpha: " << row.alpha << std::endl;
 		std::cerr << "bound result: beta: " << row.beta << std::endl;
+		std::cerr << "bound result: gamma: " << row.gamma << std::endl;
 	}
 
 	return 0;
