@@ -113,7 +113,7 @@ namespace sqlpp
 			}
 
 			template<typename Select>
-			_prepared_query_t prepare_select(const Select& s)
+			_prepared_query_t prepare_select(Select& s)
 			{
 				std::ostringstream oss;
 				s.serialize(oss, *this);
@@ -153,7 +153,13 @@ namespace sqlpp
 
 			//! call prepare on the argument
 			template<typename T>
-				auto prepare(const T& t) -> decltype(t.prepare(*this))
+				auto prepare(T t) -> decltype(t.prepare(*this))
+				{
+					return t.prepare(*this);
+				}
+
+			template<typename T>
+				auto prepare(T& t) -> decltype(t.prepare(*this))
 				{
 					return t.prepare(*this);
 				}

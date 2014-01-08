@@ -97,7 +97,6 @@ namespace TabSample_
 			using _must_not_insert = std::true_type;
 			using _must_not_update = std::true_type;
 			using _can_be_null = std::true_type;
-			using _trivial_value_is_null = std::true_type;
 			using _foreign_key = decltype(TabFoo::omega);
 		};
 	};
