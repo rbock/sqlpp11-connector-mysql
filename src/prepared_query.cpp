@@ -74,7 +74,7 @@ namespace sqlpp
 		void prepared_query_t::bind_text_parameter(size_t index, const std::string* value, bool is_null)
 		{
 			if (_handle->debug)
-				std::cerr << "binding integral parameter " << *value << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
+				std::cerr << "binding text parameter " << *value << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
 			_handle->stmt_param_is_null[index] = is_null;
 			MYSQL_BIND& param = _handle->stmt_params[index];
 			param.buffer_type = MYSQL_TYPE_STRING;

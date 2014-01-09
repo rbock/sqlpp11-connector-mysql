@@ -169,5 +169,17 @@ int main()
 		std::cerr << "bound result: gamma: " << row.gamma << std::endl;
 	}
 
+	auto pi = db.prepare(insert_into(tab).set(tab.beta = parameter(tab.beta), tab.gamma = true));
+	pi.params.beta = "prepared cake";
+	std::cerr << "Inserted: " << db.run(pi) << std::endl;
+
+	auto pu = db.prepare(update(tab).set(tab.gamma = parameter(tab.gamma)).where(tab.beta == "prepared cake"));
+	pu.params.gamma = false;
+	std::cerr << "Updated: " << db.run(pu) << std::endl;
+
+	auto pr = db.prepare(remove_from(tab).where(tab.beta != where_parameter(tab.beta)));
+	pr.params.beta = "prepared cake";
+	std::cerr << "Deleted lines: " << db.run(pr) << std::endl;
+
 	return 0;
 }

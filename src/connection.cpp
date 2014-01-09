@@ -136,12 +136,30 @@ namespace sqlpp
 			return prepared_query._handle;
 		}
 
+		size_t connection::run_prepared_insert_impl(prepared_query_t& prepared_query)
+		{
+			execute_prepared_query(*prepared_query._handle);
+			return mysql_stmt_insert_id(prepared_query._handle->mysql_stmt);
+		}
+
+		size_t connection::run_prepared_update_impl(prepared_query_t& prepared_query)
+		{
+			execute_prepared_query(*prepared_query._handle);
+			return mysql_stmt_affected_rows(prepared_query._handle->mysql_stmt);
+		}
+
+		size_t connection::run_prepared_remove_impl(prepared_query_t& prepared_query)
+		{
+			execute_prepared_query(*prepared_query._handle);
+			return mysql_stmt_affected_rows(prepared_query._handle->mysql_stmt);
+		}
+
 		prepared_query_t connection::prepare_impl(const std::string& query, size_t no_of_parameters, size_t no_of_columns)
 		{
 			return prepare_query(*_handle, query, no_of_parameters, no_of_columns);
 		}
 
-		size_t connection::insert(const std::string& query)
+		size_t connection::insert_impl(const std::string& query)
 		{
 			execute_query(*_handle, query);
 
@@ -153,13 +171,13 @@ namespace sqlpp
 			execute_query(*_handle, command);
 		}
 
-		size_t connection::update(const std::string& query)
+		size_t connection::update_impl(const std::string& query)
 		{
 			execute_query(*_handle, query);
 			return mysql_affected_rows(_handle->mysql.get());
 		}
 
-		size_t connection::remove(const std::string& query)
+		size_t connection::remove_impl(const std::string& query)
 		{
 			execute_query(*_handle, query);
 			return mysql_affected_rows(_handle->mysql.get());
