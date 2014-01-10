@@ -28,6 +28,7 @@
 #include <iostream>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/connection.h>
+#include "detail/prepared_query_handle.h"
 #include "detail/result_handle.h"
 #include "detail/connection_handle.h"
 
@@ -49,7 +50,7 @@ namespace sqlpp
 				}
 			};
 
-			void execute_query(detail::connection_handle& handle, const std::string& query)
+			void execute_query(detail::connection_handle& handle, const std::string& query) // FIXME: Should be connection_handle_t
 			{
 				thread_local MySqlThreadInitializer threadInitializer;
 
@@ -60,6 +61,42 @@ namespace sqlpp
         {
 					throw sqlpp::exception("MySQL error: Could not execute MySQL-query: " + std::string(mysql_error(handle.mysql.get())) + " (query was >>" + query + "<<\n");
         }
+			}
+
+			void execute_prepared_query(detail::prepared_query_handle_t& prepared_query)
+			{
+				if (prepared_query.debug)
+					std::cerr << "MySQL debug: Executing prepared_query" << std::endl;
+
+				if (mysql_stmt_bind_param(prepared_query.mysql_stmt, prepared_query.stmt_params.data()))
+				{
+					throw sqlpp::exception(std::string("MySQL error: Could not bind parameters to statement") + mysql_stmt_error(prepared_query.mysql_stmt));
+				}
+
+				if (mysql_stmt_execute(prepared_query.mysql_stmt))
+        {
+					throw sqlpp::exception(std::string("MySQL error: Could not execute prepared query: ") + mysql_stmt_error(prepared_query.mysql_stmt));
+        }
+			}
+
+			std::shared_ptr<detail::prepared_query_handle_t> prepare_query(detail::connection_handle& handle, const std::string& query, size_t no_of_parameters, size_t no_of_columns)
+			{
+				thread_local MySqlThreadInitializer threadInitializer;
+
+				if (handle.config->debug)
+					std::cerr << "MySQL debug: Preparing: '" << query << "'" << std::endl;
+
+				auto prepared_query = std::make_shared<detail::prepared_query_handle_t>(mysql_stmt_init(handle.mysql.get()), no_of_parameters, no_of_columns, handle.config->debug);
+				if (not prepared_query)
+				{
+					throw sqlpp::exception("MySQL error: Could not allocate prepared query\n");
+        }
+				if (mysql_stmt_prepare(prepared_query->mysql_stmt, query.data(), query.size()))
+				{
+					throw sqlpp::exception("MySQL error: Could not prepare query: " + std::string(mysql_error(handle.mysql.get())) + " (query was >>" + query + "<<\n");
+				}
+
+				return prepared_query;
 			}
 		}
 
@@ -81,19 +118,48 @@ namespace sqlpp
 		{
 		}
 
-		connection::_result_t connection::select(const std::string& query)
+		char_result_t connection::select_impl(const std::string& query)
 		{
 			execute_query(*_handle, query);
-			std::unique_ptr<detail::result_handle> result_handle(new detail::result_handle(mysql_store_result(_handle->mysql.get())));
+			std::unique_ptr<detail::result_handle> result_handle(new detail::result_handle(mysql_store_result(_handle->mysql.get()), _handle->config->debug));
 			if (!result_handle)
 			{
 				throw sqlpp::exception("MySQL error: Could not store result set: " + std::string(mysql_error(_handle->mysql.get())));
 			}
 
-			return result(std::move(result_handle), _handle->config->debug);
+			return {std::move(result_handle)};
 		}
 
-		size_t connection::insert(const std::string& query)
+		bind_result_t connection::run_prepared_select_impl(prepared_query_t& prepared_query)
+		{
+			execute_prepared_query(*prepared_query._handle);
+			return prepared_query._handle;
+		}
+
+		size_t connection::run_prepared_insert_impl(prepared_query_t& prepared_query)
+		{
+			execute_prepared_query(*prepared_query._handle);
+			return mysql_stmt_insert_id(prepared_query._handle->mysql_stmt);
+		}
+
+		size_t connection::run_prepared_update_impl(prepared_query_t& prepared_query)
+		{
+			execute_prepared_query(*prepared_query._handle);
+			return mysql_stmt_affected_rows(prepared_query._handle->mysql_stmt);
+		}
+
+		size_t connection::run_prepared_remove_impl(prepared_query_t& prepared_query)
+		{
+			execute_prepared_query(*prepared_query._handle);
+			return mysql_stmt_affected_rows(prepared_query._handle->mysql_stmt);
+		}
+
+		prepared_query_t connection::prepare_impl(const std::string& query, size_t no_of_parameters, size_t no_of_columns)
+		{
+			return prepare_query(*_handle, query, no_of_parameters, no_of_columns);
+		}
+
+		size_t connection::insert_impl(const std::string& query)
 		{
 			execute_query(*_handle, query);
 
@@ -105,13 +171,13 @@ namespace sqlpp
 			execute_query(*_handle, command);
 		}
 
-		size_t connection::update(const std::string& query)
+		size_t connection::update_impl(const std::string& query)
 		{
 			execute_query(*_handle, query);
 			return mysql_affected_rows(_handle->mysql.get());
 		}
 
-		size_t connection::remove(const std::string& query)
+		size_t connection::remove_impl(const std::string& query)
 		{
 			execute_query(*_handle, query);
 			return mysql_affected_rows(_handle->mysql.get());

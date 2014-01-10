@@ -25,9 +25,10 @@
  */
 
 
-#ifndef SQLPP_MYSQL_DETAIL_RESULT_HANDLE_H
-#define SQLPP_MYSQL_DETAIL_RESULT_HANDLE_H
+#ifndef SQLPP_MYSQL_DETAIL_PREPARED_QUERY_HANDLE_H
+#define SQLPP_MYSQL_DETAIL_PREPARED_QUERY_HANDLE_H
 
+#include <vector>
 #include <mysql/mysql.h>
 
 namespace sqlpp
@@ -36,30 +37,50 @@ namespace sqlpp
 	{
 		namespace detail
 		{
-			struct result_handle
+			struct result_meta_data_t
 			{
-				MYSQL_RES* mysql_res;
+				size_t index;
+				unsigned long bound_len;
+				my_bool bound_is_null;
+				my_bool bound_error;
+				std::vector<char> bound_text_buffer; // also for blobs
+				char** text_buffer;
+				size_t* len;
+				bool* is_null;
+			};
+
+			struct prepared_query_handle_t
+			{
+				MYSQL_STMT* mysql_stmt;
+				std::vector<MYSQL_BIND> stmt_params;
+				std::vector<my_bool> stmt_param_is_null;
+				std::vector<MYSQL_BIND> result_params;
+				std::vector<result_meta_data_t> result_param_meta_data;
 				bool debug;
 
-				result_handle(MYSQL_RES* res, bool debug_):
-					mysql_res(res),
+				prepared_query_handle_t(MYSQL_STMT* stmt, size_t no_of_parameters, size_t no_of_columns, bool debug_):
+					mysql_stmt(stmt),
+					stmt_params(no_of_parameters, MYSQL_BIND{}),
+					stmt_param_is_null(no_of_parameters, false),
+					result_params(no_of_columns, MYSQL_BIND{}),
+					result_param_meta_data(no_of_columns, result_meta_data_t{}),
 					debug(debug_)
 				{}
 
-				result_handle(const result_handle&) = delete;
-				result_handle(result_handle&&) = default;
-				result_handle& operator=(const result_handle&) = delete;
-				result_handle& operator=(result_handle&&) = default;
+				prepared_query_handle_t(const prepared_query_handle_t&) = delete;
+				prepared_query_handle_t(prepared_query_handle_t&&) = default;
+				prepared_query_handle_t& operator=(const prepared_query_handle_t&) = delete;
+				prepared_query_handle_t& operator=(prepared_query_handle_t&&) = default;
 
-				~result_handle()
+				~prepared_query_handle_t()
 				{
-					if (mysql_res)
-						mysql_free_result(mysql_res);
+					if (mysql_stmt)
+						mysql_stmt_close(mysql_stmt);
 				}
 
 				bool operator!() const
 				{
-					return !mysql_res;
+					return !mysql_stmt;
 				}
 			};
 		}

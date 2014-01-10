@@ -25,10 +25,10 @@
  */
 
 
-#ifndef SQLPP_MYSQL_DETAIL_RESULT_HANDLE_H
-#define SQLPP_MYSQL_DETAIL_RESULT_HANDLE_H
+#ifndef SQLPP_MYSQL_BIND_RESULT_H
+#define SQLPP_MYSQL_BIND_RESULT_H
 
-#include <mysql/mysql.h>
+#include <memory>
 
 namespace sqlpp
 {
@@ -36,36 +36,66 @@ namespace sqlpp
 	{
 		namespace detail
 		{
-			struct result_handle
+			struct prepared_query_handle_t;
+		}
+
+		class bind_result_t
+		{
+			std::shared_ptr<detail::prepared_query_handle_t> _handle;
+			void* _result_row_address = nullptr;
+
+		public:
+			bind_result_t() = default;
+			bind_result_t(const std::shared_ptr<detail::prepared_query_handle_t>& handle);
+			bind_result_t(const bind_result_t&) = delete;
+			bind_result_t(bind_result_t&& rhs) = default;
+			bind_result_t& operator=(const bind_result_t&) = delete;
+			bind_result_t& operator=(bind_result_t&&) = default;
+			~bind_result_t() = default;
+
+			bool operator==(const bind_result_t& rhs) const
 			{
-				MYSQL_RES* mysql_res;
-				bool debug;
+				return _handle == rhs._handle;
+			}
 
-				result_handle(MYSQL_RES* res, bool debug_):
-					mysql_res(res),
-					debug(debug_)
-				{}
-
-				result_handle(const result_handle&) = delete;
-				result_handle(result_handle&&) = default;
-				result_handle& operator=(const result_handle&) = delete;
-				result_handle& operator=(result_handle&&) = default;
-
-				~result_handle()
+			template<typename ResultRow>
+			void next(ResultRow& result_row)
+			{
+				if (!_handle)
 				{
-					if (mysql_res)
-						mysql_free_result(mysql_res);
+					result_row.invalidate();
+					return;
 				}
 
-				bool operator!() const
+				if (&result_row != _result_row_address)
 				{
-					return !mysql_res;
+					result_row._bind(*this);
+					bind_impl();
+					_result_row_address = &result_row;
+				}
+				if (next_impl())
+				{
+					if (not result_row)
+					{
+						result_row.validate();
+					}
+				}
+				else
+				{
+					if (result_row)
+						result_row.invalidate();
 				}
 			};
-		}
+
+			void bind_boolean_result(size_t index, signed char* value, bool* is_null);
+			void bind_integral_result(size_t index, int64_t* value, bool* is_null);
+			void bind_text_result(size_t index, char** text, size_t* len);
+
+		private:
+			void bind_impl();
+			bool next_impl();
+		};
+
 	}
 }
-
 #endif
-
-

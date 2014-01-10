@@ -25,45 +25,39 @@
  */
 
 
-#ifndef SQLPP_MYSQL_RESULT_H
-#define SQLPP_MYSQL_RESULT_H
+#include <iostream>
+#include <sqlpp11/mysql/char_result.h>
+#include "detail/result_handle.h"
 
-#include <memory>
-#include <sqlpp11/raw_result_row.h>
 
 namespace sqlpp
 {
 	namespace mysql
 	{
-		namespace detail
+		char_result_t::char_result_t()
+		{}
+
+		char_result_t::char_result_t(std::unique_ptr<detail::result_handle>&& handle):
+			_handle(std::move(handle))
 		{
-			struct result_handle;
+			if (_handle and _handle->debug)
+				std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
 		}
 
-		class result
+		char_result_t::~char_result_t() = default;
+		char_result_t::char_result_t(char_result_t&& rhs) = default;
+		char_result_t& char_result_t::operator=(char_result_t&&) = default;
+
+		void char_result_t::next_impl()
 		{
-			std::unique_ptr<detail::result_handle> _handle;
-			bool _debug;
+			if (_handle and _handle->debug)
+				std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
 
-		public:
-			result();
-			result(std::unique_ptr<detail::result_handle>&& handle, const bool debug);
-			result(const result&) = delete;
-			result(result&& rhs);
-			result& operator=(const result&) = delete;
-			result& operator=(result&&);
-			~result();
-
-			bool operator==(const result& rhs) const
-			{
-				return _handle == rhs._handle;
-			}
-
-			//! return the next row from the result or nullptr, if there is no next row
-			raw_result_row_t next();
-			size_t num_cols() const;
-		};
+			_char_result_row = _handle 
+				? char_result_row_t{ mysql_fetch_row(_handle->mysql_res), mysql_fetch_lengths(_handle->mysql_res) }
+			: char_result_row_t{ nullptr, nullptr };
+		}
 
 	}
 }
-#endif
+

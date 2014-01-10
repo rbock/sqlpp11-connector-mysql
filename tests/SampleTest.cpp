@@ -53,9 +53,10 @@ int main()
 	mysql::connection db(config);
 	db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
 	db.execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) DEFAULT NULL,
-			beta bool DEFAULT NULL,
-			gamma varchar(255) DEFAULT NULL
+			alpha bigint(20) AUTO_INCREMENT DEFAULT NULL,
+			beta varchar(255) DEFAULT NULL,
+			gamma bool DEFAULT NULL,
+			PRIMARY KEY (alpha)
 			))");
 	db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
 	db.execute(R"(CREATE TABLE tab_foo (
@@ -67,8 +68,14 @@ int main()
 	db.run(remove_from(tab));
 
 	// explicit all_of(tab)
-	for(const auto& row : select(all_of(tab)).from(tab).run(db))
+	std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
+	select(all_of(tab)).from(tab);
+	std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
+	db.run(select(all_of(tab)).from(tab));
+	std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
+	for(const auto& row : db.run(select(all_of(tab)).from(tab)))
 	{
+		std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
 		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
 	};
 	// selecting two multicolumns
@@ -89,16 +96,24 @@ int main()
 
 	// insert
 	db.run(insert_into(tab));
-	db.run(insert_into(tab).set(tab.gamma = true));
+	db.run(insert_into(tab).set(tab.beta = "kaesekuchen", tab.gamma = true));
+	db.run(insert_into(tab));
+	db.run(insert_into(tab).set(tab.beta = "", tab.gamma = true));
 
 	// update
-	db.run(update(tab).set(tab.gamma = false).where(tab.alpha.in(1)));
 	db.run(update(tab).set(tab.gamma = false).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+	db.run(update(tab).set(tab.gamma = true).where(tab.alpha.in(1)));
 
 	// remove
 	db.run(remove_from(tab).where(tab.alpha == tab.alpha + 3));
 
 
+		std::cerr << "+++++++++++++++++++++++++++"  << std::endl;
+	for (const auto& row: db.run(select(all_of(tab)).from(tab)))
+	{
+		std::cerr << __LINE__ << " row.beta: " << row.beta << std::endl;
+	}
+	std::cerr << "+++++++++++++++++++++++++++"  << std::endl;
 	decltype(db.run(select(all_of(tab)))) result;
 	result = db.run(select(all_of(tab)).from(tab));
 	std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha << std::endl;
@@ -109,7 +124,7 @@ int main()
 	{
 		int x = row.alpha;
 		int a = row.max;
-		std::cerr << "-----------------------------" << row.beta << std::endl;
+		std::cerr << __LINE__ << " row.alpha: "  << row.alpha << std::endl;
 	}
 	tx.commit();
 
@@ -124,6 +139,47 @@ int main()
 	{
 		std::cerr << row.alpha << std::endl;
 	}
+
+	auto ps = db.prepare(select(all_of(tab)).from(tab).where(tab.alpha != parameter(tab.alpha) and tab.beta != where_parameter(tab.beta) and tab.gamma != parameter(tab.gamma)));
+	ps.params.alpha = 7;
+	ps.params.beta = "wurzelbrunft";
+	ps.params.gamma = true;
+	for (const auto& row: db.run(ps))
+	{
+		std::cerr << "bound result: alpha: " << row.alpha << std::endl;
+		std::cerr << "bound result: beta: " << row.beta << std::endl;
+		std::cerr << "bound result: gamma: " << row.gamma << std::endl;
+	}
+
+	std::cerr << "--------" << std::endl;
+	ps.params.gamma = "false";
+	for (const auto& row: db.run(ps))
+	{
+		std::cerr << "bound result: alpha: " << row.alpha << std::endl;
+		std::cerr << "bound result: beta: " << row.beta << std::endl;
+		std::cerr << "bound result: gamma: " << row.gamma << std::endl;
+	}
+
+	std::cerr << "--------" << std::endl;
+	ps.params.beta = "kaesekuchen";
+	for (const auto& row: db.run(ps))
+	{
+		std::cerr << "bound result: alpha: " << row.alpha << std::endl;
+		std::cerr << "bound result: beta: " << row.beta << std::endl;
+		std::cerr << "bound result: gamma: " << row.gamma << std::endl;
+	}
+
+	auto pi = db.prepare(insert_into(tab).set(tab.beta = parameter(tab.beta), tab.gamma = true));
+	pi.params.beta = "prepared cake";
+	std::cerr << "Inserted: " << db.run(pi) << std::endl;
+
+	auto pu = db.prepare(update(tab).set(tab.gamma = parameter(tab.gamma)).where(tab.beta == "prepared cake"));
+	pu.params.gamma = false;
+	std::cerr << "Updated: " << db.run(pu) << std::endl;
+
+	auto pr = db.prepare(remove_from(tab).where(tab.beta != where_parameter(tab.beta)));
+	pr.params.beta = "prepared cake";
+	std::cerr << "Deleted lines: " << db.run(pr) << std::endl;
 
 	return 0;
 }

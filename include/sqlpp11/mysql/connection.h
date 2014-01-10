@@ -29,9 +29,12 @@
 #define SQLPP_MYSQL_CONNECTION_H
 
 #include <string>
+#include <sstream>
 #include <sqlpp11/connection.h>
-#include <sqlpp11/mysql/result.h>
-#include <sqlpp11/mysql/connection_config.h>
+#include "prepared_query.h"
+#include "char_result.h"
+#include "bind_result.h"
+#include "connection_config.h"
 
 namespace sqlpp
 {
@@ -47,7 +50,27 @@ namespace sqlpp
 			std::unique_ptr<detail::connection_handle> _handle;
 			bool _transaction_active = false;
 
+			// direct execution
+			char_result_t select_impl(const std::string& query);
+			size_t insert_impl(const std::string& query);
+			size_t update_impl(const std::string& query);
+			size_t remove_impl(const std::string& query);
+
+			// prepared execution
+			prepared_query_t prepare_impl(const std::string& query, size_t no_of_parameters, size_t no_of_columns);
+			bind_result_t run_prepared_select_impl(prepared_query_t& prepared_query);
+			size_t run_prepared_insert_impl(prepared_query_t& prepared_query);
+			size_t run_prepared_update_impl(prepared_query_t& prepared_query);
+			size_t run_prepared_remove_impl(prepared_query_t& prepared_query);
+
 		public:
+			using _prepared_query_t = ::sqlpp::mysql::prepared_query_t;
+
+			// prepared statements
+			static constexpr bool _supports_prepared = true;
+			static constexpr bool _use_questionmark_parameter = true;
+			static constexpr bool _use_positional_dollar_parameter = false;
+
 			// join types
 			static constexpr bool _supports_inner_join = true;
 			static constexpr bool _supports_outer_join = true;
@@ -79,7 +102,6 @@ namespace sqlpp
 			static constexpr bool _use_concat_operator = false;
 			static constexpr bool _use_concat_function = true;
 
-			using _result_t = ::sqlpp::mysql::result;
 			struct _tags
 			{
 				using _has_empty_list_insert = std::true_type;
@@ -91,17 +113,100 @@ namespace sqlpp
 			connection& operator=(const connection&) = delete;
 			connection& operator=(connection&&) = delete;
 
-			//! select returns a result (which can be iterated row by row)
-			_result_t select(const std::string& query);
+			template<typename Select>
+			char_result_t select(const Select& s)
+			{
+				std::ostringstream oss;
+				s.serialize(oss, *this);
+				return select_impl(oss.str());
+			}
+
+			template<typename Select>
+			_prepared_query_t prepare_select(Select& s)
+			{
+				std::ostringstream oss;
+				s.serialize(oss, *this);
+				return prepare_impl(oss.str(), s._get_no_of_parameters(), s.get_no_of_result_columns());
+			}
+
+			template<typename PreparedSelect>
+			bind_result_t run_prepared_select(const PreparedSelect& s)
+			{
+				s._bind_params();
+				return run_prepared_select_impl(s._prepared_query);
+			}
 
 			//! insert returns the last auto_incremented id (or zero, if there is none)
-			size_t insert(const std::string& query);
+			template<typename Insert>
+			size_t insert(const Insert& i)
+			{
+				std::ostringstream oss;
+				i.serialize(oss, *this);
+				return insert_impl(oss.str());
+			}
+
+			template<typename Insert>
+			_prepared_query_t prepare_insert(Insert& i)
+			{
+				std::ostringstream oss;
+				i.serialize(oss, *this);
+				return prepare_impl(oss.str(), i._get_no_of_parameters(), 0);
+			}
+
+			template<typename PreparedInsert>
+			size_t run_prepared_insert(const PreparedInsert& i)
+			{
+				i._bind_params();
+				return run_prepared_insert_impl(i._prepared_query);
+			}
 
 			//! update returns the number of affected rows
-			size_t update(const std::string& query);
+			template<typename Update>
+			size_t update(const Update& u)
+			{
+				std::ostringstream oss;
+				u.serialize(oss, *this);
+				return update_impl(oss.str());
+			}
+
+			template<typename Update>
+			_prepared_query_t prepare_update(Update& u)
+			{
+				std::ostringstream oss;
+				u.serialize(oss, *this);
+				return prepare_impl(oss.str(), u._get_no_of_parameters(), 0);
+			}
+
+			template<typename PreparedUpdate>
+			size_t run_prepared_update(const PreparedUpdate& u)
+			{
+				u._bind_params();
+				return run_prepared_update_impl(u._prepared_query);
+			}
 
 			//! remove returns the number of removed rows
-			size_t remove(const std::string& query);
+			template<typename Remove>
+			size_t remove(const Remove& r)
+			{
+				std::ostringstream oss;
+				r.serialize(oss, *this);
+				return remove_impl(oss.str());
+			}
+
+			template<typename Remove>
+			_prepared_query_t prepare_remove(Remove& r)
+			{
+				std::ostringstream oss;
+				r.serialize(oss, *this);
+				return prepare_impl(oss.str(), r._get_no_of_parameters(), 0);
+			}
+
+			template<typename PreparedRemove>
+			size_t run_prepared_remove(const PreparedRemove& r)
+			{
+				r._bind_params();
+				return run_prepared_remove_impl(r._prepared_query);
+			}
 
 			//! execute arbitrary command (e.g. create a table)
 			void execute(const std::string& command);
@@ -114,6 +219,19 @@ namespace sqlpp
 				auto run(const T& t) -> decltype(t.run(*this))
 				{
 					return t.run(*this);
+				}
+
+			//! call prepare on the argument
+			template<typename T>
+				auto prepare(T t) -> decltype(t.prepare(*this))
+				{
+					return t.prepare(*this);
+				}
+
+			template<typename T>
+				auto prepare(T& t) -> decltype(t.prepare(*this))
+				{
+					return t.prepare(*this);
 				}
 
 			//! start transaction

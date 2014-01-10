@@ -25,10 +25,11 @@
  */
 
 
-#ifndef SQLPP_MYSQL_DETAIL_RESULT_HANDLE_H
-#define SQLPP_MYSQL_DETAIL_RESULT_HANDLE_H
+#ifndef SQLPP_MYSQL_CHAR_RESULT_H
+#define SQLPP_MYSQL_CHAR_RESULT_H
 
-#include <mysql/mysql.h>
+#include <memory>
+#include <sqlpp11/char_result_row.h>
 
 namespace sqlpp
 {
@@ -36,36 +37,42 @@ namespace sqlpp
 	{
 		namespace detail
 		{
-			struct result_handle
-			{
-				MYSQL_RES* mysql_res;
-				bool debug;
-
-				result_handle(MYSQL_RES* res, bool debug_):
-					mysql_res(res),
-					debug(debug_)
-				{}
-
-				result_handle(const result_handle&) = delete;
-				result_handle(result_handle&&) = default;
-				result_handle& operator=(const result_handle&) = delete;
-				result_handle& operator=(result_handle&&) = default;
-
-				~result_handle()
-				{
-					if (mysql_res)
-						mysql_free_result(mysql_res);
-				}
-
-				bool operator!() const
-				{
-					return !mysql_res;
-				}
-			};
+			struct result_handle;
 		}
+
+		class char_result_t
+		{
+			std::unique_ptr<detail::result_handle> _handle;
+			char_result_row_t _char_result_row;
+
+		public:
+			char_result_t();
+			char_result_t(std::unique_ptr<detail::result_handle>&& handle);
+			char_result_t(const char_result_t&) = delete;
+			char_result_t(char_result_t&& rhs);
+			char_result_t& operator=(const char_result_t&) = delete;
+			char_result_t& operator=(char_result_t&&);
+			~char_result_t();
+
+			bool operator==(const char_result_t& rhs) const
+			{
+				return _handle == rhs._handle;
+			}
+
+			template<typename ResultRow>
+			void next(ResultRow& result_row)
+			{
+				next_impl();
+				if (_char_result_row.data)
+					result_row = _char_result_row;
+				else
+					result_row.invalidate();
+			};
+
+		private:
+			void next_impl();
+		};
+
 	}
 }
-
 #endif
-
-

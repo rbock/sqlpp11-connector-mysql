@@ -25,47 +25,46 @@
  */
 
 
-#include <iostream>
-#include <sqlpp11/mysql/result.h>
-#include "detail/result_handle.h"
+#ifndef SQLPP_MYSQL_PREPARED_QUERY_H
+#define SQLPP_MYSQL_PREPARED_QUERY_H
 
+#include <memory>
+#include <string>
 
 namespace sqlpp
 {
 	namespace mysql
 	{
-		result::result():
-			_debug(false)
-		{}
-		result::result(std::unique_ptr<detail::result_handle>&& handle, const bool debug):
-			_handle(std::move(handle)),
-			_debug(debug)
+		struct connection;
+
+		namespace detail
 		{
-			if (_debug)
-				std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
+			struct prepared_query_handle_t;
 		}
 
-		result::~result() = default;
-		result::result(result&& rhs) = default;
-		result& result::operator=(result&&) = default;
-
-		raw_result_row_t result::next()
+		class prepared_query_t
 		{
-			if (_debug)
-				std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
+			friend ::sqlpp::mysql::connection;
+			std::shared_ptr<detail::prepared_query_handle_t> _handle;
 
-			return _handle 
-				? raw_result_row_t{ const_cast<const char**>(mysql_fetch_row(_handle->mysql_res)), mysql_fetch_lengths(_handle->mysql_res) }
-				: raw_result_row_t{ nullptr, nullptr };
-		}
+		public:
+			prepared_query_t() = delete;
+			prepared_query_t(std::shared_ptr<detail::prepared_query_handle_t>&& handle);
+			prepared_query_t(const prepared_query_t&) = delete;
+			prepared_query_t(prepared_query_t&& rhs) = default;
+			prepared_query_t& operator=(const prepared_query_t&) = delete;
+			prepared_query_t& operator=(prepared_query_t&&) = default;
+			~prepared_query_t() = default;
 
-		size_t result::num_cols() const
-		{
-			return _handle
-				? mysql_num_fields(_handle->mysql_res)
-				: 0;
-		}
+			bool operator==(const prepared_query_t& rhs) const
+			{
+				return _handle == rhs._handle;
+			}
 
+			void bind_boolean_parameter(size_t index, const signed char* value, bool is_null);
+			void bind_integral_parameter(size_t index, const int64_t* value, bool is_null);
+			void bind_text_parameter(size_t index, const std::string* value, bool is_null);
+		};
 	}
 }
-
+#endif

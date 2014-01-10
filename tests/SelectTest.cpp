@@ -30,8 +30,8 @@
 #include <sqlpp11/remove.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/transaction.h>
-#include <sqlpp11/mysql/connection.h>
 #include <sqlpp11/multi_column.h>
+#include <sqlpp11/mysql/connection.h>
 
 #include <iostream>
 #include <vector>
@@ -105,6 +105,7 @@ int main()
 	db.run(select(all_of(tab)).from(tab).where(tab.alpha + tab.alpha > 3));
 	db.run(select(all_of(tab)).from(tab).where((tab.beta + tab.beta) == ""));
 	db.run(select(all_of(tab)).from(tab).where((tab.beta + tab.beta).like("%'\"%")));
+	db.run(select(all_of(tab)).from(sqlpp::verbatim_table("tab_sample")).where((tab.beta + tab.beta).like("%'\"%")));
 
 	// insert
 	db.run(insert_into(tab).set(tab.gamma = true));
