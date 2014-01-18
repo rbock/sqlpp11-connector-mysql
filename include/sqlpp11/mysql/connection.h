@@ -276,4 +276,7 @@ namespace sqlpp
 
 	}
 }
+
+#include "interpreter.h"
+
 #endif
