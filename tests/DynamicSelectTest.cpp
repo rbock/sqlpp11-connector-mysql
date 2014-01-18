@@ -24,6 +24,7 @@
  */
 
 #include "TabSample.h"
+#include <sqlpp11/alias_provider.h>
 #include <sqlpp11/select.h>
 #include <sqlpp11/insert.h>
 #include <sqlpp11/update.h>
@@ -37,7 +38,7 @@
 #include <vector>
 
 
-SQLPP_ALIAS_PROVIDER_GENERATOR(left);
+SQLPP_ALIAS_PROVIDER(left);
 
 namespace mysql = sqlpp::mysql;
 int main()

@@ -45,6 +45,31 @@ namespace sqlpp
 			class connection_handle;
 		}
 
+		class connection;
+
+		struct serializer_t
+		{
+			serializer_t(const connection& db):
+				_db(db)
+			{}
+
+			template<typename T>
+				std::ostream& operator<<(T t)
+				{
+					return _os << t;
+				}
+
+			std::string escape(std::string arg);
+
+			std::string str() const
+			{
+				return _os.str();
+			}
+
+			const connection& _db;
+			std::stringstream _os;
+		};
+
 		class connection: public sqlpp::connection
 		{
 			std::unique_ptr<detail::connection_handle> _handle;
@@ -65,6 +90,7 @@ namespace sqlpp
 
 		public:
 			using _prepared_query_t = ::sqlpp::mysql::prepared_query_t;
+			using _context_t = serializer_t;
 
 			// prepared statements
 			static constexpr bool _supports_prepared = true;
@@ -116,17 +142,17 @@ namespace sqlpp
 			template<typename Select>
 			char_result_t select(const Select& s)
 			{
-				std::ostringstream oss;
-				s.serialize(oss, *this);
-				return select_impl(oss.str());
+				_context_t context(*this);
+				interpret(s, context);
+				return select_impl(context.str());
 			}
 
 			template<typename Select>
 			_prepared_query_t prepare_select(Select& s)
 			{
-				std::ostringstream oss;
-				s.serialize(oss, *this);
-				return prepare_impl(oss.str(), s._get_no_of_parameters(), s.get_no_of_result_columns());
+				_context_t context(*this);
+				interpret(s, context);
+				return prepare_impl(context.str(), s._get_no_of_parameters(), s.get_no_of_result_columns());
 			}
 
 			template<typename PreparedSelect>
@@ -140,17 +166,17 @@ namespace sqlpp
 			template<typename Insert>
 			size_t insert(const Insert& i)
 			{
-				std::ostringstream oss;
-				i.serialize(oss, *this);
-				return insert_impl(oss.str());
+				_context_t context(*this);
+				interpret(i, context);
+				return insert_impl(context.str());
 			}
 
 			template<typename Insert>
 			_prepared_query_t prepare_insert(Insert& i)
 			{
-				std::ostringstream oss;
-				i.serialize(oss, *this);
-				return prepare_impl(oss.str(), i._get_no_of_parameters(), 0);
+				_context_t context(*this);
+				interpret(i, context);
+				return prepare_impl(context.str(), i._get_no_of_parameters(), 0);
 			}
 
 			template<typename PreparedInsert>
@@ -164,17 +190,17 @@ namespace sqlpp
 			template<typename Update>
 			size_t update(const Update& u)
 			{
-				std::ostringstream oss;
-				u.serialize(oss, *this);
-				return update_impl(oss.str());
+				_context_t context(*this);
+				interpret(u, context);
+				return update_impl(context.str());
 			}
 
 			template<typename Update>
 			_prepared_query_t prepare_update(Update& u)
 			{
-				std::ostringstream oss;
-				u.serialize(oss, *this);
-				return prepare_impl(oss.str(), u._get_no_of_parameters(), 0);
+				_context_t context(*this);
+				interpret(u, context);
+				return prepare_impl(context.str(), u._get_no_of_parameters(), 0);
 			}
 
 			template<typename PreparedUpdate>
@@ -188,17 +214,18 @@ namespace sqlpp
 			template<typename Remove>
 			size_t remove(const Remove& r)
 			{
-				std::ostringstream oss;
-				r.serialize(oss, *this);
-				return remove_impl(oss.str());
+				_context_t context(*this);
+				interpret(r, context);
+				return remove_impl(context.str());
 			}
 
 			template<typename Remove>
 			_prepared_query_t prepare_remove(Remove& r)
 			{
-				std::ostringstream oss;
-				r.serialize(oss, *this);
-				return prepare_impl(oss.str(), r._get_no_of_parameters(), 0);
+
+				_context_t context(*this);
+				interpret(r, context);
+				return prepare_impl(context.str(), r._get_no_of_parameters(), 0);
 			}
 
 			template<typename PreparedRemove>
@@ -223,13 +250,7 @@ namespace sqlpp
 
 			//! call prepare on the argument
 			template<typename T>
-				auto prepare(T t) -> decltype(t.prepare(*this))
-				{
-					return t.prepare(*this);
-				}
-
-			template<typename T>
-				auto prepare(T& t) -> decltype(t.prepare(*this))
+				auto prepare(const T& t) -> decltype(t.prepare(*this))
 				{
 					return t.prepare(*this);
 				}
@@ -246,6 +267,12 @@ namespace sqlpp
 			//! report a rollback failure (will be called by transactions in case of a rollback failure in the destructor)
 			void report_rollback_failure(const std::string message) noexcept;
 		};
+
+		inline std::string serializer_t::escape(std::string arg)
+		{
+			return _db.escape(arg);
+		}
+
 
 	}
 }
