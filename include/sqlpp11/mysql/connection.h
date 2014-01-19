@@ -92,46 +92,6 @@ namespace sqlpp
 			using _prepared_query_t = ::sqlpp::mysql::prepared_query_t;
 			using _context_t = serializer_t;
 
-			// prepared statements
-			static constexpr bool _supports_prepared = true;
-			static constexpr bool _use_questionmark_parameter = true;
-			static constexpr bool _use_positional_dollar_parameter = false;
-
-			// join types
-			static constexpr bool _supports_inner_join = true;
-			static constexpr bool _supports_outer_join = true;
-			static constexpr bool _supports_left_outer_join = true;
-			static constexpr bool _supports_right_outer_join = true;
-
-			// functions
-			static constexpr bool _supports_avg = true;
-			static constexpr bool _supports_count = true;
-			static constexpr bool _supports_exists = true;
-			static constexpr bool _supports_like = true;
-			static constexpr bool _supports_in = true;
-			static constexpr bool _supports_is_null = true;
-			static constexpr bool _supports_is_not_null = true;
-			static constexpr bool _supports_max = true;
-			static constexpr bool _supports_min = true;
-			static constexpr bool _supports_not_in = true;
-			static constexpr bool _supports_sum = true;
-
-			// select
-			static constexpr bool _supports_group_by = true;
-			static constexpr bool _supports_having = true;
-			static constexpr bool _supports_limit = true;
-			static constexpr bool _supports_order_by = true;
-			static constexpr bool _supports_select_as_table = true;
-
-			static constexpr bool _supports_some = true;
-			static constexpr bool _supports_any = true;
-			static constexpr bool _use_concat_operator = false;
-			static constexpr bool _use_concat_function = true;
-
-			struct _tags
-			{
-				using _has_empty_list_insert = std::true_type;
-			};
 			connection(const std::shared_ptr<connection_config>& config);
 			~connection();
 			connection(const connection&) = delete;
