@@ -95,9 +95,9 @@ int main()
 
 
 	// insert
-	db.run(insert_into(tab));
+	db.run(insert_into(tab).default_values());
 	db.run(insert_into(tab).set(tab.beta = "kaesekuchen", tab.gamma = true));
-	db.run(insert_into(tab));
+	db.run(insert_into(tab).default_values());
 	db.run(insert_into(tab).set(tab.beta = "", tab.gamma = true));
 
 	// update

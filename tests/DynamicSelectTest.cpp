@@ -67,7 +67,7 @@ int main()
 	TabSample tab;
 	db.run(insert_into(tab).set(tab.gamma = true));
 
-	for(const auto& row : db.run(dynamic_select(db, tab.alpha).dynamic_columns().add_column(tab.beta).from(tab)))
+	for(const auto& row : db.run(dynamic_select(db).dynamic_columns(tab.alpha).add_column(tab.beta).from(tab)))
 	{
 		std::cerr << "row.alpha: " << row.alpha << "row.beta" << row.at("beta") << std::endl;
 	};
