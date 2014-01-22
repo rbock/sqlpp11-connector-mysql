@@ -24,55 +24,43 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef SQLPP_MYSQL_INTERPRETER_H
+#define SQLPP_MYSQL_INTERPRETER_H
 
-#ifndef SQLPP_MYSQL_CHAR_RESULT_H
-#define SQLPP_MYSQL_CHAR_RESULT_H
-
-#include <memory>
-#include <sqlpp11/vendor/char_result_row.h>
+#include <sqlpp11/vendor/concat.h>
+#include <sqlpp11/vendor/insert_list.h>
 
 namespace sqlpp
 {
-	namespace mysql
+	namespace vendor
 	{
-		namespace detail
-		{
-			struct result_handle;
-		}
-
-		class char_result_t
-		{
-			std::unique_ptr<detail::result_handle> _handle;
-			char_result_row_t _char_result_row;
-
-		public:
-			char_result_t();
-			char_result_t(std::unique_ptr<detail::result_handle>&& handle);
-			char_result_t(const char_result_t&) = delete;
-			char_result_t(char_result_t&& rhs);
-			char_result_t& operator=(const char_result_t&) = delete;
-			char_result_t& operator=(char_result_t&&);
-			~char_result_t();
-
-			bool operator==(const char_result_t& rhs) const
+		template<typename First, typename... Args>
+			struct interpreter_t<mysql::serializer_t, concat_t<First, Args...>>
 			{
-				return _handle == rhs._handle;
-			}
+				using T = concat_t<First, Args...>;
 
-			template<typename ResultRow>
-			void next(ResultRow& result_row)
-			{
-				next_impl();
-				if (_char_result_row.data)
-					result_row = _char_result_row;
-				else
-					result_row.invalidate();
+				static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
+				{
+					context << "CONCAT(";
+					interpret_tuple(t._args, ',', context);
+					context << ')';
+					return context;
+				}
 			};
 
-		private:
-			void next_impl();
-		};
+		template<>
+			struct interpreter_t<mysql::serializer_t, insert_default_values_t>
+			{
+				using T = insert_default_values_t;
+
+				static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
+				{
+					context << " () VALUES()";
+					return context;
+				}
+			};
 
 	}
 }
+
 #endif

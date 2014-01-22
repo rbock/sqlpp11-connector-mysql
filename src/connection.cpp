@@ -52,7 +52,7 @@ namespace sqlpp
 
 			void execute_query(detail::connection_handle& handle, const std::string& query) // FIXME: Should be connection_handle_t
 			{
-				thread_local MySqlThreadInitializer threadInitializer;
+				// FIXME thread_local MySqlThreadInitializer threadInitializer;
 
 				if (handle.config->debug)
 					std::cerr << "MySQL debug: Executing: '" << query << "'" << std::endl;
@@ -81,7 +81,7 @@ namespace sqlpp
 
 			std::shared_ptr<detail::prepared_query_handle_t> prepare_query(detail::connection_handle& handle, const std::string& query, size_t no_of_parameters, size_t no_of_columns)
 			{
-				thread_local MySqlThreadInitializer threadInitializer;
+				// FIXME thread_local MySqlThreadInitializer threadInitializer;
 
 				if (handle.config->debug)
 					std::cerr << "MySQL debug: Preparing: '" << query << "'" << std::endl;

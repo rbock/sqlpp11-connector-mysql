@@ -31,8 +31,8 @@
 #include <vector>
 
 
-SQLPP_ALIAS_PROVIDER_GENERATOR(left);
-SQLPP_ALIAS_PROVIDER_GENERATOR(right);
+SQLPP_ALIAS_PROVIDER(left);
+SQLPP_ALIAS_PROVIDER(right);
 
 namespace mysql = sqlpp::mysql;
 int main()
@@ -95,9 +95,9 @@ int main()
 
 
 	// insert
-	db.run(insert_into(tab));
+	db.run(insert_into(tab).default_values());
 	db.run(insert_into(tab).set(tab.beta = "kaesekuchen", tab.gamma = true));
-	db.run(insert_into(tab));
+	db.run(insert_into(tab).default_values());
 	db.run(insert_into(tab).set(tab.beta = "", tab.gamma = true));
 
 	// update
@@ -140,7 +140,7 @@ int main()
 		std::cerr << row.alpha << std::endl;
 	}
 
-	auto ps = db.prepare(select(all_of(tab)).from(tab).where(tab.alpha != parameter(tab.alpha) and tab.beta != where_parameter(tab.beta) and tab.gamma != parameter(tab.gamma)));
+	auto ps = db.prepare(select(all_of(tab)).from(tab).where(tab.alpha != parameter(tab.alpha) and tab.beta != parameter(tab.beta) and tab.gamma != parameter(tab.gamma)));
 	ps.params.alpha = 7;
 	ps.params.beta = "wurzelbrunft";
 	ps.params.gamma = true;
@@ -177,7 +177,7 @@ int main()
 	pu.params.gamma = false;
 	std::cerr << "Updated: " << db.run(pu) << std::endl;
 
-	auto pr = db.prepare(remove_from(tab).where(tab.beta != where_parameter(tab.beta)));
+	auto pr = db.prepare(remove_from(tab).where(tab.beta != parameter(tab.beta)));
 	pr.params.beta = "prepared cake";
 	std::cerr << "Deleted lines: " << db.run(pr) << std::endl;
 
