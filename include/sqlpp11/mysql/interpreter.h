@@ -28,6 +28,7 @@
 #define SQLPP_MYSQL_INTERPRETER_H
 
 #include <sqlpp11/vendor/concat.h>
+#include <sqlpp11/vendor/insert_list.h>
 
 namespace sqlpp
 {
@@ -46,6 +47,19 @@ namespace sqlpp
 					return context;
 				}
 			};
+
+		template<>
+			struct interpreter_t<mysql::serializer_t, insert_default_values_t>
+			{
+				using T = insert_default_values_t;
+
+				static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
+				{
+					context << " () VALUES()";
+					return context;
+				}
+			};
+
 	}
 }
 
