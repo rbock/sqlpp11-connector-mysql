@@ -29,7 +29,6 @@
 #define SQLPP_MYSQL_CONNECTION_CONFIG_H
 
 #include <string>
-#include <iostream>
 
 namespace sqlpp
 {

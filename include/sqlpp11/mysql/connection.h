@@ -31,10 +31,10 @@
 #include <string>
 #include <sstream>
 #include <sqlpp11/connection.h>
-#include "prepared_query.h"
-#include "char_result.h"
-#include "bind_result.h"
-#include "connection_config.h"
+#include <sqlpp11/mysql/prepared_query.h>
+#include <sqlpp11/mysql/char_result.h>
+#include <sqlpp11/mysql/bind_result.h>
+#include <sqlpp11/mysql/connection_config.h>
 
 namespace sqlpp
 {
@@ -237,6 +237,6 @@ namespace sqlpp
 	}
 }
 
-#include "interpreter.h"
+#include <sqlpp11/mysql/interpreter.h>
 
 #endif

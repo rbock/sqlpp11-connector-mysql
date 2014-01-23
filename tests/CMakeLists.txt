@@ -1,5 +1,6 @@
 macro (build_and_run arg)
-	add_executable(${arg} ${arg}.cpp)
+	# Add headers to sources to enable file browsing in IDEs
+	add_executable(${arg} ${arg}.cpp ${sqlpp_headers})
 	target_link_libraries (${arg} sqlpp-mysql)
 	target_link_libraries (${arg} mysqlclient)
 	add_test(${arg} ${arg})
