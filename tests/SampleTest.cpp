@@ -65,15 +65,15 @@ int main()
 
 	TabSample tab;
 	// clear the table
-	db.run(remove_from(tab));
+	db.run(remove_from(tab).where(true));
 
 	// explicit all_of(tab)
 	std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
 	select(all_of(tab)).from(tab);
 	std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
-	db.run(select(all_of(tab)).from(tab));
+	db.run(select(all_of(tab)).from(tab).where(true));
 	std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
-	for(const auto& row : db.run(select(all_of(tab)).from(tab)))
+	for(const auto& row : db.run(select(all_of(tab)).from(tab).where(true)))
 	{
 		std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
 		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
@@ -83,7 +83,7 @@ int main()
 						select(tab.alpha,
 								 multi_column(left, tab.alpha, tab.beta, tab.gamma), 
 								 multi_column(tab, all_of(tab)))
-						.from(tab)))
+						.from(tab).where(true)))
 	{
 		std::cerr << "row.left.alpha: " << row.left.alpha 
 							<< ", row.left.beta: " << row.left.beta 
@@ -109,18 +109,18 @@ int main()
 
 
 		std::cerr << "+++++++++++++++++++++++++++"  << std::endl;
-	for (const auto& row: db.run(select(all_of(tab)).from(tab)))
+	for (const auto& row: db.run(select(all_of(tab)).from(tab).where(true)))
 	{
 		std::cerr << __LINE__ << " row.beta: " << row.beta << std::endl;
 	}
 	std::cerr << "+++++++++++++++++++++++++++"  << std::endl;
 	decltype(db.run(select(all_of(tab)))) result;
-	result = db.run(select(all_of(tab)).from(tab));
+	result = db.run(select(all_of(tab)).from(tab).where(true));
 	std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha << std::endl;
 	std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
 
 	auto tx = start_transaction(db);
-	if (const auto& row = *db.run(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab)).begin())
+	if (const auto& row = *db.run(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).where(true)).begin())
 	{
 		int x = row.alpha;
 		int a = row.max;
@@ -130,12 +130,12 @@ int main()
 
 
 	TabFoo foo;
-	for (const auto& row : db.run(select(tab.alpha).from(tab.join(foo).on(tab.alpha == foo.omega))))
+	for (const auto& row : db.run(select(tab.alpha).from(tab.join(foo).on(tab.alpha == foo.omega)).where(true)))
 	{
 		std::cerr << row.alpha << std::endl;
 	}
 
-	for (const auto& row : db.run(select(tab.alpha).from(tab.left_outer_join(foo).on(tab.alpha == foo.omega))))
+	for (const auto& row : db.run(select(tab.alpha).from(tab.left_outer_join(foo).on(tab.alpha == foo.omega)).where(true)))
 	{
 		std::cerr << row.alpha << std::endl;
 	}
