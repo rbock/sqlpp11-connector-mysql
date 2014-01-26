@@ -36,17 +36,17 @@ namespace sqlpp
 	{
 		namespace detail
 		{
-			struct prepared_query_handle_t;
+			struct prepared_statement_handle_t;
 		}
 
 		class bind_result_t
 		{
-			std::shared_ptr<detail::prepared_query_handle_t> _handle;
+			std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 			void* _result_row_address = nullptr;
 
 		public:
 			bind_result_t() = default;
-			bind_result_t(const std::shared_ptr<detail::prepared_query_handle_t>& handle);
+			bind_result_t(const std::shared_ptr<detail::prepared_statement_handle_t>& handle);
 			bind_result_t(const bind_result_t&) = delete;
 			bind_result_t(bind_result_t&& rhs) = default;
 			bind_result_t& operator=(const bind_result_t&) = delete;

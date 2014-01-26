@@ -28,14 +28,14 @@
 #include <iostream>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/bind_result.h>
-#include "detail/prepared_query_handle.h"
+#include "detail/prepared_statement_handle.h"
 
 
 namespace sqlpp
 {
 	namespace mysql
 	{
-		bind_result_t::bind_result_t(const std::shared_ptr<detail::prepared_query_handle_t>& handle):
+		bind_result_t::bind_result_t(const std::shared_ptr<detail::prepared_statement_handle_t>& handle):
 			_handle(handle)
 		{
 			if (_handle and _handle->debug)

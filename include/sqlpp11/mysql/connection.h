@@ -31,7 +31,7 @@
 #include <string>
 #include <sstream>
 #include <sqlpp11/connection.h>
-#include <sqlpp11/mysql/prepared_query.h>
+#include <sqlpp11/mysql/prepared_statement.h>
 #include <sqlpp11/mysql/char_result.h>
 #include <sqlpp11/mysql/bind_result.h>
 #include <sqlpp11/mysql/connection_config.h>
@@ -76,20 +76,20 @@ namespace sqlpp
 			bool _transaction_active = false;
 
 			// direct execution
-			char_result_t select_impl(const std::string& query);
-			size_t insert_impl(const std::string& query);
-			size_t update_impl(const std::string& query);
-			size_t remove_impl(const std::string& query);
+			char_result_t select_impl(const std::string& statement);
+			size_t insert_impl(const std::string& statement);
+			size_t update_impl(const std::string& statement);
+			size_t remove_impl(const std::string& statement);
 
 			// prepared execution
-			prepared_query_t prepare_impl(const std::string& query, size_t no_of_parameters, size_t no_of_columns);
-			bind_result_t run_prepared_select_impl(prepared_query_t& prepared_query);
-			size_t run_prepared_insert_impl(prepared_query_t& prepared_query);
-			size_t run_prepared_update_impl(prepared_query_t& prepared_query);
-			size_t run_prepared_remove_impl(prepared_query_t& prepared_query);
+			prepared_statement_t prepare_impl(const std::string& statement, size_t no_of_parameters, size_t no_of_columns);
+			bind_result_t run_prepared_select_impl(prepared_statement_t& prepared_statement);
+			size_t run_prepared_insert_impl(prepared_statement_t& prepared_statement);
+			size_t run_prepared_update_impl(prepared_statement_t& prepared_statement);
+			size_t run_prepared_remove_impl(prepared_statement_t& prepared_statement);
 
 		public:
-			using _prepared_query_t = ::sqlpp::mysql::prepared_query_t;
+			using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;
 			using _context_t = serializer_t;
 
 			connection(const std::shared_ptr<connection_config>& config);
@@ -108,7 +108,7 @@ namespace sqlpp
 			}
 
 			template<typename Select>
-			_prepared_query_t prepare_select(Select& s)
+			_prepared_statement_t prepare_select(Select& s)
 			{
 				_context_t context(*this);
 				interpret(s, context);
@@ -119,7 +119,7 @@ namespace sqlpp
 			bind_result_t run_prepared_select(const PreparedSelect& s)
 			{
 				s._bind_params();
-				return run_prepared_select_impl(s._prepared_query);
+				return run_prepared_select_impl(s._prepared_statement);
 			}
 
 			//! insert returns the last auto_incremented id (or zero, if there is none)
@@ -132,7 +132,7 @@ namespace sqlpp
 			}
 
 			template<typename Insert>
-			_prepared_query_t prepare_insert(Insert& i)
+			_prepared_statement_t prepare_insert(Insert& i)
 			{
 				_context_t context(*this);
 				interpret(i, context);
@@ -143,7 +143,7 @@ namespace sqlpp
 			size_t run_prepared_insert(const PreparedInsert& i)
 			{
 				i._bind_params();
-				return run_prepared_insert_impl(i._prepared_query);
+				return run_prepared_insert_impl(i._prepared_statement);
 			}
 
 			//! update returns the number of affected rows
@@ -156,7 +156,7 @@ namespace sqlpp
 			}
 
 			template<typename Update>
-			_prepared_query_t prepare_update(Update& u)
+			_prepared_statement_t prepare_update(Update& u)
 			{
 				_context_t context(*this);
 				interpret(u, context);
@@ -167,7 +167,7 @@ namespace sqlpp
 			size_t run_prepared_update(const PreparedUpdate& u)
 			{
 				u._bind_params();
-				return run_prepared_update_impl(u._prepared_query);
+				return run_prepared_update_impl(u._prepared_statement);
 			}
 
 			//! remove returns the number of removed rows
@@ -180,7 +180,7 @@ namespace sqlpp
 			}
 
 			template<typename Remove>
-			_prepared_query_t prepare_remove(Remove& r)
+			_prepared_statement_t prepare_remove(Remove& r)
 			{
 
 				_context_t context(*this);
@@ -192,7 +192,7 @@ namespace sqlpp
 			size_t run_prepared_remove(const PreparedRemove& r)
 			{
 				r._bind_params();
-				return run_prepared_remove_impl(r._prepared_query);
+				return run_prepared_remove_impl(r._prepared_statement);
 			}
 
 			//! execute arbitrary command (e.g. create a table)

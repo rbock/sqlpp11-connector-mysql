@@ -25,8 +25,8 @@
  */
 
 
-#ifndef SQLPP_MYSQL_DETAIL_PREPARED_QUERY_HANDLE_H
-#define SQLPP_MYSQL_DETAIL_PREPARED_QUERY_HANDLE_H
+#ifndef SQLPP_MYSQL_DETAIL_PREPARED_STATEMENT_HANDLE_H
+#define SQLPP_MYSQL_DETAIL_PREPARED_STATEMENT_HANDLE_H
 
 #include <vector>
 #include <mysql/mysql.h>
@@ -49,7 +49,7 @@ namespace sqlpp
 				bool* is_null;
 			};
 
-			struct prepared_query_handle_t
+			struct prepared_statement_handle_t
 			{
 				MYSQL_STMT* mysql_stmt;
 				std::vector<MYSQL_BIND> stmt_params;
@@ -58,7 +58,7 @@ namespace sqlpp
 				std::vector<result_meta_data_t> result_param_meta_data;
 				bool debug;
 
-				prepared_query_handle_t(MYSQL_STMT* stmt, size_t no_of_parameters, size_t no_of_columns, bool debug_):
+				prepared_statement_handle_t(MYSQL_STMT* stmt, size_t no_of_parameters, size_t no_of_columns, bool debug_):
 					mysql_stmt(stmt),
 					stmt_params(no_of_parameters, MYSQL_BIND{}),
 					stmt_param_is_null(no_of_parameters, false),
@@ -67,12 +67,12 @@ namespace sqlpp
 					debug(debug_)
 				{}
 
-				prepared_query_handle_t(const prepared_query_handle_t&) = delete;
-				prepared_query_handle_t(prepared_query_handle_t&&) = default;
-				prepared_query_handle_t& operator=(const prepared_query_handle_t&) = delete;
-				prepared_query_handle_t& operator=(prepared_query_handle_t&&) = default;
+				prepared_statement_handle_t(const prepared_statement_handle_t&) = delete;
+				prepared_statement_handle_t(prepared_statement_handle_t&&) = default;
+				prepared_statement_handle_t& operator=(const prepared_statement_handle_t&) = delete;
+				prepared_statement_handle_t& operator=(prepared_statement_handle_t&&) = default;
 
-				~prepared_query_handle_t()
+				~prepared_statement_handle_t()
 				{
 					if (mysql_stmt)
 						mysql_stmt_close(mysql_stmt);

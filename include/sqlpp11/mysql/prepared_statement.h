@@ -25,8 +25,8 @@
  */
 
 
-#ifndef SQLPP_MYSQL_PREPARED_QUERY_H
-#define SQLPP_MYSQL_PREPARED_QUERY_H
+#ifndef SQLPP_MYSQL_PREPARED_STATEMENT_H
+#define SQLPP_MYSQL_PREPARED_STATEMENT_H
 
 #include <memory>
 #include <string>
@@ -39,24 +39,24 @@ namespace sqlpp
 
 		namespace detail
 		{
-			struct prepared_query_handle_t;
+			struct prepared_statement_handle_t;
 		}
 
-		class prepared_query_t
+		class prepared_statement_t
 		{
 			friend ::sqlpp::mysql::connection;
-			std::shared_ptr<detail::prepared_query_handle_t> _handle;
+			std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 
 		public:
-			prepared_query_t() = delete;
-			prepared_query_t(std::shared_ptr<detail::prepared_query_handle_t>&& handle);
-			prepared_query_t(const prepared_query_t&) = delete;
-			prepared_query_t(prepared_query_t&& rhs) = default;
-			prepared_query_t& operator=(const prepared_query_t&) = delete;
-			prepared_query_t& operator=(prepared_query_t&&) = default;
-			~prepared_query_t() = default;
+			prepared_statement_t() = delete;
+			prepared_statement_t(std::shared_ptr<detail::prepared_statement_handle_t>&& handle);
+			prepared_statement_t(const prepared_statement_t&) = delete;
+			prepared_statement_t(prepared_statement_t&& rhs) = default;
+			prepared_statement_t& operator=(const prepared_statement_t&) = delete;
+			prepared_statement_t& operator=(prepared_statement_t&&) = default;
+			~prepared_statement_t() = default;
 
-			bool operator==(const prepared_query_t& rhs) const
+			bool operator==(const prepared_statement_t& rhs) const
 			{
 				return _handle == rhs._handle;
 			}
