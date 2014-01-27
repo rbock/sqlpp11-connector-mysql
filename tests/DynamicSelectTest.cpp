@@ -60,16 +60,22 @@ int main()
 	db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
 	db.execute(R"(CREATE TABLE tab_sample (
 		alpha bigint(20) DEFAULT NULL,
-			beta bool DEFAULT NULL,
-			gamma varchar(255) DEFAULT NULL
+			beta varchar(255) DEFAULT NULL,
+			gamma bool DEFAULT NULL
 			))");
 
 	TabSample tab;
 	db.run(insert_into(tab).set(tab.gamma = true));
+	db.run(insert_into(tab).columns(tab.beta, tab.gamma)
+			.add_values(tab.beta = "rhabarbertorte", tab.gamma = false)
+			.add_values(tab.beta = "cheesecake", tab.gamma = false)
+			.add_values(tab.beta = "kaesekuchen", tab.gamma = true)
+			);
+
 
 	for(const auto& row : db.run(dynamic_select(db).dynamic_columns(tab.alpha).add_column(tab.beta).from(tab).where(true)))
 	{
-		std::cerr << "row.alpha: " << row.alpha << "row.beta" << row.at("beta") << std::endl;
+		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.at("beta") << std::endl;
 	};
 	return 0;
 }

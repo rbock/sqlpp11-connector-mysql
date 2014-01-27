@@ -40,7 +40,10 @@ namespace sqlpp
 		char_result_t::char_result_t(std::unique_ptr<detail::result_handle>&& handle):
 			_handle(std::move(handle))
 		{
-			if (_handle and _handle->debug)
+			if (!_handle)
+				throw sqlpp::exception("Constructing char_result without valid handle");
+
+			if (_handle->debug)
 				std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
 		}
 
@@ -50,12 +53,11 @@ namespace sqlpp
 
 		void char_result_t::next_impl()
 		{
-			if (_handle and _handle->debug)
+			if (_handle->debug)
 				std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
 
-			_char_result_row = _handle 
-				? char_result_row_t{ mysql_fetch_row(_handle->mysql_res), mysql_fetch_lengths(_handle->mysql_res) }
-			: char_result_row_t{ nullptr, nullptr };
+			_char_result_row.data = mysql_fetch_row(_handle->mysql_res);
+			_char_result_row.len = mysql_fetch_lengths(_handle->mysql_res);
 		}
 
 	}
