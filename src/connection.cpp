@@ -52,7 +52,7 @@ namespace sqlpp
 
 			void execute_statement(detail::connection_handle& handle, const std::string& statement) // FIXME: Should be connection_handle_t
 			{
-				// FIXME thread_local MySqlThreadInitializer threadInitializer;
+				thread_local MySqlThreadInitializer threadInitializer;
 
 				if (handle.config->debug)
 					std::cerr << "MySQL debug: Executing: '" << statement << "'" << std::endl;

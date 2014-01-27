@@ -30,6 +30,7 @@
 
 #include <memory>
 #include <sqlpp11/vendor/char_result_row.h>
+#include <sqlpp11/exception.h>
 
 namespace sqlpp
 {
