@@ -35,7 +35,7 @@ namespace sqlpp
 	{
 		namespace detail
 		{
-			connection_handle::connection_handle(const std::shared_ptr<connection_config>& conf):
+			connection_handle_t::connection_handle_t(const std::shared_ptr<connection_config>& conf):
 				config(conf),
 				mysql(new MYSQL)
 			{
@@ -66,7 +66,7 @@ namespace sqlpp
 				}
 			}
 
-			connection_handle::~connection_handle()
+			connection_handle_t::~connection_handle_t()
 			{
 				mysql_close(mysql.get());
 			}

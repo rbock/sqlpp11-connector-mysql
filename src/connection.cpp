@@ -50,7 +50,7 @@ namespace sqlpp
 				}
 			};
 
-			void execute_statement(detail::connection_handle& handle, const std::string& statement) // FIXME: Should be connection_handle_t
+			void execute_statement(detail::connection_handle_t& handle, const std::string& statement)
 			{
 				thread_local MySqlThreadInitializer threadInitializer;
 
@@ -79,9 +79,9 @@ namespace sqlpp
         }
 			}
 
-			std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(detail::connection_handle& handle, const std::string& statement, size_t no_of_parameters, size_t no_of_columns)
+			std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(detail::connection_handle_t& handle, const std::string& statement, size_t no_of_parameters, size_t no_of_columns)
 			{
-				// FIXME thread_local MySqlThreadInitializer threadInitializer;
+				thread_local MySqlThreadInitializer threadInitializer;
 
 				if (handle.config->debug)
 					std::cerr << "MySQL debug: Preparing: '" << statement << "'" << std::endl;
@@ -101,7 +101,7 @@ namespace sqlpp
 		}
 
 		connection::connection(const std::shared_ptr<connection_config>& config):
-			_handle(new detail::connection_handle(config))
+			_handle(new detail::connection_handle_t(config))
 		{
 			if (mysql_set_character_set(_handle->mysql.get(), _handle->config->charset.c_str()))
 			{

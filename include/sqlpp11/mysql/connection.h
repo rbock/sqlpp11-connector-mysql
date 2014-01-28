@@ -42,7 +42,7 @@ namespace sqlpp
 	{
 		namespace detail
 		{
-			class connection_handle;
+			class connection_handle_t;
 		}
 
 		class connection;
@@ -72,7 +72,7 @@ namespace sqlpp
 
 		class connection: public sqlpp::connection
 		{
-			std::unique_ptr<detail::connection_handle> _handle;
+			std::unique_ptr<detail::connection_handle_t> _handle;
 			bool _transaction_active = false;
 
 			// direct execution
