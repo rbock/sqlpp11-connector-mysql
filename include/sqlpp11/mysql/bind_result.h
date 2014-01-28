@@ -25,9 +25,10 @@
  */
 
 
+#ifndef SQLPP_MYSQL_BIND_RESULT_H
+#define SQLPP_MYSQL_BIND_RESULT_H
+
 #include <memory>
-#include <sqlpp11/mysql/connection_config.h>
-#include "connection_handle.h"
 
 namespace sqlpp
 {
@@ -35,43 +36,66 @@ namespace sqlpp
 	{
 		namespace detail
 		{
-			connection_handle_t::connection_handle_t(const std::shared_ptr<connection_config>& conf):
-				config(conf),
-				mysql(new MYSQL)
-			{
-				if (not mysql_init(mysql.get()))
-				{
-					throw std::runtime_error("MySQL: could not init connection data structure");
-				}
-
-				if (config->auto_reconnect)
-				{
-					my_bool my_true = true; 
-					if (mysql_options(mysql.get(), MYSQL_OPT_RECONNECT, &my_true)) 
-					{ 
-						throw std::runtime_error("MySQL: could not set option MYSQL_OPT_RECONNECT"); 
-					} 
-				}
-
-				if (!mysql_real_connect(mysql.get(), 
-							config->host.empty() ? nullptr : config->host.c_str(), 
-							config->user.empty() ? nullptr : config->user.c_str(), 
-							config->password.empty() ? nullptr : config->password.c_str(),
-							nullptr, 
-							config->port, 
-							config->unix_socket.empty() ? nullptr : config->unix_socket.c_str(),
-						 	config->client_flag))
-				{
-					throw std::runtime_error("MySQL: could not connect to server: "+std::string(mysql_error(mysql.get())));
-				}
-			}
-
-			connection_handle_t::~connection_handle_t()
-			{
-				mysql_close(mysql.get());
-			}
+			struct prepared_statement_handle_t;
 		}
+
+		class bind_result_t
+		{
+			std::shared_ptr<detail::prepared_statement_handle_t> _handle;
+			void* _result_row_address = nullptr;
+
+		public:
+			bind_result_t() = default;
+			bind_result_t(const std::shared_ptr<detail::prepared_statement_handle_t>& handle);
+			bind_result_t(const bind_result_t&) = delete;
+			bind_result_t(bind_result_t&& rhs) = default;
+			bind_result_t& operator=(const bind_result_t&) = delete;
+			bind_result_t& operator=(bind_result_t&&) = default;
+			~bind_result_t() = default;
+
+			bool operator==(const bind_result_t& rhs) const
+			{
+				return _handle == rhs._handle;
+			}
+
+			template<typename ResultRow>
+			void next(ResultRow& result_row)
+			{
+				if (!_handle)
+				{
+					result_row.invalidate();
+					return;
+				}
+
+				if (&result_row != _result_row_address)
+				{
+					result_row._bind(*this);
+					bind_impl();
+					_result_row_address = &result_row;
+				}
+				if (next_impl())
+				{
+					if (not result_row)
+					{
+						result_row.validate();
+					}
+				}
+				else
+				{
+					if (result_row)
+						result_row.invalidate();
+				}
+			};
+
+			void _bind_boolean_result(size_t index, signed char* value, bool* is_null);
+			void _bind_integral_result(size_t index, int64_t* value, bool* is_null);
+			void _bind_text_result(size_t index, const char** text, size_t* len);
+
+		private:
+			void bind_impl();
+			bool next_impl();
+		};
+
 	}
 }
-
-
+#endif

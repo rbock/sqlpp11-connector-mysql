@@ -28,9 +28,9 @@ enable_testing()
 
 message(STATUS "Using ${CMAKE_CXX_COMPILER} (compiler id: ${CMAKE_CXX_COMPILER_ID})")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++")
+	set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ ${CMAKE_CXX_FLAGS}")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-	set(CMAKE_CXX_FLAGS "-std=c++11")
+	set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 endif ()
 
 set(SQLPP11_INCLUDE_DIR "../sqlpp11/include" CACHE FILEPATH "Path to sqlpp11 includes")
@@ -41,7 +41,10 @@ endif()
 
 message(SEND_MESSAGE "including sqlpp11 from ${SQLPP11_INCLUDE_DIR}")
 include_directories("${SQLPP11_INCLUDE_DIR}")
-include_directories("${PROJECT_SOURCE_DIR}/include")
+set(include_dir "${PROJECT_SOURCE_DIR}/include")
+file(GLOB_RECURSE sqlpp_headers ${include_dir}/*.h)
+include_directories(${include_dir})
+
 add_subdirectory(src)
 add_subdirectory(tests)
 

@@ -25,53 +25,46 @@
  */
 
 
+#ifndef SQLPP_MYSQL_PREPARED_STATEMENT_H
+#define SQLPP_MYSQL_PREPARED_STATEMENT_H
+
 #include <memory>
-#include <sqlpp11/mysql/connection_config.h>
-#include "connection_handle.h"
+#include <string>
 
 namespace sqlpp
 {
 	namespace mysql
 	{
+		struct connection;
+
 		namespace detail
 		{
-			connection_handle_t::connection_handle_t(const std::shared_ptr<connection_config>& conf):
-				config(conf),
-				mysql(new MYSQL)
-			{
-				if (not mysql_init(mysql.get()))
-				{
-					throw std::runtime_error("MySQL: could not init connection data structure");
-				}
-
-				if (config->auto_reconnect)
-				{
-					my_bool my_true = true; 
-					if (mysql_options(mysql.get(), MYSQL_OPT_RECONNECT, &my_true)) 
-					{ 
-						throw std::runtime_error("MySQL: could not set option MYSQL_OPT_RECONNECT"); 
-					} 
-				}
-
-				if (!mysql_real_connect(mysql.get(), 
-							config->host.empty() ? nullptr : config->host.c_str(), 
-							config->user.empty() ? nullptr : config->user.c_str(), 
-							config->password.empty() ? nullptr : config->password.c_str(),
-							nullptr, 
-							config->port, 
-							config->unix_socket.empty() ? nullptr : config->unix_socket.c_str(),
-						 	config->client_flag))
-				{
-					throw std::runtime_error("MySQL: could not connect to server: "+std::string(mysql_error(mysql.get())));
-				}
-			}
-
-			connection_handle_t::~connection_handle_t()
-			{
-				mysql_close(mysql.get());
-			}
+			struct prepared_statement_handle_t;
 		}
+
+		class prepared_statement_t
+		{
+			friend ::sqlpp::mysql::connection;
+			std::shared_ptr<detail::prepared_statement_handle_t> _handle;
+
+		public:
+			prepared_statement_t() = delete;
+			prepared_statement_t(std::shared_ptr<detail::prepared_statement_handle_t>&& handle);
+			prepared_statement_t(const prepared_statement_t&) = delete;
+			prepared_statement_t(prepared_statement_t&& rhs) = default;
+			prepared_statement_t& operator=(const prepared_statement_t&) = delete;
+			prepared_statement_t& operator=(prepared_statement_t&&) = default;
+			~prepared_statement_t() = default;
+
+			bool operator==(const prepared_statement_t& rhs) const
+			{
+				return _handle == rhs._handle;
+			}
+
+			void _bind_boolean_parameter(size_t index, const signed char* value, bool is_null);
+			void _bind_integral_parameter(size_t index, const int64_t* value, bool is_null);
+			void _bind_text_parameter(size_t index, const std::string* value, bool is_null);
+		};
 	}
 }
-
-
+#endif

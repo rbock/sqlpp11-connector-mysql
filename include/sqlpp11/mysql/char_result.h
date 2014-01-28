@@ -25,11 +25,12 @@
  */
 
 
-#ifndef SQLPP_MYSQL_RESULT_H
-#define SQLPP_MYSQL_RESULT_H
+#ifndef SQLPP_MYSQL_CHAR_RESULT_H
+#define SQLPP_MYSQL_CHAR_RESULT_H
 
 #include <memory>
-#include <sqlpp11/raw_result_row.h>
+#include <sqlpp11/vendor/char_result_row.h>
+#include <sqlpp11/exception.h>
 
 namespace sqlpp
 {
@@ -40,28 +41,37 @@ namespace sqlpp
 			struct result_handle;
 		}
 
-		class result
+		class char_result_t
 		{
 			std::unique_ptr<detail::result_handle> _handle;
-			bool _debug;
+			char_result_row_t _char_result_row;
 
 		public:
-			result();
-			result(std::unique_ptr<detail::result_handle>&& handle, const bool debug);
-			result(const result&) = delete;
-			result(result&& rhs);
-			result& operator=(const result&) = delete;
-			result& operator=(result&&);
-			~result();
+			char_result_t();
+			char_result_t(std::unique_ptr<detail::result_handle>&& handle);
+			char_result_t(const char_result_t&) = delete;
+			char_result_t(char_result_t&& rhs);
+			char_result_t& operator=(const char_result_t&) = delete;
+			char_result_t& operator=(char_result_t&&);
+			~char_result_t();
 
-			bool operator==(const result& rhs) const
+			bool operator==(const char_result_t& rhs) const
 			{
 				return _handle == rhs._handle;
 			}
 
-			//! return the next row from the result or nullptr, if there is no next row
-			raw_result_row_t next();
-			size_t num_cols() const;
+			template<typename ResultRow>
+			void next(ResultRow& result_row)
+			{
+				next_impl();
+				if (_char_result_row.data)
+					result_row = _char_result_row;
+				else
+					result_row.invalidate();
+			};
+
+		private:
+			void next_impl();
 		};
 
 	}

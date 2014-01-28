@@ -29,7 +29,7 @@
 #define SQLPP_MYSQL_H
 
 #include <sqlpp11/mysql/connection.h>
-#include <sqlpp11/mysql/result.h>
+#include <sqlpp11/mysql/char_result.h>
 
 #endif
 

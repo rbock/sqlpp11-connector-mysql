@@ -25,53 +25,41 @@
  */
 
 
-#include <memory>
-#include <sqlpp11/mysql/connection_config.h>
-#include "connection_handle.h"
+#include <iostream>
+#include <sqlpp11/mysql/char_result.h>
+#include "detail/result_handle.h"
+
 
 namespace sqlpp
 {
 	namespace mysql
 	{
-		namespace detail
+		char_result_t::char_result_t()
+		{}
+
+		char_result_t::char_result_t(std::unique_ptr<detail::result_handle>&& handle):
+			_handle(std::move(handle))
 		{
-			connection_handle_t::connection_handle_t(const std::shared_ptr<connection_config>& conf):
-				config(conf),
-				mysql(new MYSQL)
-			{
-				if (not mysql_init(mysql.get()))
-				{
-					throw std::runtime_error("MySQL: could not init connection data structure");
-				}
+			if (!_handle)
+				throw sqlpp::exception("Constructing char_result without valid handle");
 
-				if (config->auto_reconnect)
-				{
-					my_bool my_true = true; 
-					if (mysql_options(mysql.get(), MYSQL_OPT_RECONNECT, &my_true)) 
-					{ 
-						throw std::runtime_error("MySQL: could not set option MYSQL_OPT_RECONNECT"); 
-					} 
-				}
-
-				if (!mysql_real_connect(mysql.get(), 
-							config->host.empty() ? nullptr : config->host.c_str(), 
-							config->user.empty() ? nullptr : config->user.c_str(), 
-							config->password.empty() ? nullptr : config->password.c_str(),
-							nullptr, 
-							config->port, 
-							config->unix_socket.empty() ? nullptr : config->unix_socket.c_str(),
-						 	config->client_flag))
-				{
-					throw std::runtime_error("MySQL: could not connect to server: "+std::string(mysql_error(mysql.get())));
-				}
-			}
-
-			connection_handle_t::~connection_handle_t()
-			{
-				mysql_close(mysql.get());
-			}
+			if (_handle->debug)
+				std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
 		}
+
+		char_result_t::~char_result_t() = default;
+		char_result_t::char_result_t(char_result_t&& rhs) = default;
+		char_result_t& char_result_t::operator=(char_result_t&&) = default;
+
+		void char_result_t::next_impl()
+		{
+			if (_handle->debug)
+				std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
+
+			_char_result_row.data = const_cast<const char**>(mysql_fetch_row(_handle->mysql_res));
+			_char_result_row.len = mysql_fetch_lengths(_handle->mysql_res);
+		}
+
 	}
 }
-
 

@@ -38,17 +38,17 @@ namespace sqlpp
 
 		namespace detail
 		{
-			struct connection_handle
+			struct connection_handle_t
 			{
 				const	std::shared_ptr<connection_config> config;
 				std::unique_ptr<MYSQL> mysql;
 
-				connection_handle(const std::shared_ptr<connection_config>& config);
-				~connection_handle();
-				connection_handle(const connection_handle&) = delete;
-				connection_handle(connection_handle&&) = delete;
-				connection_handle& operator=(const connection_handle&) = delete;
-				connection_handle& operator=(connection_handle&&) = delete;
+				connection_handle_t(const std::shared_ptr<connection_config>& config);
+				~connection_handle_t();
+				connection_handle_t(const connection_handle_t&) = delete;
+				connection_handle_t(connection_handle_t&&) = delete;
+				connection_handle_t& operator=(const connection_handle_t&) = delete;
+				connection_handle_t& operator=(connection_handle_t&&) = delete;
 			};
 		}
 	}

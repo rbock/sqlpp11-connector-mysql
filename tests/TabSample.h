@@ -26,7 +26,7 @@
 #ifndef SQLPP_TAB_SAMPLE_H
 #define SQLPP_TAB_SAMPLE_H
 
-#include <sqlpp11/table_base.h>
+#include <sqlpp11/table.h>
 #include <sqlpp11/column_types.h>
 
 
@@ -41,6 +41,8 @@ namespace TabFoo_
 				struct _member_t
 				{
 					T omega;
+					T& operator()() { return omega; }
+					const T& operator()() const { return omega; }
 				};
 		};
 		using _value_type = sqlpp::bigint;
@@ -50,7 +52,7 @@ namespace TabFoo_
 	};
 }
 
-struct TabFoo: sqlpp::table_base_t<
+struct TabFoo: sqlpp::table_t<
 									TabFoo, 
 									TabFoo_::Omega
 													 >
@@ -63,6 +65,8 @@ struct TabFoo: sqlpp::table_base_t<
 			struct _member_t
 			{
 				T tabFoo;
+				T& operator()() { return tabFoo; }
+				const T& operator()() const { return tabFoo; }
 			};
 	};
 	template<typename Db>
@@ -83,6 +87,8 @@ namespace TabSample_
 				struct _member_t
 				{
 					T alpha;
+					T& operator()() { return alpha; }
+					const T& operator()() const { return alpha; }
 				};
 		};
 		using _value_type = sqlpp::bigint;
@@ -91,7 +97,6 @@ namespace TabSample_
 			using _must_not_insert = std::true_type;
 			using _must_not_update = std::true_type;
 			using _can_be_null = std::true_type;
-			using _trivial_value_is_null = std::true_type;
 			using _foreign_key = decltype(TabFoo::omega);
 		};
 	};
@@ -105,6 +110,8 @@ namespace TabSample_
 				struct _member_t
 				{
 					T beta;
+					T& operator()() { return beta; }
+					const T& operator()() const { return beta; }
 				};
 		};
 		using _value_type = sqlpp::varchar;
@@ -125,6 +132,8 @@ namespace TabSample_
 				struct _member_t
 				{
 					T gamma;
+					T& operator()() { return gamma; }
+					const T& operator()() const { return gamma; }
 				};
 		};
 		using _value_type = sqlpp::boolean;
@@ -135,7 +144,7 @@ namespace TabSample_
 	};
 }
 
-struct TabSample: sqlpp::table_base_t<
+struct TabSample: sqlpp::table_t<
 									TabSample, 
 									TabSample_::Alpha, 
 									TabSample_::Beta,
@@ -150,6 +159,8 @@ struct TabSample: sqlpp::table_base_t<
 			struct _member_t
 			{
 				T tabSample;
+				T& operator()() { return tabSample; }
+				const T& operator()() const { return tabSample; }
 			};
 	};
 	template<typename Db>
