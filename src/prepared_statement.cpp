@@ -41,7 +41,7 @@ namespace sqlpp
 				std::cerr << "MySQL debug: Constructing prepared_statement, using handle at " << _handle.get() << std::endl;
 		}
 
-		void prepared_statement_t::bind_boolean_parameter(size_t index, const signed char* value, bool is_null)
+		void prepared_statement_t::_bind_boolean_parameter(size_t index, const signed char* value, bool is_null)
 		{
 			if (_handle->debug)
 				std::cerr << "binding boolean parameter " << (*value ? "true":"false") << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
@@ -56,7 +56,7 @@ namespace sqlpp
 			param.error = nullptr;
 		}
 
-		void prepared_statement_t::bind_integral_parameter(size_t index, const int64_t* value, bool is_null)
+		void prepared_statement_t::_bind_integral_parameter(size_t index, const int64_t* value, bool is_null)
 		{
 			if (_handle->debug)
 				std::cerr << "binding integral parameter " << *value << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
@@ -71,7 +71,7 @@ namespace sqlpp
 			param.error = nullptr;
 		}
 
-		void prepared_statement_t::bind_text_parameter(size_t index, const std::string* value, bool is_null)
+		void prepared_statement_t::_bind_text_parameter(size_t index, const std::string* value, bool is_null)
 		{
 			if (_handle->debug)
 				std::cerr << "binding text parameter " << *value << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;

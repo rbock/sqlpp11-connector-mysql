@@ -42,7 +42,7 @@ namespace sqlpp
 				std::cerr << "MySQL debug: Constructing bind result, using handle at " << _handle.get() << std::endl;
 		}
 
-		void bind_result_t::bind_boolean_result(size_t index, signed char* value, bool* is_null)
+		void bind_result_t::_bind_boolean_result(size_t index, signed char* value, bool* is_null)
 		{
 			if (_handle->debug)
 				std::cerr << "binding boolean result " << *value << " at index: " << index << std::endl;
@@ -62,7 +62,7 @@ namespace sqlpp
 			param.error = &meta_data.bound_error;
 		}
 
-		void bind_result_t::bind_integral_result(size_t index, int64_t* value, bool* is_null)
+		void bind_result_t::_bind_integral_result(size_t index, int64_t* value, bool* is_null)
 		{
 			if (_handle->debug)
 				std::cerr << "binding integral result " << *value << " at index: " << index << std::endl;
@@ -82,7 +82,7 @@ namespace sqlpp
 			param.error = &meta_data.bound_error;
 		}
 
-		void bind_result_t::bind_text_result(size_t index, char** value, size_t* len)
+		void bind_result_t::_bind_text_result(size_t index, const char** value, size_t* len)
 		{
 			if (_handle->debug)
 				std::cerr << "binding text result at index: " << index << std::endl;

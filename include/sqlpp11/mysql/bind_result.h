@@ -87,9 +87,9 @@ namespace sqlpp
 				}
 			};
 
-			void bind_boolean_result(size_t index, signed char* value, bool* is_null);
-			void bind_integral_result(size_t index, int64_t* value, bool* is_null);
-			void bind_text_result(size_t index, char** text, size_t* len);
+			void _bind_boolean_result(size_t index, signed char* value, bool* is_null);
+			void _bind_integral_result(size_t index, int64_t* value, bool* is_null);
+			void _bind_text_result(size_t index, const char** text, size_t* len);
 
 		private:
 			void bind_impl();

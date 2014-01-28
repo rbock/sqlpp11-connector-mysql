@@ -44,7 +44,7 @@ namespace sqlpp
 				my_bool bound_is_null;
 				my_bool bound_error;
 				std::vector<char> bound_text_buffer; // also for blobs
-				char** text_buffer;
+				const char** text_buffer;
 				size_t* len;
 				bool* is_null;
 			};
