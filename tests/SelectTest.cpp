@@ -72,17 +72,17 @@ int main()
 	TabSample tab;
 
 	// explicit all_of(tab)
-	for(const auto& row : select(all_of(tab)).from(tab).where(true).run(db))
+	for(const auto& row : db.run(select(all_of(tab)).from(tab).where(true)))
 	{
 		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
 	};
 	// selecting a table implicitly expands to all_of(tab)
-	for(const auto& row : select(all_of(tab)).from(tab).where(true).run(db))
+	for(const auto& row : db.run(select(all_of(tab)).from(tab).where(true)))
 	{
 		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
 	};
 	// selecting two multicolumns
-	for(const auto& row : select(multi_column(left, tab.alpha, tab.beta, tab.gamma), multi_column(tab, all_of(tab))).from(tab).where(true).run(db))
+	for(const auto& row : db.run(select(multi_column(left, tab.alpha, tab.beta, tab.gamma), multi_column(tab, all_of(tab))).from(tab).where(true)))
 	{
 		std::cerr << "row.left.alpha: " << row.left.alpha << ", row.left.beta: " << row.left.beta << ", row.left.gamma: " << row.left.gamma <<  std::endl;
 		std::cerr << "row.tabSample.alpha: " << row.tabSample.alpha << ", row.tabSample.beta: " << row.tabSample.beta << ", row.tabSample.gamma: " << row.tabSample.gamma <<  std::endl;
