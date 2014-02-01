@@ -203,16 +203,16 @@ namespace sqlpp
 
 			//! call run on the argument
 			template<typename T>
-				auto run(const T& t) -> decltype(t.run(*this))
+				auto run(const T& t) -> decltype(t._run(*this))
 				{
-					return t.run(*this);
+					return t._run(*this);
 				}
 
 			//! call prepare on the argument
 			template<typename T>
-				auto prepare(const T& t) -> decltype(t.prepare(*this))
+				auto prepare(const T& t) -> decltype(t._prepare(*this))
 				{
-					return t.prepare(*this);
+					return t._prepare(*this);
 				}
 
 			//! start transaction
