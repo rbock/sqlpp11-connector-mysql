@@ -28,7 +28,7 @@
 #define SQLPP_MYSQL_INTERPRETER_H
 
 #include <sqlpp11/vendor/concat.h>
-#include <sqlpp11/vendor/insert_list.h>
+#include <sqlpp11/vendor/insert_value_list.h>
 
 namespace sqlpp
 {
