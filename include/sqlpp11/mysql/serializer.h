@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MYSQL_INTERPRETER_H
-#define SQLPP_MYSQL_INTERPRETER_H
+#ifndef SQLPP_MYSQL_SERIALIZER_H
+#define SQLPP_MYSQL_SERIALIZER_H
 
 #include <sqlpp11/vendor/concat.h>
 #include <sqlpp11/vendor/insert_value_list.h>
@@ -35,7 +35,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename First, typename... Args>
-			struct interpreter_t<mysql::serializer_t, concat_t<First, Args...>>
+			struct serializer_t<mysql::serializer_t, concat_t<First, Args...>>
 			{
 				using T = concat_t<First, Args...>;
 
@@ -49,7 +49,7 @@ namespace sqlpp
 			};
 
 		template<>
-			struct interpreter_t<mysql::serializer_t, insert_default_values_t>
+			struct serializer_t<mysql::serializer_t, insert_default_values_t>
 			{
 				using T = insert_default_values_t;
 
