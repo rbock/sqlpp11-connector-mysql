@@ -81,8 +81,8 @@ int main()
 	// selecting two multicolumns
 	for(const auto& row : db.run(
 						select(tab.alpha,
-								 multi_column(left, tab.alpha, tab.beta, tab.gamma), 
-								 multi_column(tab, all_of(tab)))
+								 multi_column(tab.alpha, tab.beta, tab.gamma).as(left), 
+								 multi_column(all_of(tab)).as(tab))
 						.from(tab).where(true)))
 	{
 		std::cerr << "row.left.alpha: " << row.left.alpha 
