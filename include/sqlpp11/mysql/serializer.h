@@ -27,40 +27,37 @@
 #ifndef SQLPP_MYSQL_SERIALIZER_H
 #define SQLPP_MYSQL_SERIALIZER_H
 
-#include <sqlpp11/vendor/concat.h>
-#include <sqlpp11/vendor/insert_value_list.h>
+#include <sqlpp11/concat.h>
+#include <sqlpp11/insert_value_list.h>
 
 namespace sqlpp
 {
-	namespace vendor
-	{
-		template<typename First, typename... Args>
-			struct serializer_t<mysql::serializer_t, concat_t<First, Args...>>
+	template<typename First, typename... Args>
+		struct serializer_t<mysql::serializer_t, concat_t<First, Args...>>
+		{
+			using T = concat_t<First, Args...>;
+
+			static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
 			{
-				using T = concat_t<First, Args...>;
+				context << "CONCAT(";
+				interpret_tuple(t._args, ',', context);
+				context << ')';
+				return context;
+			}
+		};
 
-				static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
-				{
-					context << "CONCAT(";
-					interpret_tuple(t._args, ',', context);
-					context << ')';
-					return context;
-				}
-			};
+	template<>
+		struct serializer_t<mysql::serializer_t, insert_default_values_data_t>
+		{
+			using T = insert_default_values_data_t;
 
-		template<>
-			struct serializer_t<mysql::serializer_t, insert_default_values_t>
+			static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
 			{
-				using T = insert_default_values_t;
+				context << " () VALUES()";
+				return context;
+			}
+		};
 
-				static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
-				{
-					context << " () VALUES()";
-					return context;
-				}
-			};
-
-	}
 }
 
 #endif
