@@ -42,6 +42,7 @@ namespace sqlpp
 		class bind_result_t
 		{
 			std::shared_ptr<detail::prepared_statement_handle_t> _handle;
+			void* _result_row_address = nullptr;
 
 		public:
 			bind_result_t() = default;
@@ -66,13 +67,18 @@ namespace sqlpp
 					return;
 				}
 
+				if (&result_row != _result_row_address)
+				{
+					result_row._bind(*this);
+					bind_impl();
+					_result_row_address = &result_row;
+				}
 				if (next_impl())
 				{
 					if (not result_row)
 					{
 						result_row._validate();
 					}
-					result_row._bind(*this);
 				}
 				else
 				{
