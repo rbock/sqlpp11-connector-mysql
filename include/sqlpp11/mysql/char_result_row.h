@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,44 +24,24 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-#include <iostream>
-#include <sqlpp11/mysql/char_result.h>
-#include "detail/result_handle.h"
-
+#ifndef SQLPP_MYSQL_CHAR_RESULT_ROW_H
+#define SQLPP_MYSQL_CHAR_RESULT_ROW_H
 
 namespace sqlpp
 {
 	namespace mysql
 	{
-		char_result_t::char_result_t()
-		{}
-
-		char_result_t::char_result_t(std::unique_ptr<detail::result_handle>&& handle):
-			_handle(std::move(handle))
+		struct char_result_row_t
 		{
-			if (!_handle)
-				throw sqlpp::exception("Constructing char_result without valid handle");
+			const char** data;
+			size_t* len;
 
-			if (_handle->debug)
-				std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
-		}
-
-		char_result_t::~char_result_t() = default;
-		char_result_t::char_result_t(char_result_t&& rhs) = default;
-		char_result_t& char_result_t::operator=(char_result_t&&) = default;
-
-		bool char_result_t::next_impl()
-		{
-			if (_handle->debug)
-				std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
-
-			_char_result_row.data = const_cast<const char**>(mysql_fetch_row(_handle->mysql_res));
-			_char_result_row.len = mysql_fetch_lengths(_handle->mysql_res);
-
-			return _char_result_row.data;
-		}
-
+			bool operator==(const char_result_row_t& rhs) const
+			{
+				return data == rhs.data and len == rhs.len; 
+			}
+		};
 	}
 }
 
+#endif
