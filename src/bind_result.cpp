@@ -26,6 +26,7 @@
 
 
 #include <iostream>
+#include <mysql/errmsg.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/bind_result.h>
 #include "detail/prepared_statement_handle.h"
@@ -109,6 +110,18 @@ namespace sqlpp
 				std::cerr << "MySQL debug: Binding results for handle at " << _handle.get() << std::endl;
 
 			auto flag = mysql_stmt_bind_result(_handle->mysql_stmt, _handle->result_params.data());
+
+			switch(flag)
+			{
+			case 0:
+				return;
+			case CR_UNSUPPORTED_PARAM_TYPE:
+				throw sqlpp::exception("mysql_stmt_bind_result: The conversion is not supported. Possibly the buffer_type value is invalid or is not one of the supported types.");
+			case CR_OUT_OF_MEMORY:
+				throw sqlpp::exception("mysql_stmt_bind_result: Out of memory.");
+			default:
+				throw sqlpp::exception("mysql_stmt_bind_result: Unknown.");
+			}
 		}
 
 		bool bind_result_t::next_impl()
