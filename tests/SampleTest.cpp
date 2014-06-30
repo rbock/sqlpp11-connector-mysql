@@ -122,9 +122,9 @@ int main()
 	auto tx = start_transaction(db);
 	if (const auto& row = *db.run(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).where(true)).begin())
 	{
-		int x = row.alpha;
-		int a = row.max;
-		std::cerr << __LINE__ << " row.alpha: "  << row.alpha << std::endl;
+		int a = row.alpha;
+		int m = row.max;
+		std::cerr << __LINE__ << " row.alpha: "  << a << ", row.max: " << m << std::endl;
 	}
 	tx.commit();
 

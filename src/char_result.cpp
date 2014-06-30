@@ -51,13 +51,15 @@ namespace sqlpp
 		char_result_t::char_result_t(char_result_t&& rhs) = default;
 		char_result_t& char_result_t::operator=(char_result_t&&) = default;
 
-		void char_result_t::next_impl()
+		bool char_result_t::next_impl()
 		{
 			if (_handle->debug)
 				std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
 
 			_char_result_row.data = const_cast<const char**>(mysql_fetch_row(_handle->mysql_res));
 			_char_result_row.len = mysql_fetch_lengths(_handle->mysql_res);
+
+			return _char_result_row.data;
 		}
 
 	}

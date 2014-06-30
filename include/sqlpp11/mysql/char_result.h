@@ -28,9 +28,10 @@
 #ifndef SQLPP_MYSQL_CHAR_RESULT_H
 #define SQLPP_MYSQL_CHAR_RESULT_H
 
+#include <cstdlib>
 #include <memory>
-#include <sqlpp11/vendor/char_result_row.h>
 #include <sqlpp11/exception.h>
+#include <sqlpp11/mysql/char_result_row.h>
 
 namespace sqlpp
 {
@@ -63,15 +64,54 @@ namespace sqlpp
 			template<typename ResultRow>
 			void next(ResultRow& result_row)
 			{
-				next_impl();
-				if (_char_result_row.data)
-					result_row = _char_result_row;
+				if (!_handle)
+				{
+					result_row._invalidate();
+					return;
+				}
+
+				if (next_impl())
+				{
+					if (not result_row)
+					{
+						result_row._validate();
+					}
+					result_row._bind(*this);
+				}
 				else
-					result_row.invalidate();
+				{
+					if (result_row)
+						result_row._invalidate();
+				}
 			};
 
+			void _bind_boolean_result(size_t index, signed char* value, bool* is_null)
+			{
+				*is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+				*value = (*is_null ? false : (_char_result_row.data[index][0] == 't' or _char_result_row.data[index][0] == '1'));
+			}
+
+			void _bind_floating_point_result(size_t index, double* value, bool* is_null)
+			{
+				*is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+				*value = (*is_null ? 0 : std::strtod(_char_result_row.data[index], nullptr));
+			}
+
+			void _bind_integral_result(size_t index, int64_t* value, bool* is_null)
+			{
+				*is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+				*value = (*is_null ? 0 : std::strtoll(_char_result_row.data[index], nullptr, 10));
+			}
+
+			void _bind_text_result(size_t index, const char** value, size_t* len)
+			{
+				bool is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+				*value = (is_null ? nullptr : _char_result_row.data[index]);
+				*len = (is_null ? 0 : _char_result_row.len[index]);
+			}
+
 		private:
-			void next_impl();
+			bool next_impl();
 		};
 
 	}

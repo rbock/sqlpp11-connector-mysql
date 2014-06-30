@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,40 +24,24 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MYSQL_SERIALIZER_H
-#define SQLPP_MYSQL_SERIALIZER_H
-
-#include <sqlpp11/concat.h>
-#include <sqlpp11/insert_value_list.h>
+#ifndef SQLPP_MYSQL_CHAR_RESULT_ROW_H
+#define SQLPP_MYSQL_CHAR_RESULT_ROW_H
 
 namespace sqlpp
 {
-	template<typename First, typename... Args>
-		struct serializer_t<mysql::serializer_t, concat_t<First, Args...>>
+	namespace mysql
+	{
+		struct char_result_row_t
 		{
-			using T = concat_t<First, Args...>;
+			const char** data;
+			size_t* len;
 
-			static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
+			bool operator==(const char_result_row_t& rhs) const
 			{
-				context << "CONCAT(";
-				interpret_tuple(t._args, ',', context);
-				context << ')';
-				return context;
+				return data == rhs.data and len == rhs.len; 
 			}
 		};
-
-	template<>
-		struct serializer_t<mysql::serializer_t, insert_default_values_data_t>
-		{
-			using T = insert_default_values_data_t;
-
-			static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
-			{
-				context << " () VALUES()";
-				return context;
-			}
-		};
-
+	}
 }
 
 #endif

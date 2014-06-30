@@ -63,7 +63,7 @@ namespace sqlpp
 			{
 				if (!_handle)
 				{
-					result_row.invalidate();
+					result_row._invalidate();
 					return;
 				}
 
@@ -77,17 +77,18 @@ namespace sqlpp
 				{
 					if (not result_row)
 					{
-						result_row.validate();
+						result_row._validate();
 					}
 				}
 				else
 				{
 					if (result_row)
-						result_row.invalidate();
+						result_row._invalidate();
 				}
 			};
 
 			void _bind_boolean_result(size_t index, signed char* value, bool* is_null);
+			void _bind_floating_point_result(size_t index, double* value, bool* is_null);
 			void _bind_integral_result(size_t index, int64_t* value, bool* is_null);
 			void _bind_text_result(size_t index, const char** text, size_t* len);
 
