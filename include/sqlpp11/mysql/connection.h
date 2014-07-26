@@ -43,7 +43,7 @@ namespace sqlpp
 	{
 		namespace detail
 		{
-			class connection_handle_t;
+			struct connection_handle_t;
 		}
 
 		class connection;

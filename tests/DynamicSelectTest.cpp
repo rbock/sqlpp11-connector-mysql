@@ -37,9 +37,6 @@
 #include <iostream>
 #include <vector>
 
-
-SQLPP_ALIAS_PROVIDER(left);
-
 namespace mysql = sqlpp::mysql;
 int main()
 {
