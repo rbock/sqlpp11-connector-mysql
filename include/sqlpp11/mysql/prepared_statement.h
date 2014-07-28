@@ -35,7 +35,7 @@ namespace sqlpp
 {
 	namespace mysql
 	{
-		struct connection;
+		class connection;
 
 		namespace detail
 		{

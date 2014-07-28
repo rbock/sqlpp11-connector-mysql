@@ -45,10 +45,7 @@ namespace TabFoo_
 					const T& operator()() const { return omega; }
 				};
 		};
-		using _value_type = sqlpp::bigint;
-		struct _column_type
-		{
-		};
+		using _traits = sqlpp::make_traits<sqlpp::bigint>;
 	};
 }
 
@@ -91,14 +88,7 @@ namespace TabSample_
 					const T& operator()() const { return alpha; }
 				};
 		};
-		using _value_type = sqlpp::bigint;
-		struct _column_type
-		{
-			using _must_not_insert = std::true_type;
-			using _must_not_update = std::true_type;
-			using _can_be_null = std::true_type;
-			using _foreign_key = decltype(TabFoo::omega);
-		};
+		using _traits = sqlpp::make_traits<sqlpp::bigint, sqlpp::tag::must_not_insert, sqlpp::tag::must_not_update, sqlpp::tag::can_be_null>;
 	};
 
 	struct Beta
@@ -114,13 +104,7 @@ namespace TabSample_
 					const T& operator()() const { return beta; }
 				};
 		};
-		using _value_type = sqlpp::varchar;
-		struct _column_type
-		{
-			using _can_be_null = std::true_type;
-			using _trivial_value_is_null = std::true_type;
-			using _must_not_update = std::true_type;
-		};
+		using _traits = sqlpp::make_traits<sqlpp::varchar, sqlpp::tag::can_be_null, sqlpp::tag::trivial_value_is_null, sqlpp::tag::must_not_update>;
 	};
 
 	struct Gamma
@@ -136,11 +120,7 @@ namespace TabSample_
 					const T& operator()() const { return gamma; }
 				};
 		};
-		using _value_type = sqlpp::boolean;
-		struct _column_type
-		{
-			using _require_insert = std::false_type;
-		};
+		using _traits = sqlpp::make_traits<sqlpp::boolean>;
 	};
 }
 
