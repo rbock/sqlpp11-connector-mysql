@@ -46,7 +46,7 @@ namespace sqlpp
 		void bind_result_t::_bind_boolean_result(size_t index, signed char* value, bool* is_null)
 		{
 			if (_handle->debug)
-				std::cerr << "binding boolean result " << *value << " at index: " << index << std::endl;
+				std::cerr << "MySQL debug: binding boolean result " << *value << " at index: " << index << std::endl;
 
 			detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
 			meta_data.index = index;
@@ -66,7 +66,7 @@ namespace sqlpp
 		void bind_result_t::_bind_integral_result(size_t index, int64_t* value, bool* is_null)
 		{
 			if (_handle->debug)
-				std::cerr << "binding integral result " << *value << " at index: " << index << std::endl;
+				std::cerr << "MySQL debug: binding integral result " << *value << " at index: " << index << std::endl;
 
 			detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
 			meta_data.index = index;
@@ -86,7 +86,7 @@ namespace sqlpp
 		void bind_result_t::_bind_floating_point_result(size_t index, double* value, bool* is_null)
 		{
 			if (_handle->debug)
-				std::cerr << "binding floating point result " << *value << " at index: " << index << std::endl;
+				std::cerr << "MySQL debug: binding floating point result " << *value << " at index: " << index << std::endl;
 
 			detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
 			meta_data.index = index;
@@ -106,7 +106,7 @@ namespace sqlpp
 		void bind_result_t::_bind_text_result(size_t index, const char** value, size_t* len)
 		{
 			if (_handle->debug)
-				std::cerr << "binding text result at index: " << index << std::endl;
+				std::cerr << "MySQL debug: binding text result at index: " << index << std::endl;
 
 			detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
 			meta_data.index = index;
@@ -136,11 +136,11 @@ namespace sqlpp
 			case 0:
 				return;
 			case CR_UNSUPPORTED_PARAM_TYPE:
-				throw sqlpp::exception("mysql_stmt_bind_result: The conversion is not supported. Possibly the buffer_type value is invalid or is not one of the supported types.");
+				throw sqlpp::exception("MySQL: mysql_stmt_bind_result: The conversion is not supported. Possibly the buffer_type value is invalid or is not one of the supported types.");
 			case CR_OUT_OF_MEMORY:
-				throw sqlpp::exception("mysql_stmt_bind_result: Out of memory.");
+				throw sqlpp::exception("MySQL: mysql_stmt_bind_result: Out of memory.");
 			default:
-				throw sqlpp::exception("mysql_stmt_bind_result: Unknown.");
+				throw sqlpp::exception("MySQL: mysql_stmt_bind_result: Unknown.");
 			}
 		}
 
@@ -179,7 +179,7 @@ namespace sqlpp
 									param.buffer_length = r.bound_text_buffer.size();
 
 									if (mysql_stmt_fetch_column(_handle->mysql_stmt, _handle->result_params.data() + r.index, r.index, 0))
-										throw sqlpp::exception(std::string("Fetch column after reallocate failed: ") + mysql_stmt_error(_handle->mysql_stmt));
+										throw sqlpp::exception(std::string("MySQL: Fetch column after reallocate failed: ") + mysql_stmt_error(_handle->mysql_stmt));
 								}
 								*r.text_buffer = r.bound_text_buffer.data();
 								*r.len = r.bound_len;
@@ -193,11 +193,11 @@ namespace sqlpp
 				}
 				return true;
 			case 1:
-				throw sqlpp::exception(std::string("Could not fetch next result: ") + mysql_stmt_error(_handle->mysql_stmt));
+				throw sqlpp::exception(std::string("MySQL: Could not fetch next result: ") + mysql_stmt_error(_handle->mysql_stmt));
 			case MYSQL_NO_DATA:
 				return false;
 			default:
-				throw sqlpp::exception("Unexpected return value for mysql_stmt_fetch()");
+				throw sqlpp::exception("MySQL: Unexpected return value for mysql_stmt_fetch()");
 			}
 		}
 	}

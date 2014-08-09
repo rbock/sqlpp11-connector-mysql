@@ -228,6 +228,13 @@ namespace sqlpp
 					return t._run(*this);
 				}
 
+			//! call run on the argument
+			template<typename T>
+				auto operator()(const T& t) -> decltype(t._run(*this))
+				{
+					return t._run(*this);
+				}
+
 			//! call prepare on the argument
 			template<typename T>
 				auto prepare(const T& t) -> decltype(t._prepare(*this))
@@ -238,7 +245,7 @@ namespace sqlpp
 			//! start transaction
 			void start_transaction();
 
-			//! commit transaction (or throw transaction if the transaction has been finished already)
+			//! commit transaction (or throw if the transaction has been finished already)
 			void commit_transaction();
 
 			//! rollback transaction with or without reporting the rollback (or throw if the transaction has been finished already)
