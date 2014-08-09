@@ -65,21 +65,21 @@ int main()
 
 	TabSample tab;
 	// clear the table
-	db.run(remove_from(tab).where(true));
+	db(remove_from(tab).where(true));
 
 	// explicit all_of(tab)
 	std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
 	select(all_of(tab)).from(tab);
 	std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
-	db.run(select(all_of(tab)).from(tab).where(true));
+	db(select(all_of(tab)).from(tab).where(true));
 	std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
-	for(const auto& row : db.run(select(all_of(tab)).from(tab).where(true)))
+	for(const auto& row : db(select(all_of(tab)).from(tab).where(true)))
 	{
 		std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
 		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
 	};
 	// selecting two multicolumns
-	for(const auto& row : db.run(
+	for(const auto& row : db(
 						select(tab.alpha,
 								 multi_column(tab.alpha, tab.beta, tab.gamma).as(left), 
 								 multi_column(all_of(tab)).as(tab))
@@ -95,32 +95,32 @@ int main()
 
 
 	// insert
-	db.run(insert_into(tab).default_values());
-	db.run(insert_into(tab).set(tab.beta = "kaesekuchen", tab.gamma = true));
-	db.run(insert_into(tab).default_values());
-	db.run(insert_into(tab).set(tab.beta = "", tab.gamma = true));
+	db(insert_into(tab).default_values());
+	db(insert_into(tab).set(tab.beta = "kaesekuchen", tab.gamma = true));
+	db(insert_into(tab).default_values());
+	db(insert_into(tab).set(tab.beta = "", tab.gamma = true));
 
 	// update
-	db.run(update(tab).set(tab.gamma = false).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
-	db.run(update(tab).set(tab.gamma = true).where(tab.alpha.in(1)));
+	db(update(tab).set(tab.gamma = false).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+	db(update(tab).set(tab.gamma = true).where(tab.alpha.in(1)));
 
 	// remove
-	db.run(remove_from(tab).where(tab.alpha == tab.alpha + 3));
+	db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
 
 
 		std::cerr << "+++++++++++++++++++++++++++"  << std::endl;
-	for (const auto& row: db.run(select(all_of(tab)).from(tab).where(true)))
+	for (const auto& row: db(select(all_of(tab)).from(tab).where(true)))
 	{
 		std::cerr << __LINE__ << " row.beta: " << row.beta << std::endl;
 	}
 	std::cerr << "+++++++++++++++++++++++++++"  << std::endl;
-	decltype(db.run(select(all_of(tab)))) result;
-	result = db.run(select(all_of(tab)).from(tab).where(true));
+	decltype(db(select(all_of(tab)))) result;
+	result = db(select(all_of(tab)).from(tab).where(true));
 	std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha << std::endl;
 	std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
 
 	auto tx = start_transaction(db);
-	if (const auto& row = *db.run(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).where(true)).begin())
+	if (const auto& row = *db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).where(true)).begin())
 	{
 		int a = row.alpha;
 		int m = row.max;
@@ -130,12 +130,12 @@ int main()
 
 
 	TabFoo foo;
-	for (const auto& row : db.run(select(tab.alpha).from(tab.join(foo).on(tab.alpha == foo.omega)).where(true)))
+	for (const auto& row : db(select(tab.alpha).from(tab.join(foo).on(tab.alpha == foo.omega)).where(true)))
 	{
 		std::cerr << row.alpha << std::endl;
 	}
 
-	for (const auto& row : db.run(select(tab.alpha).from(tab.left_outer_join(foo).on(tab.alpha == foo.omega)).where(true)))
+	for (const auto& row : db(select(tab.alpha).from(tab.left_outer_join(foo).on(tab.alpha == foo.omega)).where(true)))
 	{
 		std::cerr << row.alpha << std::endl;
 	}
@@ -144,7 +144,7 @@ int main()
 	ps.params.alpha = 7;
 	ps.params.beta = "wurzelbrunft";
 	ps.params.gamma = true;
-	for (const auto& row: db.run(ps))
+	for (const auto& row: db(ps))
 	{
 		std::cerr << "bound result: alpha: " << row.alpha << std::endl;
 		std::cerr << "bound result: beta: " << row.beta << std::endl;
@@ -153,7 +153,7 @@ int main()
 
 	std::cerr << "--------" << std::endl;
 	ps.params.gamma = "false";
-	for (const auto& row: db.run(ps))
+	for (const auto& row: db(ps))
 	{
 		std::cerr << "bound result: alpha: " << row.alpha << std::endl;
 		std::cerr << "bound result: beta: " << row.beta << std::endl;
@@ -162,7 +162,7 @@ int main()
 
 	std::cerr << "--------" << std::endl;
 	ps.params.beta = "kaesekuchen";
-	for (const auto& row: db.run(ps))
+	for (const auto& row: db(ps))
 	{
 		std::cerr << "bound result: alpha: " << row.alpha << std::endl;
 		std::cerr << "bound result: beta: " << row.beta << std::endl;
@@ -171,15 +171,15 @@ int main()
 
 	auto pi = db.prepare(insert_into(tab).set(tab.beta = parameter(tab.beta), tab.gamma = true));
 	pi.params.beta = "prepared cake";
-	std::cerr << "Inserted: " << db.run(pi) << std::endl;
+	std::cerr << "Inserted: " << db(pi) << std::endl;
 
 	auto pu = db.prepare(update(tab).set(tab.gamma = parameter(tab.gamma)).where(tab.beta == "prepared cake"));
 	pu.params.gamma = false;
-	std::cerr << "Updated: " << db.run(pu) << std::endl;
+	std::cerr << "Updated: " << db(pu) << std::endl;
 
 	auto pr = db.prepare(remove_from(tab).where(tab.beta != parameter(tab.beta)));
 	pr.params.beta = "prepared cake";
-	std::cerr << "Deleted lines: " << db.run(pr) << std::endl;
+	std::cerr << "Deleted lines: " << db(pr) << std::endl;
 
 	return 0;
 }

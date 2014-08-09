@@ -62,18 +62,18 @@ int main()
 			))");
 
 	TabSample tab;
-	db.run(insert_into(tab).set(tab.gamma = true));
+	db(insert_into(tab).set(tab.gamma = true));
 	auto i = insert_into(tab).columns(tab.beta, tab.gamma);
 	i.values.add(tab.beta = "rhabarbertorte", tab.gamma = false);
 	i.values.add(tab.beta = "cheesecake", tab.gamma = false);
 	i.values.add(tab.beta = "kaesekuchen", tab.gamma = true);
-	db.run(i);
+	db(i);
 
 	auto s = dynamic_select(db).dynamic_columns(tab.alpha).from(tab).where(true);
 	s.selected_columns.add(tab.beta);
 
 
-	for(const auto& row : db.run(s))
+	for(const auto& row : db(s))
 	{
 		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.at("beta") << std::endl;
 	};
