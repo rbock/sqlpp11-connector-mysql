@@ -41,7 +41,7 @@ namespace sqlpp
 			_handle(std::move(handle))
 		{
 			if (!_handle)
-				throw sqlpp::exception("Constructing char_result without valid handle");
+				throw sqlpp::exception("MySQL: Constructing char_result without valid handle");
 
 			if (_handle->debug)
 				std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;

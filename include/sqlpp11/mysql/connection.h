@@ -245,7 +245,7 @@ namespace sqlpp
 			//! start transaction
 			void start_transaction();
 
-			//! commit transaction (or throw transaction if the transaction has been finished already)
+			//! commit transaction (or throw if the transaction has been finished already)
 			void commit_transaction();
 
 			//! rollback transaction with or without reporting the rollback (or throw if the transaction has been finished already)

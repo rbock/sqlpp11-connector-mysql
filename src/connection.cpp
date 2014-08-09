@@ -194,7 +194,7 @@ namespace sqlpp
 		{
 			if (_transaction_active)
 			{
-				throw sqlpp::exception("Cannot have more than one open transaction per connection");
+				throw sqlpp::exception("MySQL: Cannot have more than one open transaction per connection");
 			}
 			execute_statement(*_handle, "START TRANSACTION");
 			_transaction_active = true;
@@ -204,7 +204,7 @@ namespace sqlpp
 		{
 			if (not _transaction_active)
 			{
-				throw sqlpp::exception("Cannot commit a finished or failed transaction");
+				throw sqlpp::exception("MySQL: Cannot commit a finished or failed transaction");
 			}
 			_transaction_active = false;
 			execute_statement(*_handle, "COMMIT");
@@ -214,7 +214,7 @@ namespace sqlpp
 		{
 			if (not _transaction_active)
 			{
-				throw sqlpp::exception("Cannot rollback a finished or failed transaction");
+				throw sqlpp::exception("MySQL: Cannot rollback a finished or failed transaction");
 			}
 			if (report)
 			{

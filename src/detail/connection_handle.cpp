@@ -26,6 +26,7 @@
 
 
 #include <memory>
+#include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/connection_config.h>
 #include "connection_handle.h"
 
@@ -41,7 +42,7 @@ namespace sqlpp
 			{
 				if (not mysql_init(mysql.get()))
 				{
-					throw std::runtime_error("MySQL: could not init connection data structure");
+					throw sqlpp::exception("MySQL: could not init connection data structure");
 				}
 
 				if (config->auto_reconnect)
@@ -49,7 +50,7 @@ namespace sqlpp
 					my_bool my_true = true; 
 					if (mysql_options(mysql.get(), MYSQL_OPT_RECONNECT, &my_true)) 
 					{ 
-						throw std::runtime_error("MySQL: could not set option MYSQL_OPT_RECONNECT"); 
+						throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_RECONNECT"); 
 					} 
 				}
 
@@ -62,7 +63,7 @@ namespace sqlpp
 							config->unix_socket.empty() ? nullptr : config->unix_socket.c_str(),
 						 	config->client_flag))
 				{
-					throw std::runtime_error("MySQL: could not connect to server: "+std::string(mysql_error(mysql.get())));
+					throw sqlpp::exception("MySQL: could not connect to server: "+std::string(mysql_error(mysql.get())));
 				}
 			}
 
