@@ -24,6 +24,7 @@
  */
 
 #include "TabSample.h"
+#include <cassert>
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/select.h>
 #include <sqlpp11/insert.h>
@@ -40,26 +41,52 @@
 
 SQLPP_ALIAS_PROVIDER(left);
 
-namespace mysql = sqlpp::mysql;
+namespace sql = sqlpp::mysql;
+TabSample tab;
+
+void testSelectAll(sql::connection& db, int expectedRowCount)
+{
+	std::cerr << "--------------------------------------" << std::endl;
+	int i = 0;
+	for(const auto& row : db(sqlpp::select(all_of(tab)).from(tab).where(true)))
+	{
+		++i;
+		std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
+		assert(row.alpha == i);
+	};
+	assert(i == expectedRowCount);
+
+	auto preparedSelectAll = db.prepare(sqlpp::select(all_of(tab)).from(tab).where(true));
+	i = 0;
+	for(const auto& row : db(preparedSelectAll))
+	{
+		++i;
+		std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
+		assert(row.alpha == i);
+	};
+	assert(i == expectedRowCount);
+	std::cerr << "--------------------------------------" << std::endl;
+}
+
 int main()
 {
-	auto config = std::make_shared<mysql::connection_config>();
+	auto config = std::make_shared<sql::connection_config>();
  	config->user = "root";
  	config->database = "sqlpp_mysql";
 	config->debug = true;
 	try
 	{
-		mysql::connection db(config);
+		sql::connection db(config);
 	}
 	catch(const sqlpp::exception& )
 	{
-		std::cerr << "For testing, you'll need to create a database sqlpp_mysql with a table tab_sample, as shown in tests/TabSample.sql" << std::endl;
+		std::cerr << "For testing, you'll need to create a database sqlpp_mysql" << std::endl;
 		throw;
 	}
-	mysql::connection db(config);
+	sql::connection db(config);
 	db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
 	db.execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) DEFAULT NULL,
+		alpha bigint(20) AUTOINCREMENT,
 			beta bool DEFAULT NULL,
 			gamma varchar(255) DEFAULT NULL
 			))");
@@ -69,18 +96,14 @@ int main()
 			))");
 
 
-	TabSample tab;
+	testSelectAll(db, 0);
+	db(insert_into(tab).default_values());
+	testSelectAll(db, 1);
+	db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheesecake"));
+	testSelectAll(db, 2);
+	db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheesecake"));
+	testSelectAll(db, 3);
 
-	// explicit all_of(tab)
-	for(const auto& row : db(select(all_of(tab)).from(tab).where(true)))
-	{
-		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
-	};
-	// selecting a table implicitly expands to all_of(tab)
-	for(const auto& row : db(select(all_of(tab)).from(tab).where(true)))
-	{
-		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
-	};
 	// selecting two multicolumns
 	for(const auto& row : db(select(multi_column(tab.alpha, tab.beta, tab.gamma).as(left), multi_column(all_of(tab)).as(tab)).from(tab).where(true)))
 	{
