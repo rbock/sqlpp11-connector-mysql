@@ -86,9 +86,10 @@ int main()
 	sql::connection db(config);
 	db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
 	db.execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) AUTOINCREMENT,
+		alpha bigint(20) AUTO_INCREMENT,
 			beta bool DEFAULT NULL,
-			gamma varchar(255) DEFAULT NULL
+			gamma varchar(255) DEFAULT NULL,
+			PRIMARY KEY (alpha)
 			))");
 	db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
 	db.execute(R"(CREATE TABLE tab_foo (
