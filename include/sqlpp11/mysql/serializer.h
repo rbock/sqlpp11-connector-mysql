@@ -35,6 +35,7 @@ namespace sqlpp
 	template<typename First, typename... Args>
 		struct serializer_t<mysql::serializer_t, concat_t<First, Args...>>
 		{
+			using _serialize_check = consistent_t;
 			using T = concat_t<First, Args...>;
 
 			static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
@@ -49,6 +50,7 @@ namespace sqlpp
 	template<>
 		struct serializer_t<mysql::serializer_t, insert_default_values_data_t>
 		{
+			using _serialize_check = consistent_t;
 			using T = insert_default_values_data_t;
 
 			static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
