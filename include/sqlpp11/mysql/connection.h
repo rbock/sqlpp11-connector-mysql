@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -229,18 +229,40 @@ namespace sqlpp
 				}
 
 			//! call run on the argument
-			template<typename T>
-				auto operator()(const T& t) -> decltype(t._run(*this))
-				{
-					return t._run(*this);
-				}
+      template <typename T>
+      auto _run(const T& t, const std::true_type&) -> decltype(t._run(*this))
+      {
+        return t._run(*this);
+      }
+
+      template <typename T>
+      auto _run(const T& t, const std::false_type&) -> void;
+
+      template <typename T>
+      auto operator()(const T& t)
+          -> decltype(this->_run(t, typename sqlpp::run_check_t<_serializer_context_t, T>::type{}))
+      {
+        sqlpp::run_check_t<_serializer_context_t, T>::_();
+        return _run(t, typename sqlpp::run_check_t<_serializer_context_t, T>::type{});
+      }
 
 			//! call prepare on the argument
-			template<typename T>
-				auto prepare(const T& t) -> decltype(t._prepare(*this))
-				{
-					return t._prepare(*this);
-				}
+      template <typename T>
+      auto _prepare(const T& t, const std::true_type&) -> decltype(t._prepare(*this))
+      {
+        return t._prepare(*this);
+      }
+
+      template <typename T>
+      auto _prepare(const T& t, const std::false_type&) -> void;
+
+      template <typename T>
+      auto prepare(const T& t)
+          -> decltype(this->_prepare(t, typename sqlpp::prepare_check_t<_serializer_context_t, T>::type{}))
+      {
+        sqlpp::prepare_check_t<_serializer_context_t, T>::_();
+        return _prepare(t, typename sqlpp::prepare_check_t<_serializer_context_t, T>::type{});
+      }
 
 			//! start transaction
 			void start_transaction();

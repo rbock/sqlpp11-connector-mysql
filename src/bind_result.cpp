@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -129,18 +129,9 @@ namespace sqlpp
 			if (_handle->debug)
 				std::cerr << "MySQL debug: Binding results for handle at " << _handle.get() << std::endl;
 
-			auto flag = mysql_stmt_bind_result(_handle->mysql_stmt, _handle->result_params.data());
-
-			switch(flag)
+			if (mysql_stmt_bind_result(_handle->mysql_stmt, _handle->result_params.data()))
 			{
-			case 0:
-				return;
-			case CR_UNSUPPORTED_PARAM_TYPE:
-				throw sqlpp::exception("MySQL: mysql_stmt_bind_result: The conversion is not supported. Possibly the buffer_type value is invalid or is not one of the supported types.");
-			case CR_OUT_OF_MEMORY:
-				throw sqlpp::exception("MySQL: mysql_stmt_bind_result: Out of memory.");
-			default:
-				throw sqlpp::exception("MySQL: mysql_stmt_bind_result: Unknown.");
+				throw sqlpp::exception(std::string("MySQL: mysql_stmt_bind_result: ") + mysql_stmt_error(_handle->mysql_stmt));
 			}
 		}
 

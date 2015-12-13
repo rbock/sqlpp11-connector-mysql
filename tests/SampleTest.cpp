@@ -1,25 +1,25 @@
 /*
  * Copyright (c) 2013, Roland Bock
  * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without modification, 
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *  * Redistributions of source code must retain the above copyright notice, 
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright notice, 
- *    this list of conditions and the following disclaimer in the documentation 
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
@@ -29,6 +29,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cassert>
 
 
 SQLPP_ALIAS_PROVIDER(left);
@@ -63,9 +64,16 @@ int main()
 		omega bigint(20) DEFAULT NULL
 			))");
 
+	assert(not db(select(sqlpp::value(false).as(sqlpp::alias::a))).front().a);
+
 	TabSample tab;
 	// clear the table
 	db(remove_from(tab).where(true));
+
+	// Several ways of ensuring that tab is empty
+	assert(not db(select(exists(select(tab.alpha).from(tab).where(true)))).front().exists); // this is probably the fastest
+	assert(not db(select(count(tab.alpha)).from(tab).where(true)).front().count);
+	assert(db(select(tab.alpha).from(tab).where(true)).empty());
 
 	// explicit all_of(tab)
 	std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
@@ -81,15 +89,15 @@ int main()
 	// selecting two multicolumns
 	for(const auto& row : db(
 						select(tab.alpha,
-								 multi_column(tab.alpha, tab.beta, tab.gamma).as(left), 
+								 multi_column(tab.alpha, tab.beta, tab.gamma).as(left),
 								 multi_column(all_of(tab)).as(tab))
 						.from(tab).where(true)))
 	{
-		std::cerr << "row.left.alpha: " << row.left.alpha 
-							<< ", row.left.beta: " << row.left.beta 
+		std::cerr << "row.left.alpha: " << row.left.alpha
+							<< ", row.left.beta: " << row.left.beta
 							<< ", row.left.gamma: " << row.left.gamma <<  std::endl;
-		std::cerr << "row.tabSample.alpha: " << row.tabSample.alpha 
-							<< ", row.tabSample.beta: " << row.tabSample.beta 
+		std::cerr << "row.tabSample.alpha: " << row.tabSample.alpha
+							<< ", row.tabSample.beta: " << row.tabSample.beta
 							<< ", row.tabSample.gamma: " << row.tabSample.gamma <<  std::endl;
 	};
 
@@ -114,7 +122,7 @@ int main()
 		std::cerr << __LINE__ << " row.beta: " << row.beta << std::endl;
 	}
 	std::cerr << "+++++++++++++++++++++++++++"  << std::endl;
-	decltype(db(select(all_of(tab)))) result;
+	decltype(db(select(all_of(tab)).from(tab).where(true))) result;
 	result = db(select(all_of(tab)).from(tab).where(true));
 	std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha << std::endl;
 	std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
