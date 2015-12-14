@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013 - 2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -32,6 +32,7 @@
 #include <memory>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/char_result_row.h>
+#include <sqlpp11/chrono.h>
 
 namespace sqlpp
 {
@@ -109,6 +110,10 @@ namespace sqlpp
 				*value = (is_null ? nullptr : _char_result_row.data[index]);
 				*len = (is_null ? 0 : _char_result_row.len[index]);
 			}
+
+			void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null);
+			void _bind_date_time_result(size_t index, ::sqlpp::chrono::mus_point* value, bool* is_null);
+
 
 		private:
 			bool next_impl();

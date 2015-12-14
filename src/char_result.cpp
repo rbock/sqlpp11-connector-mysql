@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,7 +26,9 @@
 
 
 #include <iostream>
+#include <vector>
 #include <sqlpp11/mysql/char_result.h>
+#include <date.h>
 #include "detail/result_handle.h"
 
 
@@ -50,6 +52,117 @@ namespace sqlpp
 		char_result_t::~char_result_t() = default;
 		char_result_t::char_result_t(char_result_t&& rhs) = default;
 		char_result_t& char_result_t::operator=(char_result_t&&) = default;
+
+    namespace
+    {
+      const auto date_digits = std::vector<char>{1, 1, 1, 1, 0, 1, 1, 0, 1, 1};  // 2015-10-28
+      const auto time_digits = std::vector<char>{0, 1, 1, 0, 1, 1, 0, 1, 1};     // T23:00:12
+      const auto ms_digits = std::vector<char>{0, 1, 1, 1};                      // .123
+
+      auto check_digits(const char* text, const std::vector<char>& digitFlags) -> bool
+      {
+        for (const auto digitFlag : digitFlags)
+        {
+          if (digitFlag)
+          {
+            if (not std::isdigit(*text))
+            {
+              return false;
+            }
+          }
+          else
+          {
+            if (std::isdigit(*text) or *text == '\0')
+            {
+              return false;
+            }
+          }
+          ++text;
+        }
+        return true;
+      }
+    }
+
+    void char_result_t::_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
+    {
+      if (_handle->debug)
+        std::cerr << "MySQL debug: parsing date result at index: " << index << std::endl;
+
+			*is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+      if (*is_null)
+      {
+        *value = {};
+        return;
+      }
+
+      const auto date_string = _char_result_row.data[index];
+      if (_handle->debug)
+        std::cerr << "MySQL debug: date string: " << date_string << std::endl;
+
+      if (check_digits(date_string, date_digits))
+      {
+        const auto ymd = ::date::year(std::atoi(date_string)) / atoi(date_string + 5) / atoi(date_string + 8);
+        *value = ::date::day_point(ymd);
+      }
+      else
+      {
+        if (_handle->debug)
+          std::cerr << "MySQL debug: invalid date result: " << date_string << std::endl;
+        *value = {};
+      }
+    }
+
+    void char_result_t::_bind_date_time_result(size_t index, ::sqlpp::chrono::mus_point* value, bool* is_null)
+    {
+      if (_handle->debug)
+        std::cerr << "MySQL debug: parsing date result at index: " << index << std::endl;
+
+			*is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+      if (*is_null)
+      {
+        *value = {};
+        return;
+      }
+
+      const auto date_time_string = _char_result_row.data[index];
+      if (_handle->debug)
+        std::cerr << "MySQL debug: date_time string: " << date_time_string << std::endl;
+
+      if (check_digits(date_time_string, date_digits))
+      {
+        const auto ymd =
+            ::date::year(std::atoi(date_time_string)) / atoi(date_time_string + 5) / atoi(date_time_string + 8);
+        *value = ::date::day_point(ymd);
+      }
+      else
+      {
+        if (_handle->debug)
+          std::cerr << "MySQL debug: invalid date_time result: " << date_time_string << std::endl;
+        *value = {};
+
+        return;
+      }
+
+      const auto time_string = date_time_string + 10;
+      if (check_digits(time_string, time_digits))
+      {
+        *value += ::std::chrono::hours(std::atoi(time_string + 1)) + std::chrono::minutes(std::atoi(time_string + 4)) +
+                  std::chrono::seconds(std::atoi(time_string + 7));
+      }
+      else
+      {
+        return;
+      }
+      const auto ms_string = time_string + 9;
+      if (check_digits(ms_string, ms_digits) and ms_string[4] == '\0')
+      {
+        *value += ::std::chrono::milliseconds(std::atoi(ms_string + 1));
+      }
+      else
+      {
+        return;
+      }
+    }
 
 		bool char_result_t::next_impl()
 		{

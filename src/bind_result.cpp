@@ -30,6 +30,7 @@
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/bind_result.h>
 #include "detail/prepared_statement_handle.h"
+#include <date.h>
 
 
 namespace sqlpp
@@ -122,6 +123,88 @@ namespace sqlpp
 			param.is_null = &meta_data.bound_is_null;
 			param.is_unsigned = false;
 			param.error = &meta_data.bound_error;
+		}
+
+		void bind_result_t::_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
+		{
+			if (_handle->debug)
+				std::cerr << "MySQL debug: binding date result at index: " << index << std::endl;
+
+			detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
+			meta_data.index = index;
+			meta_data.len = nullptr;
+			meta_data.is_null = nullptr;
+			meta_data.text_buffer = nullptr;
+			meta_data.bound_text_buffer.resize(sizeof(MYSQL_TIME));
+
+			MYSQL_BIND& param = _handle->result_params[index];
+			param.buffer_type = MYSQL_TYPE_DATE;
+			param.buffer = meta_data.bound_text_buffer.data();
+			param.buffer_length = meta_data.bound_text_buffer.size();
+			param.length = &meta_data.bound_len;
+			param.is_null = &meta_data.bound_is_null;
+			param.is_unsigned = false;
+			param.error = &meta_data.bound_error;
+		}
+
+		void bind_result_t::_bind_date_time_result(size_t index, ::sqlpp::chrono::mus_point* value, bool* is_null)
+		{
+			if (_handle->debug)
+				std::cerr << "MySQL debug: binding date time result at index: " << index << std::endl;
+
+			detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
+			meta_data.index = index;
+			meta_data.len = nullptr;
+			meta_data.is_null = nullptr;
+			meta_data.text_buffer = nullptr;
+			meta_data.bound_text_buffer.resize(sizeof(MYSQL_TIME));
+
+			MYSQL_BIND& param = _handle->result_params[index];
+			param.buffer_type = MYSQL_TYPE_DATETIME;
+			param.buffer = meta_data.bound_text_buffer.data();
+			param.buffer_length = meta_data.bound_text_buffer.size();
+			param.length = &meta_data.bound_len;
+			param.is_null = &meta_data.bound_is_null;
+			param.is_unsigned = false;
+			param.error = &meta_data.bound_error;
+		}
+
+		void bind_result_t::_post_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
+		{
+			if (_handle->debug)
+				std::cerr << "MySQL debug: binding date result at index: " << index << std::endl;
+
+			if (_handle->result_param_meta_data[index].bound_is_null)
+			{
+				*is_null = true;
+				*value = {};
+			}
+			else
+			{
+				const auto& dt = *reinterpret_cast<const MYSQL_TIME*>(_handle->result_param_meta_data[index].bound_text_buffer.data());
+				*is_null = false;
+				*value = ::date::year(dt.year) / ::date::month(dt.month) / ::date::day(dt.day);
+			}
+		}
+
+		void bind_result_t::_post_bind_date_time_result(size_t index, ::sqlpp::chrono::mus_point* value, bool* is_null)
+		{
+			if (_handle->debug)
+				std::cerr << "MySQL debug: binding date time result at index: " << index << std::endl;
+
+			if (_handle->result_param_meta_data[index].bound_is_null)
+			{
+				*is_null = true;
+				*value = {};
+			}
+			else
+			{
+				const auto& dt = *reinterpret_cast<const MYSQL_TIME*>(_handle->result_param_meta_data[index].bound_text_buffer.data());
+				*is_null = false;
+				*value = ::date::day_point(::date::year(dt.year) / ::date::month(dt.month) / ::date::day(dt.day)) +
+				         std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) + std::chrono::seconds(dt.second) +
+				         std::chrono::microseconds(dt.second_part);
+			}
 		}
 
 		void bind_result_t::bind_impl()
