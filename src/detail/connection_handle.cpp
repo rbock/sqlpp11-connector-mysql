@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013 - 2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -47,19 +47,19 @@ namespace sqlpp
 
 				if (config->auto_reconnect)
 				{
-					my_bool my_true = true; 
-					if (mysql_options(mysql.get(), MYSQL_OPT_RECONNECT, &my_true)) 
-					{ 
-						throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_RECONNECT"); 
-					} 
+					my_bool my_true = true;
+					if (mysql_options(mysql.get(), MYSQL_OPT_RECONNECT, &my_true))
+					{
+						throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_RECONNECT");
+					}
 				}
 
-				if (!mysql_real_connect(mysql.get(), 
-							config->host.empty() ? nullptr : config->host.c_str(), 
-							config->user.empty() ? nullptr : config->user.c_str(), 
+				if (!mysql_real_connect(mysql.get(),
+							config->host.empty() ? nullptr : config->host.c_str(),
+							config->user.empty() ? nullptr : config->user.c_str(),
 							config->password.empty() ? nullptr : config->password.c_str(),
-							nullptr, 
-							config->port, 
+							nullptr,
+							config->port,
 							config->unix_socket.empty() ? nullptr : config->unix_socket.c_str(),
 						 	config->client_flag))
 				{
