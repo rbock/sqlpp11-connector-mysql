@@ -24,7 +24,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifndef SQLPP_MYSQL_PREPARED_STATEMENT_H
 #define SQLPP_MYSQL_PREPARED_STATEMENT_H
 
@@ -34,43 +33,43 @@
 
 namespace sqlpp
 {
-	namespace mysql
-	{
-		class connection;
+  namespace mysql
+  {
+    class connection;
 
-		namespace detail
-		{
-			struct prepared_statement_handle_t;
-		}
+    namespace detail
+    {
+      struct prepared_statement_handle_t;
+    }
 
-		class prepared_statement_t
-		{
-			friend ::sqlpp::mysql::connection;
-			std::shared_ptr<detail::prepared_statement_handle_t> _handle;
+    class prepared_statement_t
+    {
+      friend ::sqlpp::mysql::connection;
+      std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 
-		public:
-			prepared_statement_t() = delete;
-			prepared_statement_t(std::shared_ptr<detail::prepared_statement_handle_t>&& handle);
-			prepared_statement_t(const prepared_statement_t&) = delete;
-			prepared_statement_t(prepared_statement_t&& rhs) = default;
-			prepared_statement_t& operator=(const prepared_statement_t&) = delete;
-			prepared_statement_t& operator=(prepared_statement_t&&) = default;
-			~prepared_statement_t() = default;
+    public:
+      prepared_statement_t() = delete;
+      prepared_statement_t(std::shared_ptr<detail::prepared_statement_handle_t>&& handle);
+      prepared_statement_t(const prepared_statement_t&) = delete;
+      prepared_statement_t(prepared_statement_t&& rhs) = default;
+      prepared_statement_t& operator=(const prepared_statement_t&) = delete;
+      prepared_statement_t& operator=(prepared_statement_t&&) = default;
+      ~prepared_statement_t() = default;
 
-			bool operator==(const prepared_statement_t& rhs) const
-			{
-				return _handle == rhs._handle;
-			}
+      bool operator==(const prepared_statement_t& rhs) const
+      {
+        return _handle == rhs._handle;
+      }
 
-			void _pre_bind();
+      void _pre_bind();
 
-			void _bind_boolean_parameter(size_t index, const signed char* value, bool is_null);
-			void _bind_integral_parameter(size_t index, const int64_t* value, bool is_null);
+      void _bind_boolean_parameter(size_t index, const signed char* value, bool is_null);
+      void _bind_integral_parameter(size_t index, const int64_t* value, bool is_null);
       void _bind_floating_point_parameter(size_t index, const double* value, bool is_null);
-			void _bind_text_parameter(size_t index, const std::string* value, bool is_null);
+      void _bind_text_parameter(size_t index, const std::string* value, bool is_null);
       void _bind_date_parameter(size_t index, const ::sqlpp::chrono::day_point* value, bool is_null);
       void _bind_date_time_parameter(size_t index, const ::sqlpp::chrono::microsecond_point* value, bool is_null);
-		};
-	}
+    };
+  }
 }
 #endif

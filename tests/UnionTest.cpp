@@ -34,38 +34,37 @@ TabSample tab;
 
 int main()
 {
-	auto config = std::make_shared<sql::connection_config>();
- 	config->user = "root";
- 	config->database = "sqlpp_mysql";
-	config->debug = true;
-	try
-	{
-		sql::connection db(config);
-	}
-	catch(const sqlpp::exception& )
-	{
-		std::cerr << "For testing, you'll need to create a database sqlpp_mysql" << std::endl;
-		throw;
-	}
-	sql::connection db(config);
-	db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-	db.execute(R"(CREATE TABLE tab_sample (
+  auto config = std::make_shared<sql::connection_config>();
+  config->user = "root";
+  config->database = "sqlpp_mysql";
+  config->debug = true;
+  try
+  {
+    sql::connection db(config);
+  }
+  catch (const sqlpp::exception&)
+  {
+    std::cerr << "For testing, you'll need to create a database sqlpp_mysql" << std::endl;
+    throw;
+  }
+  sql::connection db(config);
+  db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
+  db.execute(R"(CREATE TABLE tab_sample (
 		alpha bigint(20) AUTO_INCREMENT,
 			beta bool DEFAULT NULL,
 			gamma varchar(255) DEFAULT NULL,
 			PRIMARY KEY (alpha)
 			))");
 
-	auto u = select(all_of(tab)).from(tab).where(true).union_all(select(all_of(tab)).from(tab).where(true));
+  auto u = select(all_of(tab)).from(tab).where(true).union_all(select(all_of(tab)).from(tab).where(true));
 
-	for (const auto& row : db(u))
-	{
-		std::cout << row.alpha << row.beta << row.gamma << std::endl;
-	}
+  for (const auto& row : db(u))
+  {
+    std::cout << row.alpha << row.beta << row.gamma << std::endl;
+  }
 
-	for (const auto& row : db(u.union_distinct(select(all_of(tab)).from(tab).where(true))))
-	{
-		std::cout << row.alpha << row.beta << row.gamma << std::endl;
-	}
-
+  for (const auto& row : db(u.union_distinct(select(all_of(tab)).from(tab).where(true))))
+  {
+    std::cout << row.alpha << row.beta << row.gamma << std::endl;
+  }
 }

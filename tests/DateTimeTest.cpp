@@ -54,27 +54,27 @@ namespace
 namespace mysql = sqlpp::mysql;
 int main()
 {
-	auto config = std::make_shared<mysql::connection_config>();
- 	config->user = "root";
- 	config->database = "sqlpp_mysql";
-	config->debug = true;
-	try
-	{
-		mysql::connection db(config);
-	}
-	catch(const sqlpp::exception& )
-	{
-		std::cerr << "For testing, you'll need to create a database sqlpp_mysql for user root (no password)" << std::endl;
-		throw;
-	}
-	mysql::connection db(config);
-	db.execute(R"(DROP TABLE IF EXISTS tab_date_time)");
-	db.execute(R"(CREATE TABLE tab_date_time (
+  auto config = std::make_shared<mysql::connection_config>();
+  config->user = "root";
+  config->database = "sqlpp_mysql";
+  config->debug = true;
+  try
+  {
+    mysql::connection db(config);
+  }
+  catch (const sqlpp::exception&)
+  {
+    std::cerr << "For testing, you'll need to create a database sqlpp_mysql for user root (no password)" << std::endl;
+    throw;
+  }
+  mysql::connection db(config);
+  db.execute(R"(DROP TABLE IF EXISTS tab_date_time)");
+  db.execute(R"(CREATE TABLE tab_date_time (
 		col_day_point DATE,
 			col_time_point DATETIME(3)
 			))");
 
-	TabDateTime tab;
+  TabDateTime tab;
   try
   {
     db(insert_into(tab).default_values());
@@ -123,5 +123,5 @@ int main()
     return 1;
   }
 
-	return 0;
+  return 0;
 }

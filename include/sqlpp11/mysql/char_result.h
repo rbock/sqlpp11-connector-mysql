@@ -24,7 +24,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifndef SQLPP_MYSQL_CHAR_RESULT_H
 #define SQLPP_MYSQL_CHAR_RESULT_H
 
@@ -36,89 +35,88 @@
 
 namespace sqlpp
 {
-	namespace mysql
-	{
-		namespace detail
-		{
-			struct result_handle;
-		}
+  namespace mysql
+  {
+    namespace detail
+    {
+      struct result_handle;
+    }
 
-		class char_result_t
-		{
-			std::unique_ptr<detail::result_handle> _handle;
-			char_result_row_t _char_result_row;
+    class char_result_t
+    {
+      std::unique_ptr<detail::result_handle> _handle;
+      char_result_row_t _char_result_row;
 
-		public:
-			char_result_t();
-			char_result_t(std::unique_ptr<detail::result_handle>&& handle);
-			char_result_t(const char_result_t&) = delete;
-			char_result_t(char_result_t&& rhs);
-			char_result_t& operator=(const char_result_t&) = delete;
-			char_result_t& operator=(char_result_t&&);
-			~char_result_t();
+    public:
+      char_result_t();
+      char_result_t(std::unique_ptr<detail::result_handle>&& handle);
+      char_result_t(const char_result_t&) = delete;
+      char_result_t(char_result_t&& rhs);
+      char_result_t& operator=(const char_result_t&) = delete;
+      char_result_t& operator=(char_result_t&&);
+      ~char_result_t();
 
-			bool operator==(const char_result_t& rhs) const
-			{
-				return _handle == rhs._handle;
-			}
+      bool operator==(const char_result_t& rhs) const
+      {
+        return _handle == rhs._handle;
+      }
 
-			template<typename ResultRow>
-			void next(ResultRow& result_row)
-			{
-				if (!_handle)
-				{
-					result_row._invalidate();
-					return;
-				}
+      template <typename ResultRow>
+      void next(ResultRow& result_row)
+      {
+        if (!_handle)
+        {
+          result_row._invalidate();
+          return;
+        }
 
-				if (next_impl())
-				{
-					if (not result_row)
-					{
-						result_row._validate();
-					}
-					result_row._bind(*this);
-				}
-				else
-				{
-					if (result_row)
-						result_row._invalidate();
-				}
-			};
+        if (next_impl())
+        {
+          if (not result_row)
+          {
+            result_row._validate();
+          }
+          result_row._bind(*this);
+        }
+        else
+        {
+          if (result_row)
+            result_row._invalidate();
+        }
+      };
 
-			void _bind_boolean_result(size_t index, signed char* value, bool* is_null)
-			{
-				*is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
-				*value = (*is_null ? false : (_char_result_row.data[index][0] == 't' or _char_result_row.data[index][0] == '1'));
-			}
+      void _bind_boolean_result(size_t index, signed char* value, bool* is_null)
+      {
+        *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+        *value =
+            (*is_null ? false : (_char_result_row.data[index][0] == 't' or _char_result_row.data[index][0] == '1'));
+      }
 
-			void _bind_floating_point_result(size_t index, double* value, bool* is_null)
-			{
-				*is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
-				*value = (*is_null ? 0 : std::strtod(_char_result_row.data[index], nullptr));
-			}
+      void _bind_floating_point_result(size_t index, double* value, bool* is_null)
+      {
+        *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+        *value = (*is_null ? 0 : std::strtod(_char_result_row.data[index], nullptr));
+      }
 
-			void _bind_integral_result(size_t index, int64_t* value, bool* is_null)
-			{
-				*is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
-				*value = (*is_null ? 0 : std::strtoll(_char_result_row.data[index], nullptr, 10));
-			}
+      void _bind_integral_result(size_t index, int64_t* value, bool* is_null)
+      {
+        *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+        *value = (*is_null ? 0 : std::strtoll(_char_result_row.data[index], nullptr, 10));
+      }
 
-			void _bind_text_result(size_t index, const char** value, size_t* len)
-			{
-				bool is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
-				*value = (is_null ? nullptr : _char_result_row.data[index]);
-				*len = (is_null ? 0 : _char_result_row.len[index]);
-			}
+      void _bind_text_result(size_t index, const char** value, size_t* len)
+      {
+        bool is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+        *value = (is_null ? nullptr : _char_result_row.data[index]);
+        *len = (is_null ? 0 : _char_result_row.len[index]);
+      }
 
-			void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null);
-			void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null);
+      void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null);
+      void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null);
 
-
-		private:
-			bool next_impl();
-		};
-
-	}
+    private:
+      bool next_impl();
+    };
+  }
 }
 #endif

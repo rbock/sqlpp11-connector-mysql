@@ -40,42 +40,42 @@
 namespace mysql = sqlpp::mysql;
 int main()
 {
-	auto config = std::make_shared<mysql::connection_config>();
- 	config->user = "root";
- 	config->database = "sqlpp_mysql";
-	config->debug = true;
-	try
-	{
-		mysql::connection db(config);
-	}
-	catch(const sqlpp::exception& )
-	{
-		std::cerr << "For testing, you'll need to create a database sqlpp_mysql with a table tab_sample, as shown in tests/TabSample.sql" << std::endl;
-		throw;
-	}
-	mysql::connection db(config);
-	db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-	db.execute(R"(CREATE TABLE tab_sample (
+  auto config = std::make_shared<mysql::connection_config>();
+  config->user = "root";
+  config->database = "sqlpp_mysql";
+  config->debug = true;
+  try
+  {
+    mysql::connection db(config);
+  }
+  catch (const sqlpp::exception&)
+  {
+    std::cerr << "For testing, you'll need to create a database sqlpp_mysql with a table tab_sample, as shown in "
+                 "tests/TabSample.sql" << std::endl;
+    throw;
+  }
+  mysql::connection db(config);
+  db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
+  db.execute(R"(CREATE TABLE tab_sample (
 		alpha bigint(20) DEFAULT NULL,
 			beta varchar(255) DEFAULT NULL,
 			gamma bool DEFAULT NULL
 			))");
 
-	TabSample tab;
-	db(insert_into(tab).set(tab.gamma = true));
-	auto i = insert_into(tab).columns(tab.beta, tab.gamma);
-	i.values.add(tab.beta = "rhabarbertorte", tab.gamma = false);
-	i.values.add(tab.beta = "cheesecake", tab.gamma = false);
-	i.values.add(tab.beta = "kaesekuchen", tab.gamma = true);
-	db(i);
+  TabSample tab;
+  db(insert_into(tab).set(tab.gamma = true));
+  auto i = insert_into(tab).columns(tab.beta, tab.gamma);
+  i.values.add(tab.beta = "rhabarbertorte", tab.gamma = false);
+  i.values.add(tab.beta = "cheesecake", tab.gamma = false);
+  i.values.add(tab.beta = "kaesekuchen", tab.gamma = true);
+  db(i);
 
-	auto s = dynamic_select(db).dynamic_columns(tab.alpha).from(tab).where(true);
-	s.selected_columns.add(tab.beta);
+  auto s = dynamic_select(db).dynamic_columns(tab.alpha).from(tab).where(true);
+  s.selected_columns.add(tab.beta);
 
-
-	for(const auto& row : db(s))
-	{
-		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.at("beta") << std::endl;
-	};
-	return 0;
+  for (const auto& row : db(s))
+  {
+    std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.at("beta") << std::endl;
+  };
+  return 0;
 }

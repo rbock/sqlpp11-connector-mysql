@@ -24,7 +24,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include <iostream>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/connection.h>
@@ -34,200 +33,213 @@
 
 namespace sqlpp
 {
-	namespace mysql
-	{
-		namespace
-		{
-			struct MySqlThreadInitializer
-			{
-				MySqlThreadInitializer()
-				{
-					mysql_thread_init();
-				}
-				~MySqlThreadInitializer()
-				{
-					mysql_thread_end();
-				}
-			};
-
-			void execute_statement(detail::connection_handle_t& handle, const std::string& statement)
-			{
-				thread_local MySqlThreadInitializer threadInitializer;
-
-				if (handle.config->debug)
-					std::cerr << "MySQL debug: Executing: '" << statement << "'" << std::endl;
-
-				if (mysql_query(handle.mysql.get(), statement.c_str()))
+  namespace mysql
+  {
+    namespace
+    {
+      struct MySqlThreadInitializer
+      {
+        MySqlThreadInitializer()
         {
-					throw sqlpp::exception("MySQL error: Could not execute MySQL-statement: " + std::string(mysql_error(handle.mysql.get())) + " (statement was >>" + statement + "<<\n");
+          mysql_thread_init();
         }
-			}
-
-			void execute_prepared_statement(detail::prepared_statement_handle_t& prepared_statement)
-			{
-				if (prepared_statement.debug)
-					std::cerr << "MySQL debug: Executing prepared_statement" << std::endl;
-
-				if (mysql_stmt_bind_param(prepared_statement.mysql_stmt, prepared_statement.stmt_params.data()))
-				{
-					throw sqlpp::exception(std::string("MySQL error: Could not bind parameters to statement") + mysql_stmt_error(prepared_statement.mysql_stmt));
-				}
-
-				if (mysql_stmt_execute(prepared_statement.mysql_stmt))
+        ~MySqlThreadInitializer()
         {
-					throw sqlpp::exception(std::string("MySQL error: Could not execute prepared statement: ") + mysql_stmt_error(prepared_statement.mysql_stmt));
+          mysql_thread_end();
         }
-			}
+      };
 
-			std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(detail::connection_handle_t& handle, const std::string& statement, size_t no_of_parameters, size_t no_of_columns)
-			{
-				thread_local MySqlThreadInitializer threadInitializer;
+      void execute_statement(detail::connection_handle_t& handle, const std::string& statement)
+      {
+        thread_local MySqlThreadInitializer threadInitializer;
 
-				if (handle.config->debug)
-					std::cerr << "MySQL debug: Preparing: '" << statement << "'" << std::endl;
+        if (handle.config->debug)
+          std::cerr << "MySQL debug: Executing: '" << statement << "'" << std::endl;
 
-				auto prepared_statement = std::make_shared<detail::prepared_statement_handle_t>(mysql_stmt_init(handle.mysql.get()), no_of_parameters, no_of_columns, handle.config->debug);
-				if (not prepared_statement)
-				{
-					throw sqlpp::exception("MySQL error: Could not allocate prepared statement\n");
+        if (mysql_query(handle.mysql.get(), statement.c_str()))
+        {
+          throw sqlpp::exception("MySQL error: Could not execute MySQL-statement: " +
+                                 std::string(mysql_error(handle.mysql.get())) + " (statement was >>" + statement +
+                                 "<<\n");
         }
-				if (mysql_stmt_prepare(prepared_statement->mysql_stmt, statement.data(), statement.size()))
-				{
-					throw sqlpp::exception("MySQL error: Could not prepare statement: " + std::string(mysql_error(handle.mysql.get())) + " (statement was >>" + statement + "<<\n");
-				}
+      }
 
-				return prepared_statement;
-			}
-		}
+      void execute_prepared_statement(detail::prepared_statement_handle_t& prepared_statement)
+      {
+        if (prepared_statement.debug)
+          std::cerr << "MySQL debug: Executing prepared_statement" << std::endl;
 
-		connection::connection(const std::shared_ptr<connection_config>& config):
-			_handle(new detail::connection_handle_t(config))
-		{
-			if (mysql_set_character_set(_handle->mysql.get(), _handle->config->charset.c_str()))
-			{
-				throw sqlpp::exception("MySQL error: can't set character set " + _handle->config->charset);
-			}
+        if (mysql_stmt_bind_param(prepared_statement.mysql_stmt, prepared_statement.stmt_params.data()))
+        {
+          throw sqlpp::exception(std::string("MySQL error: Could not bind parameters to statement") +
+                                 mysql_stmt_error(prepared_statement.mysql_stmt));
+        }
 
-			if (mysql_select_db(_handle->mysql.get(), _handle->config->database.c_str()))
-			{
-				throw sqlpp::exception("MySQL error: can't select database '" + _handle->config->database + "'");
-			}
-		}
+        if (mysql_stmt_execute(prepared_statement.mysql_stmt))
+        {
+          throw sqlpp::exception(std::string("MySQL error: Could not execute prepared statement: ") +
+                                 mysql_stmt_error(prepared_statement.mysql_stmt));
+        }
+      }
 
-		connection::~connection()
-		{
-		}
+      std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(detail::connection_handle_t& handle,
+                                                                             const std::string& statement,
+                                                                             size_t no_of_parameters,
+                                                                             size_t no_of_columns)
+      {
+        thread_local MySqlThreadInitializer threadInitializer;
 
-		char_result_t connection::select_impl(const std::string& statement)
-		{
-			execute_statement(*_handle, statement);
-			std::unique_ptr<detail::result_handle> result_handle(new detail::result_handle(mysql_store_result(_handle->mysql.get()), _handle->config->debug));
-			if (!result_handle)
-			{
-				throw sqlpp::exception("MySQL error: Could not store result set: " + std::string(mysql_error(_handle->mysql.get())));
-			}
+        if (handle.config->debug)
+          std::cerr << "MySQL debug: Preparing: '" << statement << "'" << std::endl;
 
-			return {std::move(result_handle)};
-		}
+        auto prepared_statement = std::make_shared<detail::prepared_statement_handle_t>(
+            mysql_stmt_init(handle.mysql.get()), no_of_parameters, no_of_columns, handle.config->debug);
+        if (not prepared_statement)
+        {
+          throw sqlpp::exception("MySQL error: Could not allocate prepared statement\n");
+        }
+        if (mysql_stmt_prepare(prepared_statement->mysql_stmt, statement.data(), statement.size()))
+        {
+          throw sqlpp::exception("MySQL error: Could not prepare statement: " +
+                                 std::string(mysql_error(handle.mysql.get())) + " (statement was >>" + statement +
+                                 "<<\n");
+        }
 
-		bind_result_t connection::run_prepared_select_impl(prepared_statement_t& prepared_statement)
-		{
-			execute_prepared_statement(*prepared_statement._handle);
-			return prepared_statement._handle;
-		}
+        return prepared_statement;
+      }
+    }
 
-		size_t connection::run_prepared_insert_impl(prepared_statement_t& prepared_statement)
-		{
-			execute_prepared_statement(*prepared_statement._handle);
-			return mysql_stmt_insert_id(prepared_statement._handle->mysql_stmt);
-		}
+    connection::connection(const std::shared_ptr<connection_config>& config)
+        : _handle(new detail::connection_handle_t(config))
+    {
+      if (mysql_set_character_set(_handle->mysql.get(), _handle->config->charset.c_str()))
+      {
+        throw sqlpp::exception("MySQL error: can't set character set " + _handle->config->charset);
+      }
 
-		size_t connection::run_prepared_update_impl(prepared_statement_t& prepared_statement)
-		{
-			execute_prepared_statement(*prepared_statement._handle);
-			return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
-		}
+      if (mysql_select_db(_handle->mysql.get(), _handle->config->database.c_str()))
+      {
+        throw sqlpp::exception("MySQL error: can't select database '" + _handle->config->database + "'");
+      }
+    }
 
-		size_t connection::run_prepared_remove_impl(prepared_statement_t& prepared_statement)
-		{
-			execute_prepared_statement(*prepared_statement._handle);
-			return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
-		}
+    connection::~connection()
+    {
+    }
 
-		prepared_statement_t connection::prepare_impl(const std::string& statement, size_t no_of_parameters, size_t no_of_columns)
-		{
-			return prepare_statement(*_handle, statement, no_of_parameters, no_of_columns);
-		}
+    char_result_t connection::select_impl(const std::string& statement)
+    {
+      execute_statement(*_handle, statement);
+      std::unique_ptr<detail::result_handle> result_handle(
+          new detail::result_handle(mysql_store_result(_handle->mysql.get()), _handle->config->debug));
+      if (!result_handle)
+      {
+        throw sqlpp::exception("MySQL error: Could not store result set: " +
+                               std::string(mysql_error(_handle->mysql.get())));
+      }
 
-		size_t connection::insert_impl(const std::string& statement)
-		{
-			execute_statement(*_handle, statement);
+      return {std::move(result_handle)};
+    }
 
-			return mysql_insert_id(_handle->mysql.get());
-		}
+    bind_result_t connection::run_prepared_select_impl(prepared_statement_t& prepared_statement)
+    {
+      execute_prepared_statement(*prepared_statement._handle);
+      return prepared_statement._handle;
+    }
 
-		void connection::execute(const std::string& command)
-		{
-			execute_statement(*_handle, command);
-		}
+    size_t connection::run_prepared_insert_impl(prepared_statement_t& prepared_statement)
+    {
+      execute_prepared_statement(*prepared_statement._handle);
+      return mysql_stmt_insert_id(prepared_statement._handle->mysql_stmt);
+    }
 
-		size_t connection::update_impl(const std::string& statement)
-		{
-			execute_statement(*_handle, statement);
-			return mysql_affected_rows(_handle->mysql.get());
-		}
+    size_t connection::run_prepared_update_impl(prepared_statement_t& prepared_statement)
+    {
+      execute_prepared_statement(*prepared_statement._handle);
+      return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
+    }
 
-		size_t connection::remove_impl(const std::string& statement)
-		{
-			execute_statement(*_handle, statement);
-			return mysql_affected_rows(_handle->mysql.get());
-		}
+    size_t connection::run_prepared_remove_impl(prepared_statement_t& prepared_statement)
+    {
+      execute_prepared_statement(*prepared_statement._handle);
+      return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
+    }
 
-		std::string connection::escape(const std::string& s) const
-		{
-			char dest[s.size() * 2 + 1];
-			mysql_real_escape_string(_handle->mysql.get(), dest, s.c_str(), s.size());
-			return dest;
-		}
+    prepared_statement_t connection::prepare_impl(const std::string& statement,
+                                                  size_t no_of_parameters,
+                                                  size_t no_of_columns)
+    {
+      return prepare_statement(*_handle, statement, no_of_parameters, no_of_columns);
+    }
 
-		void connection::start_transaction()
-		{
-			if (_transaction_active)
-			{
-				throw sqlpp::exception("MySQL: Cannot have more than one open transaction per connection");
-			}
-			execute_statement(*_handle, "START TRANSACTION");
-			_transaction_active = true;
-		}
+    size_t connection::insert_impl(const std::string& statement)
+    {
+      execute_statement(*_handle, statement);
 
-		void connection::commit_transaction()
-		{
-			if (not _transaction_active)
-			{
-				throw sqlpp::exception("MySQL: Cannot commit a finished or failed transaction");
-			}
-			_transaction_active = false;
-			execute_statement(*_handle, "COMMIT");
-		}
+      return mysql_insert_id(_handle->mysql.get());
+    }
 
-		void connection::rollback_transaction(bool report)
-		{
-			if (not _transaction_active)
-			{
-				throw sqlpp::exception("MySQL: Cannot rollback a finished or failed transaction");
-			}
-			if (report)
-			{
-				std::cerr << "MySQL warning: Rolling back unfinished transaction" << std::endl;
-			}
-			_transaction_active = false;
-			execute_statement(*_handle, "ROLLBACK");
-		}
+    void connection::execute(const std::string& command)
+    {
+      execute_statement(*_handle, command);
+    }
 
-		void connection::report_rollback_failure(const std::string message) noexcept
-		{
-			std::cerr << "MySQL message:" << message << std::endl;
-		}
-	}
+    size_t connection::update_impl(const std::string& statement)
+    {
+      execute_statement(*_handle, statement);
+      return mysql_affected_rows(_handle->mysql.get());
+    }
+
+    size_t connection::remove_impl(const std::string& statement)
+    {
+      execute_statement(*_handle, statement);
+      return mysql_affected_rows(_handle->mysql.get());
+    }
+
+    std::string connection::escape(const std::string& s) const
+    {
+      char dest[s.size() * 2 + 1];
+      mysql_real_escape_string(_handle->mysql.get(), dest, s.c_str(), s.size());
+      return dest;
+    }
+
+    void connection::start_transaction()
+    {
+      if (_transaction_active)
+      {
+        throw sqlpp::exception("MySQL: Cannot have more than one open transaction per connection");
+      }
+      execute_statement(*_handle, "START TRANSACTION");
+      _transaction_active = true;
+    }
+
+    void connection::commit_transaction()
+    {
+      if (not _transaction_active)
+      {
+        throw sqlpp::exception("MySQL: Cannot commit a finished or failed transaction");
+      }
+      _transaction_active = false;
+      execute_statement(*_handle, "COMMIT");
+    }
+
+    void connection::rollback_transaction(bool report)
+    {
+      if (not _transaction_active)
+      {
+        throw sqlpp::exception("MySQL: Cannot rollback a finished or failed transaction");
+      }
+      if (report)
+      {
+        std::cerr << "MySQL warning: Rolling back unfinished transaction" << std::endl;
+      }
+      _transaction_active = false;
+      execute_statement(*_handle, "ROLLBACK");
+    }
+
+    void connection::report_rollback_failure(const std::string message) noexcept
+    {
+      std::cerr << "MySQL message:" << message << std::endl;
+    }
+  }
 }
-

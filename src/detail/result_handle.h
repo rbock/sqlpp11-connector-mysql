@@ -24,7 +24,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifndef SQLPP_MYSQL_DETAIL_RESULT_HANDLE_H
 #define SQLPP_MYSQL_DETAIL_RESULT_HANDLE_H
 
@@ -32,40 +31,37 @@
 
 namespace sqlpp
 {
-	namespace mysql
-	{
-		namespace detail
-		{
-			struct result_handle
-			{
-				MYSQL_RES* mysql_res;
-				bool debug;
+  namespace mysql
+  {
+    namespace detail
+    {
+      struct result_handle
+      {
+        MYSQL_RES* mysql_res;
+        bool debug;
 
-				result_handle(MYSQL_RES* res, bool debug_):
-					mysql_res(res),
-					debug(debug_)
-				{}
+        result_handle(MYSQL_RES* res, bool debug_) : mysql_res(res), debug(debug_)
+        {
+        }
 
-				result_handle(const result_handle&) = delete;
-				result_handle(result_handle&&) = default;
-				result_handle& operator=(const result_handle&) = delete;
-				result_handle& operator=(result_handle&&) = default;
+        result_handle(const result_handle&) = delete;
+        result_handle(result_handle&&) = default;
+        result_handle& operator=(const result_handle&) = delete;
+        result_handle& operator=(result_handle&&) = default;
 
-				~result_handle()
-				{
-					if (mysql_res)
-						mysql_free_result(mysql_res);
-				}
+        ~result_handle()
+        {
+          if (mysql_res)
+            mysql_free_result(mysql_res);
+        }
 
-				bool operator!() const
-				{
-					return !mysql_res;
-				}
-			};
-		}
-	}
+        bool operator!() const
+        {
+          return !mysql_res;
+        }
+      };
+    }
+  }
 }
 
 #endif
-
-

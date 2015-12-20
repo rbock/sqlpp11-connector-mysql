@@ -24,7 +24,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifndef SQLPP_MYSQL_H
 #define SQLPP_MYSQL_H
 
@@ -32,4 +31,3 @@
 #include <sqlpp11/mysql/char_result.h>
 
 #endif
-

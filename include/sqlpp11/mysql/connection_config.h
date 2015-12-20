@@ -24,7 +24,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifndef SQLPP_MYSQL_CONNECTION_CONFIG_H
 #define SQLPP_MYSQL_CONNECTION_CONFIG_H
 
@@ -32,38 +31,34 @@
 
 namespace sqlpp
 {
-	namespace mysql
-	{
-		struct connection_config
-		{
-			std::string host = "localhost";
-			std::string user;
-			std::string password;
-			std::string database;
-			unsigned int port = 0;
-			std::string unix_socket;
-			unsigned long client_flag = 0;
-			std::string charset = "utf8";
-			bool auto_reconnect = true;
-			bool debug = false;
+  namespace mysql
+  {
+    struct connection_config
+    {
+      std::string host = "localhost";
+      std::string user;
+      std::string password;
+      std::string database;
+      unsigned int port = 0;
+      std::string unix_socket;
+      unsigned long client_flag = 0;
+      std::string charset = "utf8";
+      bool auto_reconnect = true;
+      bool debug = false;
 
-			bool operator==(const connection_config& other) const
-			{
-				return (other.host == host
-						and other.user == user
-						and other.password == password
-						and other.database == database
-						and other.charset == charset
-						and other.auto_reconnect == auto_reconnect
-						and other.debug == debug);
-			}
+      bool operator==(const connection_config& other) const
+      {
+        return (other.host == host and other.user == user and other.password == password and
+                other.database == database and other.charset == charset and other.auto_reconnect == auto_reconnect and
+                other.debug == debug);
+      }
 
-			bool operator!=(const connection_config& other) const
-			{
-				return !operator==(other);
-			}
-		};
-	}
+      bool operator!=(const connection_config& other) const
+      {
+        return !operator==(other);
+      }
+    };
+  }
 }
 
 #endif

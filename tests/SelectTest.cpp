@@ -38,7 +38,6 @@
 #include <iostream>
 #include <vector>
 
-
 SQLPP_ALIAS_PROVIDER(left);
 
 namespace sql = sqlpp::mysql;
@@ -46,114 +45,120 @@ TabSample tab;
 
 void testSelectAll(sql::connection& db, int expectedRowCount)
 {
-	std::cerr << "--------------------------------------" << std::endl;
-	int i = 0;
-	for(const auto& row : db(sqlpp::select(all_of(tab)).from(tab).where(true)))
-	{
-		++i;
-		std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
-		assert(i == row.alpha);
-	};
-	assert(i == expectedRowCount);
+  std::cerr << "--------------------------------------" << std::endl;
+  int i = 0;
+  for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab).where(true)))
+  {
+    ++i;
+    std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
+              << std::endl;
+    assert(i == row.alpha);
+  };
+  assert(i == expectedRowCount);
 
-	auto preparedSelectAll = db.prepare(sqlpp::select(all_of(tab)).from(tab).where(true));
-	i = 0;
-	for(const auto& row : db(preparedSelectAll))
-	{
-		++i;
-		std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
-		assert(i == row.alpha);
-	};
-	assert(i == expectedRowCount);
-	std::cerr << "--------------------------------------" << std::endl;
+  auto preparedSelectAll = db.prepare(sqlpp::select(all_of(tab)).from(tab).where(true));
+  i = 0;
+  for (const auto& row : db(preparedSelectAll))
+  {
+    ++i;
+    std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
+              << std::endl;
+    assert(i == row.alpha);
+  };
+  assert(i == expectedRowCount);
+  std::cerr << "--------------------------------------" << std::endl;
 }
 
 int main()
 {
-	auto config = std::make_shared<sql::connection_config>();
- 	config->user = "root";
- 	config->database = "sqlpp_mysql";
-	config->debug = true;
-	try
-	{
-		sql::connection db(config);
-	}
-	catch(const sqlpp::exception& )
-	{
-		std::cerr << "For testing, you'll need to create a database sqlpp_mysql" << std::endl;
-		throw;
-	}
-	sql::connection db(config);
-	db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-	db.execute(R"(CREATE TABLE tab_sample (
+  auto config = std::make_shared<sql::connection_config>();
+  config->user = "root";
+  config->database = "sqlpp_mysql";
+  config->debug = true;
+  try
+  {
+    sql::connection db(config);
+  }
+  catch (const sqlpp::exception&)
+  {
+    std::cerr << "For testing, you'll need to create a database sqlpp_mysql" << std::endl;
+    throw;
+  }
+  sql::connection db(config);
+  db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
+  db.execute(R"(CREATE TABLE tab_sample (
 		alpha bigint(20) AUTO_INCREMENT,
 			beta bool DEFAULT NULL,
 			gamma varchar(255) DEFAULT NULL,
 			PRIMARY KEY (alpha)
 			))");
-	db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
-	db.execute(R"(CREATE TABLE tab_foo (
+  db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
+  db.execute(R"(CREATE TABLE tab_foo (
 		omega bigint(20) DEFAULT NULL
 			))");
 
+  testSelectAll(db, 0);
+  db(insert_into(tab).default_values());
+  testSelectAll(db, 1);
+  db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheesecake"));
+  testSelectAll(db, 2);
+  db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheesecake"));
+  testSelectAll(db, 3);
 
-	testSelectAll(db, 0);
-	db(insert_into(tab).default_values());
-	testSelectAll(db, 1);
-	db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheesecake"));
-	testSelectAll(db, 2);
-	db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheesecake"));
-	testSelectAll(db, 3);
+  // selecting two multicolumns
+  for (const auto& row :
+       db(select(multi_column(tab.alpha, tab.beta, tab.gamma).as(left), multi_column(all_of(tab)).as(tab))
+              .from(tab)
+              .where(true)))
+  {
+    std::cerr << "row.left.alpha: " << row.left.alpha << ", row.left.beta: " << row.left.beta
+              << ", row.left.gamma: " << row.left.gamma << std::endl;
+    std::cerr << "row.tabSample.alpha: " << row.tabSample.alpha << ", row.tabSample.beta: " << row.tabSample.beta
+              << ", row.tabSample.gamma: " << row.tabSample.gamma << std::endl;
+  };
 
-	// selecting two multicolumns
-	for(const auto& row : db(select(multi_column(tab.alpha, tab.beta, tab.gamma).as(left), multi_column(all_of(tab)).as(tab)).from(tab).where(true)))
-	{
-		std::cerr << "row.left.alpha: " << row.left.alpha << ", row.left.beta: " << row.left.beta << ", row.left.gamma: " << row.left.gamma <<  std::endl;
-		std::cerr << "row.tabSample.alpha: " << row.tabSample.alpha << ", row.tabSample.beta: " << row.tabSample.beta << ", row.tabSample.gamma: " << row.tabSample.gamma <<  std::endl;
-	};
+  // test functions and operators
+  db(select(all_of(tab)).from(tab).where(tab.alpha.is_null()));
+  db(select(all_of(tab)).from(tab).where(tab.alpha.is_not_null()));
+  db(select(all_of(tab)).from(tab).where(tab.alpha.in(1, 2, 3)));
+  db(select(all_of(tab)).from(tab).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+  db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(1, 2, 3)));
+  db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+  db(select(count(tab.alpha)).from(tab).where(true));
+  db(select(avg(tab.alpha)).from(tab).where(true));
+  db(select(max(tab.alpha)).from(tab).where(true));
+  db(select(min(tab.alpha)).from(tab).where(true));
+  db(select(exists(select(tab.alpha).from(tab).where(tab.alpha > 7))).from(tab).where(true));
+  db(select(all_of(tab)).from(tab).where(tab.alpha == any(select(tab.alpha).from(tab).where(tab.alpha < 3))));
+  db(select(all_of(tab)).from(tab).where(tab.alpha == some(select(tab.alpha).from(tab).where(tab.alpha < 3))));
 
-	// test functions and operators
-	db(select(all_of(tab)).from(tab).where(tab.alpha.is_null()));
-	db(select(all_of(tab)).from(tab).where(tab.alpha.is_not_null()));
-	db(select(all_of(tab)).from(tab).where(tab.alpha.in(1, 2, 3)));
-	db(select(all_of(tab)).from(tab).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
-	db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(1, 2, 3)));
-	db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
-	db(select(count(tab.alpha)).from(tab).where(true));
-	db(select(avg(tab.alpha)).from(tab).where(true));
-	db(select(max(tab.alpha)).from(tab).where(true));
-	db(select(min(tab.alpha)).from(tab).where(true));
-	db(select(exists(select(tab.alpha).from(tab).where(tab.alpha > 7))).from(tab).where(true));
-	db(select(all_of(tab)).from(tab).where(tab.alpha == any(select(tab.alpha).from(tab).where(tab.alpha < 3))));
-	db(select(all_of(tab)).from(tab).where(tab.alpha == some(select(tab.alpha).from(tab).where(tab.alpha < 3))));
+  db(select(all_of(tab)).from(tab).where(tab.alpha + tab.alpha > 3));
+  db(select(all_of(tab)).from(tab).where((tab.beta + tab.beta) == ""));
+  db(select(all_of(tab)).from(tab).where((tab.beta + tab.beta).like("%'\"%")));
 
-	db(select(all_of(tab)).from(tab).where(tab.alpha + tab.alpha > 3));
-	db(select(all_of(tab)).from(tab).where((tab.beta + tab.beta) == ""));
-	db(select(all_of(tab)).from(tab).where((tab.beta + tab.beta).like("%'\"%")));
+  // insert
+  db(insert_into(tab).set(tab.gamma = true));
 
-	// insert
-	db(insert_into(tab).set(tab.gamma = true));
+  // update
+  db(update(tab).set(tab.gamma = false).where(tab.alpha.in(1)));
+  db(update(tab).set(tab.gamma = false).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
 
-	// update
-	db(update(tab).set(tab.gamma = false).where(tab.alpha.in(1)));
-	db(update(tab).set(tab.gamma = false).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+  // remove
+  db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
 
-	// remove
-	db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
+  auto result = db(select(all_of(tab)).from(tab).where(true));
+  std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha
+            << std::endl;
+  std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
 
+  auto tx = start_transaction(db);
+  if (const auto& row = *db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).where(true)).begin())
+  {
+    int a = row.alpha;
+    int m = row.max;
+    std::cerr << "-----------------------------" << a << ", " << m << std::endl;
+  }
+  tx.commit();
 
-	auto result = db(select(all_of(tab)).from(tab).where(true));
-	std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha << std::endl;
-	std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
-
-	auto tx = start_transaction(db);
-	if (const auto& row = *db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).where(true)).begin())
-	{
-		int a = row.alpha;
-		int m = row.max;
-		std::cerr << "-----------------------------" << a << ", " << m << std::endl;
-	}
-	tx.commit();
-
-	return 0;
+  return 0;
 }

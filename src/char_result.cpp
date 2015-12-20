@@ -24,34 +24,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include <iostream>
 #include <vector>
 #include <sqlpp11/mysql/char_result.h>
 #include <date.h>
 #include "detail/result_handle.h"
 
-
 namespace sqlpp
 {
-	namespace mysql
-	{
-		char_result_t::char_result_t()
-		{}
+  namespace mysql
+  {
+    char_result_t::char_result_t()
+    {
+    }
 
-		char_result_t::char_result_t(std::unique_ptr<detail::result_handle>&& handle):
-			_handle(std::move(handle))
-		{
-			if (!_handle)
-				throw sqlpp::exception("MySQL: Constructing char_result without valid handle");
+    char_result_t::char_result_t(std::unique_ptr<detail::result_handle>&& handle) : _handle(std::move(handle))
+    {
+      if (!_handle)
+        throw sqlpp::exception("MySQL: Constructing char_result without valid handle");
 
-			if (_handle->debug)
-				std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
-		}
+      if (_handle->debug)
+        std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
+    }
 
-		char_result_t::~char_result_t() = default;
-		char_result_t::char_result_t(char_result_t&& rhs) = default;
-		char_result_t& char_result_t::operator=(char_result_t&&) = default;
+    char_result_t::~char_result_t() = default;
+    char_result_t::char_result_t(char_result_t&& rhs) = default;
+    char_result_t& char_result_t::operator=(char_result_t&&) = default;
 
     namespace
     {
@@ -88,7 +86,7 @@ namespace sqlpp
       if (_handle->debug)
         std::cerr << "MySQL debug: parsing date result at index: " << index << std::endl;
 
-			*is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+      *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
       if (*is_null)
       {
         *value = {};
@@ -117,7 +115,7 @@ namespace sqlpp
       if (_handle->debug)
         std::cerr << "MySQL debug: parsing date result at index: " << index << std::endl;
 
-			*is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+      *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
       if (*is_null)
       {
         *value = {};
@@ -164,17 +162,15 @@ namespace sqlpp
       }
     }
 
-		bool char_result_t::next_impl()
-		{
-			if (_handle->debug)
-				std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
+    bool char_result_t::next_impl()
+    {
+      if (_handle->debug)
+        std::cerr << "MySQL debug: Accessing next row of handle at " << _handle.get() << std::endl;
 
-			_char_result_row.data = const_cast<const char**>(mysql_fetch_row(_handle->mysql_res));
-			_char_result_row.len = mysql_fetch_lengths(_handle->mysql_res);
+      _char_result_row.data = const_cast<const char**>(mysql_fetch_row(_handle->mysql_res));
+      _char_result_row.len = mysql_fetch_lengths(_handle->mysql_res);
 
-			return _char_result_row.data;
-		}
-
-	}
+      return _char_result_row.data;
+    }
+  }
 }
-
