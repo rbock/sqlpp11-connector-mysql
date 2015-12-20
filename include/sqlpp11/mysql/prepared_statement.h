@@ -30,6 +30,7 @@
 
 #include <memory>
 #include <string>
+#include <sqlpp11/chrono.h>
 
 namespace sqlpp
 {
@@ -61,9 +62,14 @@ namespace sqlpp
 				return _handle == rhs._handle;
 			}
 
+			void _pre_bind();
+
 			void _bind_boolean_parameter(size_t index, const signed char* value, bool is_null);
 			void _bind_integral_parameter(size_t index, const int64_t* value, bool is_null);
+      void _bind_floating_point_parameter(size_t index, const double* value, bool is_null);
 			void _bind_text_parameter(size_t index, const std::string* value, bool is_null);
+      void _bind_date_parameter(size_t index, const ::sqlpp::chrono::day_point* value, bool is_null);
+      void _bind_date_time_parameter(size_t index, const ::sqlpp::chrono::microsecond_point* value, bool is_null);
 		};
 	}
 }

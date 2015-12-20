@@ -53,6 +53,7 @@ namespace sqlpp
 			{
 				MYSQL_STMT* mysql_stmt;
 				std::vector<MYSQL_BIND> stmt_params;
+				std::vector<MYSQL_TIME> stmt_date_time_param_buffer;
 				std::vector<my_bool> stmt_param_is_null;
 				std::vector<MYSQL_BIND> result_params;
 				std::vector<result_meta_data_t> result_param_meta_data;
@@ -61,6 +62,7 @@ namespace sqlpp
 				prepared_statement_handle_t(MYSQL_STMT* stmt, size_t no_of_parameters, size_t no_of_columns, bool debug_):
 					mysql_stmt(stmt),
 					stmt_params(no_of_parameters, MYSQL_BIND{}),
+					stmt_date_time_param_buffer(no_of_parameters, MYSQL_TIME{}),
 					stmt_param_is_null(no_of_parameters, false),
 					result_params(no_of_columns, MYSQL_BIND{}),
 					result_param_meta_data(no_of_columns, result_meta_data_t{}),

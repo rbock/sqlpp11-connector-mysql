@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -28,6 +28,7 @@
 #include <iostream>
 #include <sqlpp11/mysql/prepared_statement.h>
 #include "detail/prepared_statement_handle.h"
+#include <date.h>
 
 
 namespace sqlpp
@@ -44,7 +45,7 @@ namespace sqlpp
 		void prepared_statement_t::_bind_boolean_parameter(size_t index, const signed char* value, bool is_null)
 		{
 			if (_handle->debug)
-				std::cerr << "binding boolean parameter " << (*value ? "true":"false") << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
+				std::cerr << "MySQL debug: binding boolean parameter " << (*value ? "true":"false") << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
 			_handle->stmt_param_is_null[index] = is_null;
 			MYSQL_BIND& param = _handle->stmt_params[index];
 			param.buffer_type = MYSQL_TYPE_TINY;
@@ -59,7 +60,7 @@ namespace sqlpp
 		void prepared_statement_t::_bind_integral_parameter(size_t index, const int64_t* value, bool is_null)
 		{
 			if (_handle->debug)
-				std::cerr << "binding integral parameter " << *value << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
+				std::cerr << "MySQL debug: binding integral parameter " << *value << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
 			_handle->stmt_param_is_null[index] = is_null;
 			MYSQL_BIND& param = _handle->stmt_params[index];
 			param.buffer_type = MYSQL_TYPE_LONGLONG;
@@ -71,15 +72,88 @@ namespace sqlpp
 			param.error = nullptr;
 		}
 
+		void prepared_statement_t::_bind_floating_point_parameter(size_t index, const double* value, bool is_null)
+		{
+			if (_handle->debug)
+				std::cerr << "MySQL debug: binding floating_point parameter " << *value << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
+			_handle->stmt_param_is_null[index] = is_null;
+			MYSQL_BIND& param = _handle->stmt_params[index];
+			param.buffer_type = MYSQL_TYPE_DOUBLE;
+			param.buffer = const_cast<double*>(value);
+			param.buffer_length = sizeof(*value);
+			param.length = &param.buffer_length;
+			param.is_null = &_handle->stmt_param_is_null[index];
+			param.is_unsigned = false;
+			param.error = nullptr;
+		}
+
 		void prepared_statement_t::_bind_text_parameter(size_t index, const std::string* value, bool is_null)
 		{
 			if (_handle->debug)
-				std::cerr << "binding text parameter " << *value << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
+				std::cerr << "MySQL debug: binding text parameter " << *value << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
 			_handle->stmt_param_is_null[index] = is_null;
 			MYSQL_BIND& param = _handle->stmt_params[index];
 			param.buffer_type = MYSQL_TYPE_STRING;
 			param.buffer = const_cast<char*>(value->data());
 			param.buffer_length = value->size();
+			param.length = &param.buffer_length;
+			param.is_null = &_handle->stmt_param_is_null[index];
+			param.is_unsigned = false;
+			param.error = nullptr;
+		}
+
+		void prepared_statement_t::_bind_date_parameter(size_t index, const ::sqlpp::chrono::day_point* value, bool is_null)
+		{
+			if (_handle->debug)
+				std::cerr << "MySQL debug: binding date parameter " << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
+
+			_handle->stmt_date_time_param_buffer.push_back(MYSQL_TIME{});
+			auto& bound_time = _handle->stmt_date_time_param_buffer.back();
+			if (not is_null)
+			{
+				const auto ymd = ::date::year_month_day{*value};
+				bound_time.year = static_cast<int>(ymd.year());
+				bound_time.month = static_cast<unsigned>(ymd.month());
+				bound_time.day = static_cast<unsigned>(ymd.day());
+			}
+
+			_handle->stmt_param_is_null[index] = is_null;
+			MYSQL_BIND& param = _handle->stmt_params[index];
+			param.buffer_type = MYSQL_TYPE_DATE;
+			param.buffer = &bound_time;
+			param.buffer_length = sizeof(MYSQL_TIME);
+			param.length = &param.buffer_length;
+			param.is_null = &_handle->stmt_param_is_null[index];
+			param.is_unsigned = false;
+			param.error = nullptr;
+		}
+
+		void prepared_statement_t::_bind_date_time_parameter(size_t index, const ::sqlpp::chrono::microsecond_point* value, bool is_null)
+		{
+			if (_handle->debug)
+				std::cerr << "MySQL debug: binding date_time parameter " << " at index: " << index << ", being " << (is_null? "" : "not ") << "null" << std::endl;
+
+			_handle->stmt_date_time_param_buffer.push_back(MYSQL_TIME{});
+			auto& bound_time = _handle->stmt_date_time_param_buffer.back();
+			if (not is_null)
+			{
+        const auto dp = ::date::floor<::date::days>(*value);
+        const auto time = date::make_time(*value - dp);
+				const auto ymd = ::date::year_month_day{dp};
+				bound_time.year = static_cast<int>(ymd.year());
+				bound_time.month = static_cast<unsigned>(ymd.month());
+				bound_time.day = static_cast<unsigned>(ymd.day());
+				bound_time.hour = time.hours().count();
+				bound_time.minute = time.minutes().count();
+				bound_time.second = time.seconds().count();
+				bound_time.second_part = time.subseconds().count();
+			}
+
+			_handle->stmt_param_is_null[index] = is_null;
+			MYSQL_BIND& param = _handle->stmt_params[index];
+			param.buffer_type = MYSQL_TYPE_DATETIME;
+			param.buffer = &bound_time;
+			param.buffer_length = sizeof(MYSQL_TIME);
 			param.length = &param.buffer_length;
 			param.is_null = &_handle->stmt_param_is_null[index];
 			param.is_unsigned = false;
