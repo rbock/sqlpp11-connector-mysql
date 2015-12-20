@@ -133,7 +133,7 @@ namespace sqlpp
 			detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
 			meta_data.index = index;
 			meta_data.len = nullptr;
-			meta_data.is_null = nullptr;
+			meta_data.is_null = is_null;
 			meta_data.text_buffer = nullptr;
 			meta_data.bound_text_buffer.resize(sizeof(MYSQL_TIME));
 
@@ -147,7 +147,7 @@ namespace sqlpp
 			param.error = &meta_data.bound_error;
 		}
 
-		void bind_result_t::_bind_date_time_result(size_t index, ::sqlpp::chrono::mus_point* value, bool* is_null)
+		void bind_result_t::_bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
 		{
 			if (_handle->debug)
 				std::cerr << "MySQL debug: binding date time result at index: " << index << std::endl;
@@ -155,7 +155,7 @@ namespace sqlpp
 			detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
 			meta_data.index = index;
 			meta_data.len = nullptr;
-			meta_data.is_null = nullptr;
+			meta_data.is_null = is_null;
 			meta_data.text_buffer = nullptr;
 			meta_data.bound_text_buffer.resize(sizeof(MYSQL_TIME));
 
@@ -174,12 +174,7 @@ namespace sqlpp
 			if (_handle->debug)
 				std::cerr << "MySQL debug: binding date result at index: " << index << std::endl;
 
-			if (_handle->result_param_meta_data[index].bound_is_null)
-			{
-				*is_null = true;
-				*value = {};
-			}
-			else
+			if (not is_null)
 			{
 				const auto& dt = *reinterpret_cast<const MYSQL_TIME*>(_handle->result_param_meta_data[index].bound_text_buffer.data());
 				*is_null = false;
@@ -187,17 +182,12 @@ namespace sqlpp
 			}
 		}
 
-		void bind_result_t::_post_bind_date_time_result(size_t index, ::sqlpp::chrono::mus_point* value, bool* is_null)
+		void bind_result_t::_post_bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
 		{
 			if (_handle->debug)
 				std::cerr << "MySQL debug: binding date time result at index: " << index << std::endl;
 
-			if (_handle->result_param_meta_data[index].bound_is_null)
-			{
-				*is_null = true;
-				*value = {};
-			}
-			else
+			if (not is_null)
 			{
 				const auto& dt = *reinterpret_cast<const MYSQL_TIME*>(_handle->result_param_meta_data[index].bound_text_buffer.data());
 				*is_null = false;

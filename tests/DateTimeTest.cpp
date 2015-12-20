@@ -83,7 +83,7 @@ int main()
       require_equal(__LINE__, row.colDayPoint.is_null(), true);
       require_equal(__LINE__, row.colDayPoint.value(), ::sqlpp::chrono::day_point{});
       require_equal(__LINE__, row.colTimePoint.is_null(), true);
-      require_equal(__LINE__, row.colTimePoint.value(), ::sqlpp::chrono::mus_point{});
+      require_equal(__LINE__, row.colTimePoint.value(), ::sqlpp::chrono::microsecond_point{});
     }
 
     db(update(tab).set(tab.colDayPoint = today, tab.colTimePoint = now).where(true));

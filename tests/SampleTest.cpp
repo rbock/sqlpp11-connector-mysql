@@ -104,6 +104,12 @@ int main()
 
 	// insert
 	db(insert_into(tab).default_values());
+	for (const auto& row : db(db.prepare(select(all_of(tab)).from(tab).where(true))))
+	{
+		std::cerr << "alpha: " << row.alpha.is_null() << std::endl;
+		std::cerr << "beta: " << row.beta.is_null() << std::endl;
+		std::cerr << "gamma: " << row.gamma.is_null() << std::endl;
+	}
 	db(insert_into(tab).set(tab.beta = "kaesekuchen", tab.gamma = true));
 	db(insert_into(tab).default_values());
 	db(insert_into(tab).set(tab.beta = "", tab.gamma = true));
