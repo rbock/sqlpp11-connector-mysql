@@ -194,5 +194,11 @@ int main()
   pr.params.beta = "prepared cake";
   std::cerr << "Deleted lines: " << db(pr) << std::endl;
 
+  for (const auto& row :
+       db(select(case_when(tab.gamma).then(tab.alpha).else_(foo.omega).as(tab.alpha)).from(tab, foo).where(true)))
+  {
+    std::cerr << row.alpha << std::endl;
+  }
+
   return 0;
 }
