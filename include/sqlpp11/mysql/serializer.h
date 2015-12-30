@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013 - 2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -27,39 +27,38 @@
 #ifndef SQLPP_MYSQL_SERIALIZER_H
 #define SQLPP_MYSQL_SERIALIZER_H
 
-#include <sqlpp11/concat.h>
+#include <sqlpp11/data_types/text/concat.h>
 #include <sqlpp11/insert_value_list.h>
 
 namespace sqlpp
 {
-	template<typename First, typename... Args>
-		struct serializer_t<mysql::serializer_t, concat_t<First, Args...>>
-		{
-			using _serialize_check = consistent_t;
-			using T = concat_t<First, Args...>;
+  template <typename First, typename... Args>
+  struct serializer_t<mysql::serializer_t, concat_t<First, Args...>>
+  {
+    using _serialize_check = consistent_t;
+    using T = concat_t<First, Args...>;
 
-			static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
-			{
-				context << "CONCAT(";
-				interpret_tuple(t._args, ',', context);
-				context << ')';
-				return context;
-			}
-		};
+    static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
+    {
+      context << "CONCAT(";
+      interpret_tuple(t._args, ',', context);
+      context << ')';
+      return context;
+    }
+  };
 
-	template<>
-		struct serializer_t<mysql::serializer_t, insert_default_values_data_t>
-		{
-			using _serialize_check = consistent_t;
-			using T = insert_default_values_data_t;
+  template <>
+  struct serializer_t<mysql::serializer_t, insert_default_values_data_t>
+  {
+    using _serialize_check = consistent_t;
+    using T = insert_default_values_data_t;
 
-			static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
-			{
-				context << " () VALUES()";
-				return context;
-			}
-		};
-
+    static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
+    {
+      context << " () VALUES()";
+      return context;
+    }
+  };
 }
 
 #endif
