@@ -117,7 +117,9 @@ namespace sqlpp
       connection& operator=(const connection&) = delete;
       connection& operator=(connection&&) = default;
       connection(connection&& other);
-
+      bool is_transaction_active(){
+        return _transaction_active;
+      }
       template <typename Select>
       char_result_t select(const Select& s)
       {

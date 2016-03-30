@@ -128,6 +128,7 @@ namespace sqlpp
     }
 
     connection::connection(connection&& other){
+      this->_transaction_active = other._transaction_active;
       this->_handle = std::move(other._handle);
     }
 
