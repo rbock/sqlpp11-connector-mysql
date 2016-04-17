@@ -114,10 +114,12 @@ namespace sqlpp
       connection(const std::shared_ptr<connection_config>& config);
       ~connection();
       connection(const connection&) = delete;
-      connection(connection&&) = delete;
       connection& operator=(const connection&) = delete;
-      connection& operator=(connection&&) = delete;
-
+      connection& operator=(connection&&) = default;
+      connection(connection&& other);
+      bool is_transaction_active(){
+        return _transaction_active;
+      }
       template <typename Select>
       char_result_t select(const Select& s)
       {
