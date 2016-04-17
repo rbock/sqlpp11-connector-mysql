@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2015, Roland Bock
+ * Copyright (c) 2013 - 2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -48,7 +48,8 @@ int main()
   catch (const sqlpp::exception&)
   {
     std::cerr << "For testing, you'll need to create a database sqlpp_mysql with a table tab_sample, as shown in "
-                 "tests/TabSample.sql" << std::endl;
+                 "tests/TabSample.sql"
+              << std::endl;
     throw;
   }
   mysql::connection db(config);
@@ -68,21 +69,22 @@ int main()
 
   TabSample tab;
   // clear the table
-  db(remove_from(tab).where(true));
+  db(remove_from(tab).unconditionally());
 
   // Several ways of ensuring that tab is empty
-  assert(
-      not db(select(exists(select(tab.alpha).from(tab).where(true)))).front().exists);  // this is probably the fastest
-  assert(not db(select(count(tab.alpha)).from(tab).where(true)).front().count);
-  assert(db(select(tab.alpha).from(tab).where(true)).empty());
+  assert(not db(select(exists(select(tab.alpha).from(tab).unconditionally())))
+                 .front()
+                 .exists);  // this is probably the fastest
+  assert(not db(select(count(tab.alpha)).from(tab).unconditionally()).front().count);
+  assert(db(select(tab.alpha).from(tab).unconditionally()).empty());
 
   // explicit all_of(tab)
   std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
   select(all_of(tab)).from(tab);
   std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
-  db(select(all_of(tab)).from(tab).where(true));
+  db(select(all_of(tab)).from(tab).unconditionally());
   std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
-  for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
+  for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
   {
     std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
     std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma << std::endl;
@@ -91,7 +93,7 @@ int main()
   for (const auto& row :
        db(select(tab.alpha, multi_column(tab.alpha, tab.beta, tab.gamma).as(left), multi_column(all_of(tab)).as(tab))
               .from(tab)
-              .where(true)))
+              .unconditionally()))
   {
     std::cerr << "row.left.alpha: " << row.left.alpha << ", row.left.beta: " << row.left.beta
               << ", row.left.gamma: " << row.left.gamma << std::endl;
@@ -101,7 +103,10 @@ int main()
 
   // insert
   db(insert_into(tab).default_values());
-  for (const auto& row : db(db.prepare(select(all_of(tab)).from(tab).where(true))))
+  const auto x = select(all_of(tab)).from(tab).unconditionally();
+  const auto y = db.prepare(x);
+#if 0
+  for (const auto& row : db(db.prepare(select(all_of(tab)).from(tab).unconditionally())))
   {
     std::cerr << "alpha: " << row.alpha.is_null() << std::endl;
     std::cerr << "beta: " << row.beta.is_null() << std::endl;
@@ -119,19 +124,19 @@ int main()
   db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
 
   std::cerr << "+++++++++++++++++++++++++++" << std::endl;
-  for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
+  for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
   {
     std::cerr << __LINE__ << " row.beta: " << row.beta << std::endl;
   }
   std::cerr << "+++++++++++++++++++++++++++" << std::endl;
-  decltype(db(select(all_of(tab)).from(tab).where(true))) result;
-  result = db(select(all_of(tab)).from(tab).where(true));
+  decltype(db(select(all_of(tab)).from(tab).unconditionally())) result;
+  result = db(select(all_of(tab)).from(tab).unconditionally());
   std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha
             << std::endl;
   std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
 
   auto tx = start_transaction(db);
-  if (const auto& row = *db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).where(true)).begin())
+  if (const auto& row = *db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally()).begin())
   {
     int a = row.alpha;
     int m = row.max;
@@ -140,12 +145,12 @@ int main()
   tx.commit();
 
   TabFoo foo;
-  for (const auto& row : db(select(tab.alpha).from(tab.join(foo).on(tab.alpha == foo.omega)).where(true)))
+  for (const auto& row : db(select(tab.alpha).from(tab.join(foo).on(tab.alpha == foo.omega)).unconditionally()))
   {
     std::cerr << row.alpha << std::endl;
   }
 
-  for (const auto& row : db(select(tab.alpha).from(tab.left_outer_join(foo).on(tab.alpha == foo.omega)).where(true)))
+  for (const auto& row : db(select(tab.alpha).from(tab.left_outer_join(foo).on(tab.alpha == foo.omega)).unconditionally()))
   {
     std::cerr << row.alpha << std::endl;
   }
@@ -195,10 +200,11 @@ int main()
   std::cerr << "Deleted lines: " << db(pr) << std::endl;
 
   for (const auto& row :
-       db(select(case_when(tab.gamma).then(tab.alpha).else_(foo.omega).as(tab.alpha)).from(tab, foo).where(true)))
+       db(select(case_when(tab.gamma).then(tab.alpha).else_(foo.omega).as(tab.alpha)).from(tab.cross_join(foo)).unconditionally()))
   {
     std::cerr << row.alpha << std::endl;
   }
+#endif
 
   return 0;
 }
