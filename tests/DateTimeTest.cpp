@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2015, Roland Bock
+ * Copyright (c) 2013 - 2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -78,7 +78,7 @@ int main()
   try
   {
     db(insert_into(tab).default_values());
-    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
+    for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
       require_equal(__LINE__, row.colDayPoint.is_null(), true);
       require_equal(__LINE__, row.colDayPoint.value(), ::sqlpp::chrono::day_point{});
@@ -86,17 +86,17 @@ int main()
       require_equal(__LINE__, row.colTimePoint.value(), ::sqlpp::chrono::microsecond_point{});
     }
 
-    db(update(tab).set(tab.colDayPoint = today, tab.colTimePoint = now).where(true));
+    db(update(tab).set(tab.colDayPoint = today, tab.colTimePoint = now).unconditionally());
 
-    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
+    for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
       require_equal(__LINE__, row.colDayPoint.value(), today);
       require_equal(__LINE__, row.colTimePoint.value(), now);
     }
 
-    db(update(tab).set(tab.colDayPoint = yesterday, tab.colTimePoint = today).where(true));
+    db(update(tab).set(tab.colDayPoint = yesterday, tab.colTimePoint = today).unconditionally());
 
-    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
+    for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
       require_equal(__LINE__, row.colDayPoint.value(), yesterday);
       require_equal(__LINE__, row.colTimePoint.value(), today);
@@ -105,13 +105,13 @@ int main()
     auto prepared_update = db.prepare(
         update(tab)
             .set(tab.colDayPoint = parameter(tab.colDayPoint), tab.colTimePoint = parameter(tab.colTimePoint))
-            .where(true));
+            .unconditionally());
     prepared_update.params.colDayPoint = today;
     prepared_update.params.colTimePoint = now;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
-    for (const auto& row : db(select(all_of(tab)).from(tab).where(true)))
+    for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
       require_equal(__LINE__, row.colDayPoint.value(), today);
       require_equal(__LINE__, row.colTimePoint.value(), now);

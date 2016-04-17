@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2015, Roland Bock
+ * Copyright (c) 2013 - 2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -56,14 +56,14 @@ int main()
 			PRIMARY KEY (alpha)
 			))");
 
-  auto u = select(all_of(tab)).from(tab).where(true).union_all(select(all_of(tab)).from(tab).where(true));
+  auto u = select(all_of(tab)).from(tab).unconditionally().union_all(select(all_of(tab)).from(tab).unconditionally());
 
   for (const auto& row : db(u))
   {
     std::cout << row.alpha << row.beta << row.gamma << std::endl;
   }
 
-  for (const auto& row : db(u.union_distinct(select(all_of(tab)).from(tab).where(true))))
+  for (const auto& row : db(u.union_distinct(select(all_of(tab)).from(tab).unconditionally())))
   {
     std::cout << row.alpha << row.beta << row.gamma << std::endl;
   }
