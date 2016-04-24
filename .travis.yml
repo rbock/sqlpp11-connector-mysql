@@ -34,7 +34,7 @@ install:
   - git clone https://github.com/rbock/sqlpp11
   - if [ "$BRANCH" != "master" ]; then
       cd sqlpp11
-      && git checkout develop
+      && git checkout develop;
     fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
