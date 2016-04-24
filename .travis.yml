@@ -21,7 +21,7 @@ notifications:
 
 install:
   - pwd
-  - PROJECT_DIR=PWD
+  - PROJECT_DIR="$PWD"
   - BRANCH=`git rev-parse --abbrev-ref HEAD`
   - cd
   - pwd
@@ -53,7 +53,7 @@ install:
       && (brew outdated cmake || brew upgrade cmake)
       && cmake --version;
     fi
-  - cd PROJECT_DIR
+  - cd "$PROJECT_DIR"
 
 before_script:
    - mkdir build
