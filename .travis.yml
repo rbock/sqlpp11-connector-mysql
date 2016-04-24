@@ -23,7 +23,7 @@ install:
   - pwd
   - PROJECT_DIR="$PWD"
   - BRANCH=`git rev-parse --abbrev-ref HEAD`
-  - cd
+  - cd ..
   - pwd
   - CMAKE_VERSION_MM=3.2
   - CMAKE_VERSION_FULL=$CMAKE_VERSION_MM.2
@@ -34,7 +34,8 @@ install:
   - git clone https://github.com/rbock/sqlpp11
   - if [ "$BRANCH" != "master" ]; then
       cd sqlpp11
-      && git checkout develop;
+      && git checkout develop
+      cd ..;
     fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
