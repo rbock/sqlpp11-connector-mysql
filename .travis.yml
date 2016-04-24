@@ -27,7 +27,6 @@ install:
   - git checkout tags/v1.0.0
   - cd ..
   - git clone https://github.com/rbock/sqlpp11
-  - ls /home/travis/build/rbock/sqlpp11/include
   - ls /home/travis/build/rbock
   - intentionally error out here
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
