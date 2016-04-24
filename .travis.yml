@@ -20,6 +20,11 @@ notifications:
    on_failure: always
 
 install:
+  - pwd
+  - PROJECT_DIR=PWD
+  - BRANCH=`git rev-parse --abbrev-ref HEAD`
+  - cd
+  - pwd
   - CMAKE_VERSION_MM=3.2
   - CMAKE_VERSION_FULL=$CMAKE_VERSION_MM.2
   - git clone https://github.com/HowardHinnant/date
@@ -27,8 +32,10 @@ install:
   - git checkout tags/v1.0.0
   - cd ..
   - git clone https://github.com/rbock/sqlpp11
-  - ls /home/travis/build/rbock
-  - intentionally error out here
+  - if [ "$BRANCH" != "master" ]; then
+      cd sqlpp11
+      && git checkout develop
+    fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
       && sudo add-apt-repository -y ppa:apokluda/boost1.53
@@ -46,6 +53,7 @@ install:
       && (brew outdated cmake || brew upgrade cmake)
       && cmake --version;
     fi
+  - cd PROJECT_DIR
 
 before_script:
    - mkdir build
@@ -53,7 +61,7 @@ before_script:
    - ls /home/travis/build/rbock/sqlpp11/include
    - ls /home/travis/build/rbock
    - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
-   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DDATE_INCLUDE_DIR=$PWD/../date
+   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG
 
 script:
    - cmake --build . --config $CONFIG
