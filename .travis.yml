@@ -11,7 +11,7 @@ compiler:
 #  - gcc
 
 env:
-  - CONFIG=Release
+  #- CONFIG=Release
   - CONFIG=Debug
 
 notifications:
@@ -27,6 +27,9 @@ install:
   - git checkout tags/v1.0.0
   - cd ..
   - git clone https://github.com/rbock/sqlpp11
+  - ls /home/travis/build/rbock/sqlpp11/include
+  - ls /home/travis/build/rbock
+  - intentionally error out here
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
       && sudo add-apt-repository -y ppa:apokluda/boost1.53
@@ -48,6 +51,8 @@ install:
 before_script:
    - mkdir build
    - cd build
+   - ls /home/travis/build/rbock/sqlpp11/include
+   - ls /home/travis/build/rbock
    - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
    - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DDATE_INCLUDE_DIR=$PWD/../date
 
