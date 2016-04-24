@@ -58,8 +58,6 @@ install:
 before_script:
    - mkdir build
    - cd build
-   - ls /home/travis/build/rbock/sqlpp11/include
-   - ls /home/travis/build/rbock
    - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
    - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG
 
