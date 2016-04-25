@@ -54,6 +54,7 @@ install:
       && (brew outdated cmake || brew upgrade cmake)
       && cmake --version;
     fi
+  - mysqladmin -u root create sqlpp_mysql
   - cd "$PROJECT_DIR"
 
 before_script:
