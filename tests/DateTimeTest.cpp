@@ -70,8 +70,8 @@ int main()
   mysql::connection db(config);
   db.execute(R"(DROP TABLE IF EXISTS tab_date_time)");
   db.execute(R"(CREATE TABLE tab_date_time (
-		col_day_point DATE,
-			col_time_point DATETIME(3)
+		col_day_point date,
+			col_time_point datetime(3)
 			))");
 
   TabDateTime tab;

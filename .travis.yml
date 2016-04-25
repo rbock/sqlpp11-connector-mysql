@@ -20,6 +20,7 @@ notifications:
    on_failure: always
 
 install:
+  - mysql --version
   - pwd
   - PROJECT_DIR="$PWD"
   - BRANCH=`git rev-parse --abbrev-ref HEAD`
