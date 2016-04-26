@@ -10,7 +10,7 @@ find_path(MYSQL_INCLUDE_DIR mysql.h
   )
 
 find_library(MYSQL_LIBRARY
-  NAMES mysqlclient_r
+  NAMES mysqlclient_r mysqlclient
   PATH_SUFFIXES mysql
   )
 
