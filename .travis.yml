@@ -58,6 +58,7 @@ install:
       && (brew outdated cmake || brew upgrade cmake)
       && cmake --version
       && brew install mysql
+      && brew services start mysql
       ;
     fi
   - mysql --version
