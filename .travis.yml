@@ -62,6 +62,7 @@ install:
       ;
     fi
   - mysql --version
+  - (while !  mysqladmin -u root status ; do sleep 1; done) # wait for mysql to start
   - mysqladmin -u root create sqlpp_mysql
   - cd "$PROJECT_DIR"
 
