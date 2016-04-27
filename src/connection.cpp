@@ -58,7 +58,7 @@ namespace sqlpp
       };
 
 #ifdef _LIBCPP_VERSION
-      boost::thread_specific_ptr<MysqlThreadInit> mysqlThreadInit;
+      boost::thread_specific_ptr<MySqlThreadInitializer> mysqlThreadInit;
 #endif
 
       void thread_init()
