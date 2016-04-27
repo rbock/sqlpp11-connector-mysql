@@ -55,7 +55,7 @@ int main()
   mysql::connection db(config);
   db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
   db.execute(R"(CREATE TABLE tab_sample (
-			alpha bigint(20) AUTO_INCREMENT DEFAULT NULL,
+			alpha bigint(20) AUTO_INCREMENT,
 			beta varchar(255) DEFAULT NULL,
 			gamma bool DEFAULT NULL,
 			PRIMARY KEY (alpha)
