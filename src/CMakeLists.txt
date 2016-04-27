@@ -5,6 +5,8 @@ add_library(sqlpp-mysql
 		bind_result.cpp
 		detail/connection_handle.cpp)
 
-target_link_libraries(sqlpp-mysql "${Boost_THREAD_LIBRARY}")
+if (HAS_LIBCPP_VERSION)
+	target_link_libraries(sqlpp-mysql "${Boost_THREAD_LIBRARY}")
+endif()
 
 install(TARGETS sqlpp-mysql DESTINATION lib)

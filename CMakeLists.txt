@@ -23,11 +23,17 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 3.2)
+include(CheckCXXSymbolExists)
 project (sqlpp11-connector-mysql)
 enable_testing()
 set(CMAKE_CXX_STANDARD 11)
 
-find_package(Boost COMPONENTS thread)
+check_cxx_symbol_exists(_LIBCPP_VERSION iostream HAS_LIBCPP_VERSION)
+if (HAS_LIBCPP_VERSION)
+	message("libc++ does not have thread_local, thus we need to wrap that via boost thread")
+	find_package(Boost COMPONENTS thread)
+endif()
+
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(MySql REQUIRED)
