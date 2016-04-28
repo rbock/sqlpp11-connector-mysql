@@ -88,8 +88,8 @@ int main()
   db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
   db.execute(R"(CREATE TABLE tab_sample (
 		alpha bigint(20) AUTO_INCREMENT,
-			beta bool DEFAULT NULL,
-			gamma varchar(255) DEFAULT NULL,
+			beta varchar(255) DEFAULT NULL,
+			gamma bool DEFAULT NULL,
 			PRIMARY KEY (alpha)
 			))");
   db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
