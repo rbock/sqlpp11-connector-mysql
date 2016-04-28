@@ -25,6 +25,9 @@
  */
 
 #include <iostream>
+#ifdef _LIBCPP_VERSION
+#include <boost/thread/tss.hpp>  // libc++ does not have thread_local yet.
+#endif
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/connection.h>
 #include "detail/prepared_statement_handle.h"
@@ -41,17 +44,38 @@ namespace sqlpp
       {
         MySqlThreadInitializer()
         {
+          if (!mysql_thread_safe())
+          {
+            throw sqlpp::exception("MySQL error: Operating on a non-threadsafe client");
+          }
           mysql_thread_init();
         }
+
         ~MySqlThreadInitializer()
         {
           mysql_thread_end();
         }
       };
 
+#ifdef _LIBCPP_VERSION
+      boost::thread_specific_ptr<MySqlThreadInitializer> mysqlThreadInit;
+#endif
+
+      void thread_init()
+      {
+#ifdef _LIBCPP_VERSION
+        if (!mysqlThreadInit.get())
+        {
+          mysqlThreadInit.reset(new MySqlThreadInitializer);
+        }
+#else
+        thread_local MySqlThreadInitializer threadInitializer;
+#endif
+      }
+
       void execute_statement(detail::connection_handle_t& handle, const std::string& statement)
       {
-        thread_local MySqlThreadInitializer threadInitializer;
+        thread_init();
 
         if (handle.config->debug)
           std::cerr << "MySQL debug: Executing: '" << statement << "'" << std::endl;
@@ -66,6 +90,8 @@ namespace sqlpp
 
       void execute_prepared_statement(detail::prepared_statement_handle_t& prepared_statement)
       {
+        thread_init();
+
         if (prepared_statement.debug)
           std::cerr << "MySQL debug: Executing prepared_statement" << std::endl;
 
@@ -87,7 +113,7 @@ namespace sqlpp
                                                                              size_t no_of_parameters,
                                                                              size_t no_of_columns)
       {
-        thread_local MySqlThreadInitializer threadInitializer;
+        thread_init();
 
         if (handle.config->debug)
           std::cerr << "MySQL debug: Preparing: '" << statement << "'" << std::endl;
@@ -127,7 +153,8 @@ namespace sqlpp
     {
     }
 
-    connection::connection(connection&& other){
+    connection::connection(connection&& other)
+    {
       this->_transaction_active = other._transaction_active;
       this->_handle = std::move(other._handle);
     }

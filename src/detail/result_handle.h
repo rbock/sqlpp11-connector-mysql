@@ -27,7 +27,7 @@
 #ifndef SQLPP_MYSQL_DETAIL_RESULT_HANDLE_H
 #define SQLPP_MYSQL_DETAIL_RESULT_HANDLE_H
 
-#include <mysql/mysql.h>
+#include <mysql.h>
 
 namespace sqlpp
 {
