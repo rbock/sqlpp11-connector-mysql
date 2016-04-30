@@ -2,7 +2,7 @@ language: cpp
 
 os:
   - linux
-  #- osx
+  - osx
 
 sudo: required
 dist: trusty
@@ -21,7 +21,7 @@ compiler:
   - gcc
 
 env:
-  #- CONFIG=Release
+  - CONFIG=Release
   - CONFIG=Debug
 
 notifications:
