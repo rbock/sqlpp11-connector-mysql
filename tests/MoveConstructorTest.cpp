@@ -77,7 +77,7 @@ int main()
   i.values.add(tab.beta = "kaesekuchen", tab.gamma = true);
   db(i);
 
-  auto s = dynamic_select(db).dynamic_columns(tab.alpha).from(tab).where(true);
+  auto s = dynamic_select(db).dynamic_columns(tab.alpha).from(tab).unconditionally();
   s.selected_columns.add(tab.beta);
 
   for (const auto& row : db(s))
