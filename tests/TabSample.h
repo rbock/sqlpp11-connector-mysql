@@ -101,10 +101,7 @@ namespace TabSample_
         }
       };
     };
-    using _traits = ::sqlpp::make_traits<::sqlpp::bigint,
-                                         ::sqlpp::tag::must_not_insert,
-                                         ::sqlpp::tag::must_not_update,
-                                         ::sqlpp::tag::can_be_null>;
+    using _traits = ::sqlpp::make_traits<::sqlpp::bigint, ::sqlpp::tag::must_not_insert, ::sqlpp::tag::must_not_update>;
   };
 
   struct Beta

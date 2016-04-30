@@ -55,7 +55,7 @@ int main()
   mysql::connection db(config);
   db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
   db.execute(R"(CREATE TABLE tab_sample (
-			alpha bigint(20) AUTO_INCREMENT DEFAULT NULL,
+			alpha bigint(20) AUTO_INCREMENT,
 			beta varchar(255) DEFAULT NULL,
 			gamma bool DEFAULT NULL,
 			PRIMARY KEY (alpha)
@@ -105,7 +105,6 @@ int main()
   db(insert_into(tab).default_values());
   const auto x = select(all_of(tab)).from(tab).unconditionally();
   const auto y = db.prepare(x);
-#if 0
   for (const auto& row : db(db.prepare(select(all_of(tab)).from(tab).unconditionally())))
   {
     std::cerr << "alpha: " << row.alpha.is_null() << std::endl;
@@ -150,7 +149,8 @@ int main()
     std::cerr << row.alpha << std::endl;
   }
 
-  for (const auto& row : db(select(tab.alpha).from(tab.left_outer_join(foo).on(tab.alpha == foo.omega)).unconditionally()))
+  for (const auto& row :
+       db(select(tab.alpha).from(tab.left_outer_join(foo).on(tab.alpha == foo.omega)).unconditionally()))
   {
     std::cerr << row.alpha << std::endl;
   }
@@ -199,12 +199,12 @@ int main()
   pr.params.beta = "prepared cake";
   std::cerr << "Deleted lines: " << db(pr) << std::endl;
 
-  for (const auto& row :
-       db(select(case_when(tab.gamma).then(tab.alpha).else_(foo.omega).as(tab.alpha)).from(tab.cross_join(foo)).unconditionally()))
+  for (const auto& row : db(select(case_when(tab.gamma).then(tab.alpha).else_(foo.omega).as(tab.alpha))
+                                .from(tab.cross_join(foo))
+                                .unconditionally()))
   {
     std::cerr << row.alpha << std::endl;
   }
-#endif
 
   return 0;
 }

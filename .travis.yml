@@ -1,0 +1,81 @@
+language: cpp
+
+os:
+  - linux
+  - osx
+
+sudo: required
+dist: trusty
+addons:
+  apt:
+    packages:
+    - mysql-server-5.6
+    - mysql-client-core-5.6
+    - mysql-client-5.6
+    - libboost-dev
+
+osx_image: xcode7
+
+compiler:
+  - clang
+  - gcc
+
+env:
+  - CONFIG=Release
+  - CONFIG=Debug
+
+notifications:
+ email:
+   on_success: change
+   on_failure: always
+
+install:
+  - pwd
+  - PROJECT_DIR="$PWD"
+  - BRANCH=`git rev-parse --abbrev-ref HEAD`
+  - cd ..
+  - pwd
+  - CMAKE_VERSION_MM=3.2
+  - CMAKE_VERSION_FULL=$CMAKE_VERSION_MM.2
+  - git clone https://github.com/HowardHinnant/date
+  - cd date
+  - git checkout tags/v1.0.0
+  - cd ..
+  - git clone https://github.com/rbock/sqlpp11
+  - if [ "$BRANCH" != "master" ]; then
+      cd sqlpp11
+      && git checkout develop
+      && cd ..
+      ;
+    fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      wget --no-check-certificate http://www.cmake.org/files/v${CMAKE_VERSION_MM}/cmake-${CMAKE_VERSION_FULL}-Linux-x86_64.sh
+      && sudo sh cmake-${CMAKE_VERSION_FULL}-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir;
+    fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+      brew update
+      && ((brew list -1 | grep -q "^$cmake\$") || brew install cmake)
+      && (brew outdated cmake || brew upgrade cmake)
+      && cmake --version
+      && brew install mysql
+      && brew services start mysql
+      ;
+    fi
+  - mysql --version
+  - (while !  mysqladmin -u root status ; do sleep 1; done) # wait for mysql to start
+  - mysqladmin -u root create sqlpp_mysql
+  - cd "$PROJECT_DIR"
+
+before_script:
+   - mkdir build
+   - cd build
+   - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
+   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG
+
+script:
+   - make VERBOSE=1
+   - cmake --build . --config $CONFIG
+   - ctest --output-on-failure
+
+after_script:
+  - ../coveralls
