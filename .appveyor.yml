@@ -3,6 +3,9 @@ os: Visual Studio 2015
 platform:
   - x64
 
+services:
+  - mysql
+
 configuration:
   - Debug
   - Release
