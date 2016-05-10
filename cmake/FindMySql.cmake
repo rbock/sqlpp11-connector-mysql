@@ -19,13 +19,11 @@ else()
 	find_path(MYSQL_INCLUDE_DIR
 		NAMES mysql.h
 		PATHS "$ENV{PROGRAMFILES}/MySQL/*/include"
-					"$ENV{PROGRAMFILES(x86)}/MySQL/*/include"
 					"$ENV{SYSTEMDRIVE}/MySQL/*/include")
 
 	find_library(MYSQL_LIBRARY
 		NAMES mysqlclient mysqlclient_r
 		PATHS "$ENV{PROGRAMFILES}/MySQL/*/lib"
-					"$ENV{PROGRAMFILES(x86)}/MySQL/*/lib"
 					"$ENV{SYSTEMDRIVE}/MySQL/*/lib")
 endif()
 
