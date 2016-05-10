@@ -5,14 +5,29 @@
 #  MYSQL_LIBRARIES    - List of libraries when using MySQL.
 #  MYSQL_FOUND        - True if MySQL found.
 
-find_path(MYSQL_INCLUDE_DIR mysql.h
-  PATH_SUFFIXES mysql
-  )
+if (NOT DEFINED MSVC)
+	find_path(MYSQL_INCLUDE_DIR
+		NAMES mysql.h
+		PATH_SUFFIXES mysql
+		)
 
-find_library(MYSQL_LIBRARY
-  NAMES mysqlclient_r mysqlclient
-  PATH_SUFFIXES mysql
-  )
+	find_library(MYSQL_LIBRARY
+		NAMES mysqlclient_r mysqlclient
+		PATH_SUFFIXES mysql
+		)
+else()
+	find_path(MYSQL_INCLUDE_DIR
+		NAMES mysql.h
+		PATHS "$ENV{PROGRAMFILES}/MySQL/*/include"
+					"$ENV{PROGRAMFILES(x86)}/MySQL/*/include"
+					"$ENV{SYSTEMDRIVE}/MySQL/*/include")
+
+	find_library(MYSQL_LIBRARY
+		NAMES mysqlclient mysqlclient_r
+		PATHS "$ENV{PROGRAMFILES}/MySQL/*/lib"
+					"$ENV{PROGRAMFILES(x86)}/MySQL/*/lib"
+					"$ENV{SYSTEMDRIVE}/MySQL/*/lib")
+endif()
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(MYSQL

@@ -14,20 +14,18 @@ matrix:
   fast_finish: true
 
 build_script:
-  - cd C:\Program Files\MySql
-  - dir /s
-  #- CD
-  #- cd ..
-  #- CD
-  #- git clone https://github.com/HowardHinnant/date
-  #- git clone https://github.com/rbock/sqlpp11
-  #- cd sqlpp11-connector-mysql
-  #- CD
-  #- echo %configuration%
-  #- mkdir build
-  #- cd build
-  #- cmake --version
-  #- cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503"
-  #- cmake --build . --config %configuration%
-  #- ctest . --build-config %configuration%
+  - CD
+  - cd ..
+  - CD
+  - git clone https://github.com/HowardHinnant/date
+  - git clone https://github.com/rbock/sqlpp11
+  - cd sqlpp11-connector-mysql
+  - CD
+  - echo %configuration%
+  - mkdir build
+  - cd build
+  - cmake --version
+  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503"
+  - cmake --build . --config %configuration%
+  - ctest . --build-config %configuration%
 
