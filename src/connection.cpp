@@ -231,9 +231,9 @@ namespace sqlpp
 
     std::string connection::escape(const std::string& s) const
     {
-      char dest[s.size() * 2 + 1];
-      mysql_real_escape_string(_handle->mysql.get(), dest, s.c_str(), s.size());
-      return dest;
+      std::unique_ptr<char[]> dest(new char[s.size() * 2 + 1]);
+      mysql_real_escape_string(_handle->mysql.get(), dest.get(), s.c_str(), s.size());
+      return dest.get();
     }
 
     void connection::start_transaction()
