@@ -24,6 +24,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ciso646>
 #include <iostream>
 #ifdef _LIBCPP_VERSION
 #include <boost/thread/tss.hpp>  // libc++ does not have thread_local yet.
