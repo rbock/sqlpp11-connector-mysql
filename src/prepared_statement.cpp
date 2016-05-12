@@ -24,6 +24,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ciso646>
 #include <iostream>
 #include <sqlpp11/mysql/prepared_statement.h>
 #include "detail/prepared_statement_handle.h"

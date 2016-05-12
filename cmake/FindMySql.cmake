@@ -18,8 +18,6 @@ if (NOT DEFINED MSVC)
 else()
 	file(GLOB MYSQL_GLOB_PROGRAM "$ENV{SystemDrive}/Program Files/MySQL*/*")
 	file(GLOB MYSQL_GLOB_PROGRAM86 "$ENV{SystemDrive}/Program Files (x86)/MySQL*/*")
-	message("MYSQL_GLOB_PROGRAM: " ${MYSQL_GLOB_PROGRAM})
-	message("MYSQL_GLOB_PROGRAM86: " ${MYSQL_GLOB_PROGRAM86})
 	find_path(MYSQL_INCLUDE_DIR
 		NAMES mysql.h
 		PATH_SUFFIXES include
