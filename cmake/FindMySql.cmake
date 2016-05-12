@@ -16,17 +16,14 @@ if (NOT DEFINED MSVC)
 		PATH_SUFFIXES mysql
 		)
 else()
-	message("ENV::ProgramFiles: " "$ENV{ProgramFiles}")
-	file(GLOB MYSQL_GLOB_PROGRAM "$ENV{ProgramFiles}/MySQL/" "include")
+	file(GLOB_RECURSE MYSQL_GLOB_PROGRAM "$ENV{SystemDrive}/Program Files (x86)/MySQL*/" "include")
+	file(GLOB_RECURSE MYSQL_GLOB_PROGRAM86 "$ENV{SystemDrive}/Program Files/MySQL*/" "include")
 	message("MYSQL_GLOB_PROGRAM: " ${MYSQL_GLOB_PROGRAM})
-	message("ENV::SystemDrive: " "$ENV{SystemDrive}")
-	file(GLOB MYSQL_GLOB_SYSTEM "$ENV{SystemDrive}/MySQL/" "include")
-	message("MYSQL_GLOB_SYSTEM: " ${MYSQL_GLOB_SYSTEM})
-	message("ENV::ProgramFiles(x86): " "$ENV{ProgramFiles(x86)}")
+	message("MYSQL_GLOB_PROGRAM86: " ${MYSQL_GLOB_PROGRAM86})
 	find_path(MYSQL_INCLUDE_DIR
 		NAMES mysql.h
 		PATHS ${MYSQL_GLOB_PROGRAM}
-					${MYSQL_GLOB_SYSTEM}
+					${MYSQL_GLOB_PROGRAM86}
 		)
 
 	find_library(MYSQL_LIBRARY
