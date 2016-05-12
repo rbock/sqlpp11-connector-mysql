@@ -12,14 +12,21 @@ if (NOT DEFINED MSVC)
 		)
 
 	find_library(MYSQL_LIBRARY
-		NAMES mysqlclient_r mysqlclient
+		NAMES mysqlclient mysqlclient_r
 		PATH_SUFFIXES mysql
 		)
 else()
+	message("ENV::PROGRAMFILES: " "$ENV{PROGRAMFILES}")
+	file(GLOB MYSQL_GLOB_PROGRAM "$ENV{PROGRAMFILES}/MySQL/" "include")
+	message("MYSQL_GLOB_PROGRAM: " ${MYSQL_GLOB_PROGRAM})
+	message("ENV::SYSTEMDRIVE: " "$ENV{SYSTEMDRIVE}")
+	file(GLOB MYSQL_GLOB_SYSTEM "$ENV{SYSTEMDRIVE}/MySQL/" "include")
+	message("MYSQL_GLOB_SYSTEM: " ${MYSQL_GLOB_SYSTEM})
 	find_path(MYSQL_INCLUDE_DIR
 		NAMES mysql.h
-		PATHS "$ENV{PROGRAMFILES}/MySQL/*/include"
-					"$ENV{SYSTEMDRIVE}/MySQL/*/include")
+		PATHS ${MYSQL_GLOB_PROGRAM}
+					${MYSQL_GLOB_SYSTEM}
+		)
 
 	find_library(MYSQL_LIBRARY
 		NAMES mysqlclient mysqlclient_r
