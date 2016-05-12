@@ -20,6 +20,9 @@ build_script:
   - CD
   - git clone https://github.com/HowardHinnant/date
   - git clone https://github.com/rbock/sqlpp11
+  - cd sqlpp11
+  - git checkout develop
+  - cd ..
   - cd sqlpp11-connector-mysql
   - CD
   - echo %configuration%
