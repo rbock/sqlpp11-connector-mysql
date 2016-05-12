@@ -25,7 +25,7 @@
  */
 
 #include <iostream>
-#include <mysql/errmsg.h>
+#include <errmsg.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/bind_result.h>
 #include "detail/prepared_statement_handle.h"
