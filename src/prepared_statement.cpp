@@ -119,6 +119,8 @@ namespace sqlpp
         bound_time.year = static_cast<int>(ymd.year());
         bound_time.month = static_cast<unsigned>(ymd.month());
         bound_time.day = static_cast<unsigned>(ymd.day());
+        std::cerr << "bound values: " << bound_time.year << '-' << bound_time.month << '-' << bound_time.day << 'T'
+                  << bound_time.hour << ':' << bound_time.minute << ':' << bound_time.second << std::endl;
       }
 
       _handle->stmt_param_is_null[index] = is_null;
@@ -154,6 +156,8 @@ namespace sqlpp
         bound_time.minute = time.minutes().count();
         bound_time.second = time.seconds().count();
         bound_time.second_part = time.subseconds().count();
+        std::cerr << "bound values: " << bound_time.year << '-' << bound_time.month << '-' << bound_time.day << 'T'
+                  << bound_time.hour << ':' << bound_time.minute << ':' << bound_time.second << std::endl;
       }
 
       _handle->stmt_param_is_null[index] = is_null;
