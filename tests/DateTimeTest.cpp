@@ -74,7 +74,7 @@ int main()
 			col_time_point datetime(3)
 			))");
 
-  TabDateTime tab;
+  const auto tab = TabDateTime{};
   try
   {
     db(insert_into(tab).default_values());

@@ -41,7 +41,7 @@
 SQLPP_ALIAS_PROVIDER(left);
 
 namespace sql = sqlpp::mysql;
-TabSample tab;
+const auto tab = TabSample{};
 
 void testSelectAll(sql::connection& db, int expectedRowCount)
 {
