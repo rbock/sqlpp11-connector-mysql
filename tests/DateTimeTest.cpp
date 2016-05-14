@@ -107,8 +107,8 @@ int main()
                  .unconditionally();
 
     auto prepared_update = db.prepare(
-        update(tab)
-            .set(tab.colDayPoint = parameter(tab.colDayPoint), tab.colTimePoint = parameter(tab.colTimePoint))
+        update(tab).set(tab.colDayPoint = parameter(tab.colDayPoint), tab.colTimePoint = parameter(tab.colTimePoint)));
+    /*
             .unconditionally());
     prepared_update.params.colDayPoint = today;
     prepared_update.params.colTimePoint = now;
@@ -126,6 +126,7 @@ int main()
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }
+  */
 
-  return 0;
-}
+    return 0;
+  }
