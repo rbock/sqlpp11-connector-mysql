@@ -29,7 +29,7 @@ build_script:
   - mkdir build
   - cd build
   - cmake --version
-  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_GENERATOR_PLATFORM=x64 -G "Visual Studio 14" -T v120
+  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_GENERATOR_PLATFORM=x64 -T v120
   - cmake --build . --config %configuration%
   - ctest . --build-config %configuration%
 
