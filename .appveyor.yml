@@ -18,6 +18,17 @@ build_script:
   - CD
   - cd ..
   - CD
+  - wget http://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-src.zip
+  - unzip mysql-connector-c-6.1.6-src.zip
+  - cd mysql-connector-c-6.1.6-src
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_GENERATOR_PLATFORM=x64
+  - cmake --build . --config %configuration%
+  - cmake --build . --config %configuration% install
+  - cd ..
+  - cd ..
+  - cd
   - git clone https://github.com/HowardHinnant/date
   - git clone https://github.com/rbock/sqlpp11
   - cd sqlpp11
