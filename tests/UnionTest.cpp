@@ -30,7 +30,7 @@
 #include <iostream>
 
 namespace sql = sqlpp::mysql;
-TabSample tab;
+const auto tab = TabSample{};
 
 int main()
 {

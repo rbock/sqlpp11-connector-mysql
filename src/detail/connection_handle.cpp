@@ -24,6 +24,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ciso646>
 #include <memory>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/connection_config.h>

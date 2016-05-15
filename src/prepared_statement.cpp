@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2015, Roland Bock
+ * Copyright (c) 2013 - 2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,6 +24,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ciso646>
 #include <iostream>
 #include <sqlpp11/mysql/prepared_statement.h>
 #include "detail/prepared_statement_handle.h"
@@ -110,14 +111,16 @@ namespace sqlpp
         std::cerr << "MySQL debug: binding date parameter "
                   << " at index: " << index << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
 
-      _handle->stmt_date_time_param_buffer.push_back(MYSQL_TIME{});
-      auto& bound_time = _handle->stmt_date_time_param_buffer.back();
+      auto& bound_time = _handle->stmt_date_time_param_buffer[index];
       if (not is_null)
       {
         const auto ymd = ::date::year_month_day{*value};
         bound_time.year = static_cast<int>(ymd.year());
         bound_time.month = static_cast<unsigned>(ymd.month());
         bound_time.day = static_cast<unsigned>(ymd.day());
+        if (_handle->debug)
+          std::cerr << "bound values: " << bound_time.year << '-' << bound_time.month << '-' << bound_time.day << 'T'
+                    << bound_time.hour << ':' << bound_time.minute << ':' << bound_time.second << std::endl;
       }
 
       _handle->stmt_param_is_null[index] = is_null;
@@ -139,8 +142,7 @@ namespace sqlpp
         std::cerr << "MySQL debug: binding date_time parameter "
                   << " at index: " << index << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
 
-      _handle->stmt_date_time_param_buffer.push_back(MYSQL_TIME{});
-      auto& bound_time = _handle->stmt_date_time_param_buffer.back();
+      auto& bound_time = _handle->stmt_date_time_param_buffer[index];
       if (not is_null)
       {
         const auto dp = ::date::floor<::date::days>(*value);
@@ -153,6 +155,9 @@ namespace sqlpp
         bound_time.minute = time.minutes().count();
         bound_time.second = time.seconds().count();
         bound_time.second_part = time.subseconds().count();
+        if (_handle->debug)
+          std::cerr << "bound values: " << bound_time.year << '-' << bound_time.month << '-' << bound_time.day << 'T'
+                    << bound_time.hour << ':' << bound_time.minute << ':' << bound_time.second << std::endl;
       }
 
       _handle->stmt_param_is_null[index] = is_null;

@@ -24,6 +24,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ciso646>
 #include <iostream>
 #ifdef _LIBCPP_VERSION
 #include <boost/thread/tss.hpp>  // libc++ does not have thread_local yet.
@@ -230,9 +231,9 @@ namespace sqlpp
 
     std::string connection::escape(const std::string& s) const
     {
-      char dest[s.size() * 2 + 1];
-      mysql_real_escape_string(_handle->mysql.get(), dest, s.c_str(), s.size());
-      return dest;
+      std::unique_ptr<char[]> dest(new char[s.size() * 2 + 1]);
+      mysql_real_escape_string(_handle->mysql.get(), dest.get(), s.c_str(), s.size());
+      return dest.get();
     }
 
     void connection::start_transaction()

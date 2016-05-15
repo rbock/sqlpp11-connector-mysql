@@ -67,7 +67,7 @@ int main()
 
   assert(not db(select(sqlpp::value(false).as(sqlpp::alias::a))).front().a);
 
-  TabSample tab;
+  const auto tab = TabSample{};
   // clear the table
   db(remove_from(tab).unconditionally());
 
