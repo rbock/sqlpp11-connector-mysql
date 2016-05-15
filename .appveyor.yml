@@ -18,6 +18,7 @@ build_script:
   - CD
   - cd ..
   - CD
+  - cinst wget -x86
   - wget http://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-src.zip
   - unzip mysql-connector-c-6.1.6-src.zip
   - cd mysql-connector-c-6.1.6-src
