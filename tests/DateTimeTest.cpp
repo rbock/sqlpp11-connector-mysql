@@ -74,7 +74,7 @@ int main()
 			col_time_point datetime(3)
 			))");
 
-  TabDateTime tab;
+  const auto tab = TabDateTime{};
   try
   {
     db(insert_into(tab).default_values());
@@ -101,6 +101,10 @@ int main()
       require_equal(__LINE__, row.colDayPoint.value(), yesterday);
       require_equal(__LINE__, row.colTimePoint.value(), today);
     }
+
+    auto x = update(tab)
+                 .set(tab.colDayPoint = parameter(tab.colDayPoint), tab.colTimePoint = parameter(tab.colTimePoint))
+                 .unconditionally();
 
     auto prepared_update = db.prepare(
         update(tab)

@@ -24,6 +24,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ciso646>
 #include <iostream>
 #include <errmsg.h>
 #include <sqlpp11/exception.h>

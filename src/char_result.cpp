@@ -24,6 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ciso646>
+#include <cctype>
 #include <iostream>
 #include <vector>
 #include <sqlpp11/mysql/char_result.h>
