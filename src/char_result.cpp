@@ -102,7 +102,7 @@ namespace sqlpp
       if (check_digits(date_string, date_digits))
       {
         const auto ymd = ::date::year(std::atoi(date_string)) / atoi(date_string + 5) / atoi(date_string + 8);
-        *value = ::date::day_point(ymd);
+        *value = ::sqlpp::chrono::day_point(ymd);
       }
       else
       {
@@ -132,7 +132,7 @@ namespace sqlpp
       {
         const auto ymd =
             ::date::year(std::atoi(date_time_string)) / atoi(date_time_string + 5) / atoi(date_time_string + 8);
-        *value = ::date::day_point(ymd);
+        *value = ::sqlpp::chrono::day_point(ymd);
       }
       else
       {

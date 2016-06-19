@@ -193,7 +193,7 @@ namespace sqlpp
         const auto& dt =
             *reinterpret_cast<const MYSQL_TIME*>(_handle->result_param_meta_data[index].bound_text_buffer.data());
         *is_null = false;
-        *value = ::date::day_point(::date::year(dt.year) / ::date::month(dt.month) / ::date::day(dt.day)) +
+        *value = ::sqlpp::chrono::day_point(::date::year(dt.year) / ::date::month(dt.month) / ::date::day(dt.day)) +
                  std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) + std::chrono::seconds(dt.second) +
                  std::chrono::microseconds(dt.second_part);
       }
