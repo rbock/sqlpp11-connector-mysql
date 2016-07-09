@@ -24,11 +24,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "detail/prepared_statement_handle.h"
 #include <ciso646>
+#include <date.h>
 #include <iostream>
 #include <sqlpp11/mysql/prepared_statement.h>
-#include "detail/prepared_statement_handle.h"
-#include <date.h>
 
 namespace sqlpp
 {
@@ -145,7 +145,7 @@ namespace sqlpp
       auto& bound_time = _handle->stmt_date_time_param_buffer[index];
       if (not is_null)
       {
-        const auto dp = ::date::floor<::date::days>(*value);
+        const auto dp = ::sqlpp::chrono::floor<::date::days>(*value);
         const auto time = date::make_time(*value - dp);
         const auto ymd = ::date::year_month_day{dp};
         bound_time.year = static_cast<int>(ymd.year());

@@ -24,17 +24,17 @@
  */
 
 #include "TabSample.h"
-#include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/mysql/mysql.h>
+#include <sqlpp11/sqlpp11.h>
 
+#include <cassert>
 #include <iostream>
 #include <vector>
-#include <cassert>
 
 namespace
 {
-  const auto now = ::date::floor<::std::chrono::milliseconds>(std::chrono::system_clock::now());
-  const auto today = ::date::floor<::sqlpp::chrono::days>(now);
+  const auto now = ::sqlpp::chrono::floor<::std::chrono::milliseconds>(std::chrono::system_clock::now());
+  const auto today = ::sqlpp::chrono::floor<::sqlpp::chrono::days>(now);
   const auto yesterday = today - ::sqlpp::chrono::days{1};
 
   template <typename L, typename R>
