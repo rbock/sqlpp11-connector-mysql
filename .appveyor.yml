@@ -8,15 +8,28 @@ services:
 
 configuration:
   - Debug
-  - Release
+  #- Release
 
 matrix:
   fast_finish: true
 
 build_script:
+  - cmake --version
+  - SET PATH=%PATH%;"C:\Program Files\MySql\MySQL Server 5.7\bin"
+  - set MYSQL_PWD=Password12!
   - SET
+  - mysql -e "create database sqlpp_mysql;" --user=root
   - CD
   - cd ..
+  - CD
+  - git clone https://github.com/MariaDB/mariadb-connector-c
+  - cd mariadb-connector-c
+  - mkdir build
+  - cd build
+  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_GENERATOR_PLATFORM=x64
+  - cmake --build . --config %configuration% --target install
+  - CD ..
+  - CD ..
   - CD
   - git clone https://github.com/HowardHinnant/date
   - git clone https://github.com/rbock/sqlpp11
@@ -25,8 +38,7 @@ build_script:
   - echo %configuration%
   - mkdir build
   - cd build
-  - cmake --version
   - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_GENERATOR_PLATFORM=x64
   - cmake --build . --config %configuration%
-  - ctest . --build-config %configuration%
+  #- ctest . --output-on-failure --build-config %configuration%
 
