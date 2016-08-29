@@ -29,6 +29,7 @@
 #include <date.h>
 #include <iostream>
 #include <sqlpp11/mysql/prepared_statement.h>
+#include <string>
 
 namespace sqlpp
 {
