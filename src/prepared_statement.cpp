@@ -33,6 +33,8 @@
 #endif
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
+
 #endif  // _WIN32
 
 #include "detail/prepared_statement_handle.h"
