@@ -62,10 +62,15 @@ int main()
   {
     mysql::connection db(config);
   }
-  catch (const sqlpp::exception& e)
+  catch (const std::exception& e)
   {
     std::cerr << "For testing, you'll need to create a database sqlpp_mysql for user root (no password)" << std::endl;
     std::cerr << e.what() << std::endl;
+    return 1;
+  }
+  catch (...)
+  {
+    std::cerr << "Unknown exception during connect" << std::endl;
     return 1;
   }
 
@@ -127,5 +132,9 @@ int main()
   {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
+  }
+  catch (...)
+  {
+    std::cerr << "Unkown exception" << std : endl;
   }
 }
