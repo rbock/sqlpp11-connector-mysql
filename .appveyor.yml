@@ -15,9 +15,10 @@ matrix:
 
 build_script:
   - cmake --version
+  - SET PATH=%PATH%;"C:\Program Files\MySql\MySQL Server 5.7\bin"
   - SET
   - setx MYSQL_PWD "Password12!"
-  - C:\Program Files\MySql\MySQL Server 5.7\bin\mysql -e "create database sqlpp_mysql;" --user=root
+  - mysql -e "create database sqlpp_mysql;" --user=root
   - CD
   - cd ..
   - CD
