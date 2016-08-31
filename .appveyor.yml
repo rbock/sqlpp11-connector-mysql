@@ -38,5 +38,7 @@ build_script:
   - cd build
   - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_GENERATOR_PLATFORM=x64
   - cmake --build . --config %configuration%
-  - ctest . --build-config %configuration%
+  - setx MYSQL_PWD="Password12!"
+  - mysqladmin -u root create sqlpp_mysql
+  - ctest . --output-on-failure --build-config %configuration%
 
