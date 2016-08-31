@@ -135,6 +135,6 @@ int main()
   }
   catch (...)
   {
-    std::cerr << "Unkown exception" << std : endl;
+    std::cerr << "Unkown exception" << std::endl;
   }
 }
