@@ -19,16 +19,16 @@ else()
 	find_path(MYSQL_INCLUDE_DIR
 		NAMES mysql.h
 		PATH_SUFFIXES include
-		PATHS "$ENV{SystemDrive}/Program Files/mariadb-connector-c/lib/mariadb/include"
-					"$ENV{SystemDrive}/Program Files (x86)/mariadb-connector-c/lib/mariadb/include"
+		PATHS "$ENV{SystemDrive}/Program Files/mariadb-connector-c/include/mariadb"
+					"$ENV{SystemDrive}/Program Files (x86)/mariadb-connector-c/include/mariadb"
 		)
 	MESSAGE("INCLUDE_DIR: ${MYSQL_INCLUDE_DIR}")
 
 	find_library(MYSQL_LIBRARY
 		NAMES libmariadb
 		PATH_SUFFIXES lib
-		PATHS "$ENV{SystemDrive}/Program Files/mariadb-connector-c/lib/mariadb/lib"
-					"$ENV{SystemDrive}/Program Files (x86)/mariadb-connector-c/lib/mariadb/lib"
+		PATHS "$ENV{SystemDrive}/Program Files/mariadb-connector-c/lib/mariadb"
+					"$ENV{SystemDrive}/Program Files (x86)/mariadb-connector-c/lib/mariadb"
 		)
 	MESSAGE("LIB: ${MYSQL_LIBRARY}")
 endif()
