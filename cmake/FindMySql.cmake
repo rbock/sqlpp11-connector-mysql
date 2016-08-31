@@ -16,29 +16,21 @@ if (NOT DEFINED MSVC)
 		PATH_SUFFIXES mysql
 		)
 else()
-	file(GLOB MYSQL_GLOB_INCLUDE "$ENV{SystemDrive}/Program Files/mariadb-connector-c/lib/mariadb/include")
-	file(GLOB MYSQL_GLOB_INCLUDE86 "$ENV{SystemDrive}/Program Files (x86)/mariadb-connector-c/lib/mariadb/include")
-	MESSAGE(${MYSQL_GLOB_INCLUDE})
-	MESSAGE(${MYSQL_GLOB_INCLUDE86})
 	find_path(MYSQL_INCLUDE_DIR
 		NAMES mysql.h
 		PATH_SUFFIXES include
-		PATHS ${MYSQL_GLOB_INCLUDE}
-					${MYSQL_GLOB_INCLUDE86}
+		PATHS "$ENV{SystemDrive}/Program Files/mariadb-connector-c/lib/mariadb/include"
+					"$ENV{SystemDrive}/Program Files (x86)/mariadb-connector-c/lib/mariadb/include"
 		)
-	MESSAGE(${MYSQL_INCLUDE_DIR})
+	MESSAGE("INCLUDE_DIR: ${MYSQL_INCLUDE_DIR}")
 
-	file(GLOB MYSQL_GLOB_LIB "$ENV{SystemDrive}/Program Files/mariadb-connector-c/lib/mariadb/lib")
-	file(GLOB MYSQL_GLOB_LIB86 "$ENV{SystemDrive}/Program Files (x86)/mariadb-connector-c/lib/mariadb/lib")
-	MESSAGE(${MYSQL_GLOB_LIB})
-	MESSAGE(${MYSQL_GLOB_LIB86})
 	find_library(MYSQL_LIBRARY
 		NAMES libmariadb
 		PATH_SUFFIXES lib
-		PATHS ${MYSQL_GLOB_LIB}
-					${MYSQL_GLOB_LIB86}
+		PATHS "$ENV{SystemDrive}/Program Files/mariadb-connector-c/lib/mariadb/lib"
+					"$ENV{SystemDrive}/Program Files (x86)/mariadb-connector-c/lib/mariadb/lib"
 		)
-	MESSAGE(${MYSQL_LIBRARY})
+	MESSAGE("LIB: ${MYSQL_LIBRARY}")
 endif()
 
 include(FindPackageHandleStandardArgs)
