@@ -19,10 +19,8 @@ build_script:
   - CD
   - cd ..
   - CD
-  - choco install wget
-  - wget http://dev.mysql.com/get/Downloads/Connector-C/mysql-connector-c-6.1.6-src.zip
-  - unzip mysql-connector-c-6.1.6-src.zip
-  - CD mysql-connector-c-6.1.6-src
+  - git clone https://github.com/MariaDB/mariadb-connector-c
+  - cd mariadb-connector-c
   - mkdir build
   - cd build
   - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_GENERATOR_PLATFORM=x64
