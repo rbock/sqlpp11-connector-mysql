@@ -16,6 +16,8 @@ matrix:
 build_script:
   - cmake --version
   - SET
+  - setx MYSQL_PWD "Password12!"
+  - "C:\Program Files\MySql\MySQL Server 5.7\bin\mysql" -e "create database sqlpp_mysql;" --user=root'
   - CD
   - cd ..
   - CD
@@ -38,7 +40,5 @@ build_script:
   - cd build
   - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_GENERATOR_PLATFORM=x64
   - cmake --build . --config %configuration%
-  - setx MYSQL_PWD "Password12!"
-  - mysqladmin -u root create sqlpp_mysql
   - ctest . --output-on-failure --build-config %configuration%
 
