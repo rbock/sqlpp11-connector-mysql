@@ -62,21 +62,23 @@ int main()
   {
     mysql::connection db(config);
   }
-  catch (const sqlpp::exception&)
+  catch (const sqlpp::exception& e)
   {
     std::cerr << "For testing, you'll need to create a database sqlpp_mysql for user root (no password)" << std::endl;
-    throw;
+    std::cerr << e.what() << std::endl;
+    return 1;
   }
-  mysql::connection db(config);
-  db.execute(R"(DROP TABLE IF EXISTS tab_date_time)");
-  db.execute(R"(CREATE TABLE tab_date_time (
+
+  try
+  {
+    mysql::connection db(config);
+    db.execute(R"(DROP TABLE IF EXISTS tab_date_time)");
+    db.execute(R"(CREATE TABLE tab_date_time (
 		col_day_point date,
 			col_time_point datetime(3)
 			))");
 
-  const auto tab = TabDateTime{};
-  try
-  {
+    const auto tab = TabDateTime{};
     db(insert_into(tab).default_values());
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
@@ -126,6 +128,4 @@ int main()
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }
-
-  return 0;
 }
