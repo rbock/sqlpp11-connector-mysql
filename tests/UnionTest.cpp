@@ -24,8 +24,8 @@
  */
 
 #include "TabSample.h"
-#include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/mysql/connection.h>
+#include <sqlpp11/sqlpp11.h>
 
 #include <iostream>
 
@@ -42,29 +42,38 @@ int main()
   {
     sql::connection db(config);
   }
-  catch (const sqlpp::exception&)
+  catch (const sqlpp::exception& e)
   {
-    std::cerr << "For testing, you'll need to create a database sqlpp_mysql" << std::endl;
-    throw;
+    std::cerr << "For testing, you'll need to create a database sqlpp_mysql for user root (no password)" << std::endl;
+    std::cerr << e.what() << std::endl;
+    return 1;
   }
-  sql::connection db(config);
-  db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-  db.execute(R"(CREATE TABLE tab_sample (
+  try
+  {
+    sql::connection db(config);
+    db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
+    db.execute(R"(CREATE TABLE tab_sample (
 		alpha bigint(20) AUTO_INCREMENT,
 			beta bool DEFAULT NULL,
 			gamma varchar(255) DEFAULT NULL,
 			PRIMARY KEY (alpha)
 			))");
 
-  auto u = select(all_of(tab)).from(tab).unconditionally().union_all(select(all_of(tab)).from(tab).unconditionally());
+    auto u = select(all_of(tab)).from(tab).unconditionally().union_all(select(all_of(tab)).from(tab).unconditionally());
 
-  for (const auto& row : db(u))
-  {
-    std::cout << row.alpha << row.beta << row.gamma << std::endl;
+    for (const auto& row : db(u))
+    {
+      std::cout << row.alpha << row.beta << row.gamma << std::endl;
+    }
+
+    for (const auto& row : db(u.union_distinct(select(all_of(tab)).from(tab).unconditionally())))
+    {
+      std::cout << row.alpha << row.beta << row.gamma << std::endl;
+    }
   }
-
-  for (const auto& row : db(u.union_distinct(select(all_of(tab)).from(tab).unconditionally())))
+  catch (const std::exception& e)
   {
-    std::cout << row.alpha << row.beta << row.gamma << std::endl;
+    std::cerr << "Exception: " << e.what() << std::endl;
+    return 1;
   }
 }

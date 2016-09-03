@@ -24,11 +24,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifdef _WIN32
+// It seems that Windows.h will be included directly and indirectly.
+// These defines prevent min/max macros and a bunch of other stuff
+// to be defined in that header.
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#endif  // _WIN32
+
 #include "detail/prepared_statement_handle.h"
 #include <ciso646>
 #include <date.h>
 #include <iostream>
 #include <sqlpp11/mysql/prepared_statement.h>
+#include <string>
 
 namespace sqlpp
 {

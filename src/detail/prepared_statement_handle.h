@@ -27,8 +27,8 @@
 #ifndef SQLPP_MYSQL_DETAIL_PREPARED_STATEMENT_HANDLE_H
 #define SQLPP_MYSQL_DETAIL_PREPARED_STATEMENT_HANDLE_H
 
-#include <vector>
 #include <mysql.h>
+#include <vector>
 
 namespace sqlpp
 {
