@@ -112,6 +112,8 @@ namespace sqlpp
       meta_data.len = len;
       meta_data.is_null = nullptr;
       meta_data.text_buffer = value;
+      if (meta_data.bound_text_buffer.empty())
+        meta_data.bound_text_buffer.resize(8);
 
       MYSQL_BIND& param = _handle->result_params[index];
       param.buffer_type = MYSQL_TYPE_STRING;
