@@ -104,6 +104,12 @@ namespace sqlpp
         *value = (*is_null ? 0 : std::strtoll(_char_result_row.data[index], nullptr, 10));
       }
 
+      void _bind_unsigned_integral_result(size_t index, uint64_t* value, bool* is_null)
+      {
+        *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+        *value = (*is_null ? 0 : std::strtoull(_char_result_row.data[index], nullptr, 10));
+      }
+
       void _bind_text_result(size_t index, const char** value, size_t* len)
       {
         bool is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
