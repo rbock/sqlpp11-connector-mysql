@@ -65,6 +65,7 @@ namespace sqlpp
 
       void _bind_boolean_parameter(size_t index, const signed char* value, bool is_null);
       void _bind_integral_parameter(size_t index, const int64_t* value, bool is_null);
+      void _bind_unsigned_integral_parameter(size_t index, const uint64_t* value, bool is_null);
       void _bind_floating_point_parameter(size_t index, const double* value, bool is_null);
       void _bind_text_parameter(size_t index, const std::string* value, bool is_null);
       void _bind_date_parameter(size_t index, const ::sqlpp::chrono::day_point* value, bool is_null);

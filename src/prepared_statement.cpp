@@ -87,6 +87,22 @@ namespace sqlpp
       param.error = nullptr;
     }
 
+    void prepared_statement_t::_bind_unsigned_integral_parameter(size_t index, const uint64_t* value, bool is_null)
+    {
+      if (_handle->debug)
+        std::cerr << "MySQL debug: binding unsigned integral parameter " << *value << " at index: " << index << ", being "
+                  << (is_null ? "" : "not ") << "null" << std::endl;
+      _handle->stmt_param_is_null[index] = is_null;
+      MYSQL_BIND& param = _handle->stmt_params[index];
+      param.buffer_type = MYSQL_TYPE_LONGLONG;
+      param.buffer = const_cast<uint64_t*>(value);
+      param.buffer_length = sizeof(*value);
+      param.length = &param.buffer_length;
+      param.is_null = &_handle->stmt_param_is_null[index];
+      param.is_unsigned = true;
+      param.error = nullptr;
+    }
+
     void prepared_statement_t::_bind_floating_point_parameter(size_t index, const double* value, bool is_null)
     {
       if (_handle->debug)

@@ -36,7 +36,7 @@ int main()
 	mysql::connection db(config);
 
 	TabSample tab;
-	for(const auto& row : db.run(sqlpp::select(all_of(tab)).from(tab).where(true)))
+	for(const auto& row : db.run(sqlpp::select(all_of(tab)).from(tab).unconditionally()))
 	{
 		std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma <<  std::endl;
 	};
