@@ -6,15 +6,17 @@ os:
 
 sudo: required
 dist: trusty
+
+services:
+  - mysql
+
 addons:
   apt:
     packages:
-    - mysql-server-5.6
-    - mysql-client-core-5.6
-    - mysql-client-5.6
+    #- mysql-server-5.6
+    #- mysql-client-core-5.6
+    #- mysql-client-5.6
     - libboost-dev
-
-osx_image: xcode7
 
 compiler:
   - clang
@@ -22,7 +24,7 @@ compiler:
 
 env:
   - CONFIG=Release
-  - CONFIG=Debug
+  #- CONFIG=Debug
 
 notifications:
  email:
@@ -35,8 +37,6 @@ install:
   - BRANCH=`git rev-parse --abbrev-ref HEAD`
   - cd ..
   - pwd
-  - CMAKE_VERSION_MM=3.2
-  - CMAKE_VERSION_FULL=$CMAKE_VERSION_MM.2
   - git clone https://github.com/HowardHinnant/date
   - cd date
   - git checkout tags/v1.0.0
@@ -48,15 +48,8 @@ install:
       && cd ..
       ;
     fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-      wget --no-check-certificate http://www.cmake.org/files/v${CMAKE_VERSION_MM}/cmake-${CMAKE_VERSION_FULL}-Linux-x86_64.sh
-      && sudo sh cmake-${CMAKE_VERSION_FULL}-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir;
-    fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       brew update
-      && ((brew list -1 | grep -q "^$cmake\$") || brew install cmake)
-      && (brew outdated cmake || brew upgrade cmake)
-      && cmake --version
       && brew install mysql
       && brew services start mysql
       ;
