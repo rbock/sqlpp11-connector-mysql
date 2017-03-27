@@ -118,7 +118,9 @@ namespace sqlpp
       connection& operator=(connection&&) = default;
       connection(connection&& other);
 
+      bool is_valid();
       const std::shared_ptr<connection_config> get_config();
+
 
       bool is_transaction_active()
       {
