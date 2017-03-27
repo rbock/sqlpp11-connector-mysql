@@ -160,6 +160,11 @@ namespace sqlpp
       this->_handle = std::move(other._handle);
     }
 
+	const std::shared_ptr<connection_config> connection::get_config()
+	{
+		return _handle->config;
+	}
+
     char_result_t connection::select_impl(const std::string& statement)
     {
       execute_statement(*_handle, statement);

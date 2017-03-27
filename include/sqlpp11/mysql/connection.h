@@ -117,6 +117,9 @@ namespace sqlpp
       connection& operator=(const connection&) = delete;
       connection& operator=(connection&&) = default;
       connection(connection&& other);
+
+      const std::shared_ptr<connection_config> get_config();
+
       bool is_transaction_active()
       {
         return _transaction_active;
