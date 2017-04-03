@@ -162,7 +162,11 @@ namespace sqlpp
 
     bool connection::is_valid()
     {
-      return !!_handle;
+      return _handle->is_valid();
+    }
+    void connection::reconnect()
+    {
+      return _handle->reconnect();
     }
 
     const std::shared_ptr<connection_config> connection::get_config()

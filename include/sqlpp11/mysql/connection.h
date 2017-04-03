@@ -119,6 +119,7 @@ namespace sqlpp
       connection(connection&& other);
 
       bool is_valid();
+      void reconnect();
       const std::shared_ptr<connection_config> get_config();
 
 
