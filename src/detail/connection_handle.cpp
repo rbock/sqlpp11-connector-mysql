@@ -67,6 +67,23 @@ namespace sqlpp
       {
         mysql_close(mysql.get());
       }
+
+      bool connection_handle_t::is_valid()
+      {
+        return mysql_ping(mysql.get()) == 0;
+      }
+
+      void connection_handle_t::reconnect()
+      {
+        if (!mysql_real_connect(mysql.get(), config->host.empty() ? nullptr : config->host.c_str(),
+            config->user.empty() ? nullptr : config->user.c_str(),
+            config->password.empty() ? nullptr : config->password.c_str(), nullptr, config->port,
+            config->unix_socket.empty() ? nullptr : config->unix_socket.c_str(),
+            config->client_flag))
+        {
+            throw sqlpp::exception("MySQL: could not connect to server: " + std::string(mysql_error(mysql.get())));
+        }
+      }
     }
   }
 }

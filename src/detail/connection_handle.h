@@ -48,6 +48,9 @@ namespace sqlpp
         connection_handle_t(connection_handle_t&&) = delete;
         connection_handle_t& operator=(const connection_handle_t&) = delete;
         connection_handle_t& operator=(connection_handle_t&&) = delete;
+
+        bool is_valid();
+        void reconnect();
       };
     }
   }
