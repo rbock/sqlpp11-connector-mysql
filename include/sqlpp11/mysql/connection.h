@@ -70,6 +70,7 @@ namespace sqlpp
       std::stringstream _os;
     };
 
+    struct connection_config;
     class connection : public sqlpp::connection
     {
       std::unique_ptr<detail::connection_handle_t> _handle;
@@ -89,6 +90,7 @@ namespace sqlpp
       size_t run_prepared_remove_impl(prepared_statement_t& prepared_statement);
 
     public:
+      typedef ::sqlpp::mysql::connection_config connection_config;
       using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;
       using _context_t = serializer_t;
       using _serializer_context_t = _context_t;
