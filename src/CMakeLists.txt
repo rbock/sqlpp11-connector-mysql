@@ -9,4 +9,6 @@ if (HAS_LIBCPP_VERSION)
 	target_link_libraries(sqlpp-mysql "${Boost_THREAD_LIBRARY}")
 endif()
 
+target_link_libraries(sqlpp-mysql "${MYSQL_LIBRARY}")
+
 install(TARGETS sqlpp-mysql DESTINATION lib)
