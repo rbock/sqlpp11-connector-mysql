@@ -70,6 +70,7 @@ namespace sqlpp
       std::stringstream _os;
     };
 
+    struct connection_config;
     class connection : public sqlpp::connection
     {
       std::unique_ptr<detail::connection_handle_t> _handle;
