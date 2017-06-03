@@ -6,15 +6,27 @@
 #  MYSQL_FOUND        - True if MySQL found.
 
 if (NOT DEFINED MSVC)
-	find_path(MYSQL_INCLUDE_DIR
-		NAMES mysql.h
-		PATH_SUFFIXES mysql
-		)
+	if (USE_MARIADB)
+		find_path(MYSQL_INCLUDE_DIR
+			NAMES mysql.h
+			PATH_SUFFIXES mariadb
+			)
 
-	find_library(MYSQL_LIBRARY
-		NAMES mysqlclient mysqlclient_r
-		PATH_SUFFIXES mysql
-		)
+		find_library(MYSQL_LIBRARY
+			NAMES mariadb
+			PATH_SUFFIXES mariadb
+			)
+	else()
+		find_path(MYSQL_INCLUDE_DIR
+			NAMES mysql.h
+			PATH_SUFFIXES mysql
+			)
+
+		find_library(MYSQL_LIBRARY
+			NAMES mysqlclient mysqlclient_r
+			PATH_SUFFIXES mysql
+			)
+	endif()
 else()
 	find_path(MYSQL_INCLUDE_DIR
 		NAMES mysql.h
