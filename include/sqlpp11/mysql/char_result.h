@@ -27,6 +27,7 @@
 #ifndef SQLPP_MYSQL_CHAR_RESULT_H
 #define SQLPP_MYSQL_CHAR_RESULT_H
 
+#include <ciso646>
 #include <cstdlib>
 #include <memory>
 #include <sqlpp11/exception.h>
