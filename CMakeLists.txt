@@ -30,10 +30,11 @@ enable_testing()
 option(ENABLE_TESTS "Build unit tests" On)
 set(CMAKE_CXX_STANDARD 11)
 
-check_cxx_symbol_exists(_LIBCPP_VERSION iostream HAS_LIBCPP_VERSION)
-if (HAS_LIBCPP_VERSION)
-	message("libc++ does not have thread_local, thus we need to wrap that via boost thread")
-	find_package(Boost COMPONENTS thread)
+find_package(Threads REQUIRED)
+
+if (APPLE)
+	message("Apple XCode does not have thread_local, thus we need to wrap that via boost thread")
+	find_package(Boost COMPONENTS thread system)
 endif()
 
 
