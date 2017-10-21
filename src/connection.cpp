@@ -26,7 +26,7 @@
 
 #include <ciso646>
 #include <iostream>
-#ifdef _LIBCPP_VERSION
+#ifdef __APPLE__
 #include <boost/thread/tss.hpp>  // libc++ does not have thread_local yet.
 #endif
 #include <sqlpp11/exception.h>
@@ -58,13 +58,13 @@ namespace sqlpp
         }
       };
 
-#ifdef _LIBCPP_VERSION
+#ifdef __APPLE__
       boost::thread_specific_ptr<MySqlThreadInitializer> mysqlThreadInit;
 #endif
 
       void thread_init()
       {
-#ifdef _LIBCPP_VERSION
+#ifdef __APPLE__
         if (!mysqlThreadInit.get())
         {
           mysqlThreadInit.reset(new MySqlThreadInitializer);
