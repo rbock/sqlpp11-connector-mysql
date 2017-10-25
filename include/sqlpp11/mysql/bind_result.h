@@ -96,19 +96,19 @@ namespace sqlpp
       void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null);
       void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null);
 
-      void _post_bind_boolean_result(size_t index, signed char* value, bool* is_null)
+      void _post_bind_boolean_result(size_t /* index */, signed char* /* value */ , bool* /* is_null */)
       {
       }
-      void _post_bind_floating_point_result(size_t index, double* value, bool* is_null)
+      void _post_bind_floating_point_result(size_t /* index */, double* /* value */, bool* /* is_null */)
       {
       }
-      void _post_bind_integral_result(size_t index, int64_t* value, bool* is_null)
+      void _post_bind_integral_result(size_t /* index */, int64_t* /* value */, bool* /* is_null */)
       {
       }
-      void _post_bind_unsigned_integral_result(size_t index, uint64_t* value, bool* is_null)
+      void _post_bind_unsigned_integral_result(size_t /* index */, uint64_t* /* value */, bool* /* is_null */)
       {
       }
-      void _post_bind_text_result(size_t index, const char** text, size_t* len)
+      void _post_bind_text_result(size_t /* index */, const char** /* text */, size_t* /* len */)
       {
       }
       void _post_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null);
