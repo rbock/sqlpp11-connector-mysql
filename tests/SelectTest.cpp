@@ -38,7 +38,7 @@
 #include <iostream>
 #include <vector>
 
-SQLPP_ALIAS_PROVIDER(left);
+SQLPP_ALIAS_PROVIDER(left)
 
 namespace sql = sqlpp::mysql;
 const auto tab = TabSample{};
