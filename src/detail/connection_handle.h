@@ -27,6 +27,7 @@
 #ifndef SQLPP_MYSQL_CONNECTION_HANDLE_H
 #define SQLPP_MYSQL_CONNECTION_HANDLE_H
 
+#include <memory>
 #include <mysql.h>
 
 namespace sqlpp
@@ -37,10 +38,12 @@ namespace sqlpp
 
     namespace detail
     {
+      void handle_cleanup(MYSQL* handle);
+
       struct connection_handle_t
       {
         const std::shared_ptr<connection_config> config;
-        std::unique_ptr<MYSQL> mysql;
+        std::unique_ptr<MYSQL, void (*)(MYSQL*)> mysql;
 
         connection_handle_t(const std::shared_ptr<connection_config>& config);
         ~connection_handle_t();
