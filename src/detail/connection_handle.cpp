@@ -26,6 +26,7 @@
 
 #include "connection_handle.h"
 #include <ciso646>
+#include <iostream>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/connection_config.h>
 
@@ -38,6 +39,7 @@ namespace sqlpp
       void handle_cleanup(MYSQL* handle)
       {
         mysql_close(handle);
+        delete handle;
       }
 
       connection_handle_t::connection_handle_t(const std::shared_ptr<connection_config>& conf)
