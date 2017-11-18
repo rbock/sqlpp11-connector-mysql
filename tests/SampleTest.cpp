@@ -31,6 +31,8 @@
 #include <iostream>
 #include <vector>
 
+const auto library_raii = sqlpp::mysql::mysql_library_raii_t{0, nullptr, nullptr};
+
 SQLPP_ALIAS_PROVIDER(left)
 SQLPP_ALIAS_PROVIDER(right)
 
@@ -39,6 +41,7 @@ int main()
 {
   auto config = std::make_shared<mysql::connection_config>();
   config->user = "root";
+  config->password = "test";
   config->database = "sqlpp_mysql";
   config->debug = true;
   try

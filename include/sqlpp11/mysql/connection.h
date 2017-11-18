@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2016, Roland Bock
+ * Copyright (c) 2013 - 2017, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -40,6 +40,15 @@ namespace sqlpp
 {
   namespace mysql
   {
+    struct mysql_library_raii_t
+    {
+      // calls mysql_library_init
+      mysql_library_raii_t(int argc, char** argv, char** groups);
+
+      // calls mysql_library_end
+      ~mysql_library_raii_t();
+    };
+
     namespace detail
     {
       struct connection_handle_t;
@@ -121,7 +130,6 @@ namespace sqlpp
       bool is_valid();
       void reconnect();
       const std::shared_ptr<connection_config> get_config();
-
 
       bool is_transaction_active()
       {

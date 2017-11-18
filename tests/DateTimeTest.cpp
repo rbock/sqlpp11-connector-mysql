@@ -31,6 +31,8 @@
 #include <iostream>
 #include <vector>
 
+const auto library_raii = sqlpp::mysql::mysql_library_raii_t{0, nullptr, nullptr};
+
 namespace
 {
   const auto now = ::sqlpp::chrono::floor<::std::chrono::milliseconds>(std::chrono::system_clock::now());

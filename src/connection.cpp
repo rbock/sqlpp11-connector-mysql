@@ -29,16 +29,26 @@
 #ifdef _LIBCPP_VERSION
 #include <boost/thread/tss.hpp>  // libc++ does not have thread_local yet.
 #endif
-#include <sqlpp11/exception.h>
-#include <sqlpp11/mysql/connection.h>
+#include "detail/connection_handle.h"
 #include "detail/prepared_statement_handle.h"
 #include "detail/result_handle.h"
-#include "detail/connection_handle.h"
+#include <sqlpp11/exception.h>
+#include <sqlpp11/mysql/connection.h>
 
 namespace sqlpp
 {
   namespace mysql
   {
+    mysql_library_raii_t::mysql_library_raii_t(int argc, char** argv, char** groups)
+    {
+      mysql_library_init(argc, argv, groups);
+    }
+
+    mysql_library_raii_t::~mysql_library_raii_t()
+    {
+      mysql_library_end();
+    }
+
     namespace
     {
       struct MySqlThreadInitializer
