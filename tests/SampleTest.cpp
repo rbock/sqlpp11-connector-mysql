@@ -41,7 +41,6 @@ int main()
 {
   auto config = std::make_shared<mysql::connection_config>();
   config->user = "root";
-  config->password = "test";
   config->database = "sqlpp_mysql";
   config->debug = true;
   try
