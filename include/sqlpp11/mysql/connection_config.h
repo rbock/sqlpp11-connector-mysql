@@ -33,7 +33,7 @@ namespace sqlpp
 {
   namespace mysql
   {
-    struct connection;
+    class connection;
     struct connection_config
     {
       typedef ::sqlpp::mysql::connection connection;
