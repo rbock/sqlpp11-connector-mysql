@@ -31,7 +31,7 @@
 #include <iostream>
 #include <vector>
 
-const auto library_raii = sqlpp::mysql::mysql_library_raii_t{0, nullptr, nullptr};
+const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{};
 
 namespace
 {

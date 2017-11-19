@@ -40,14 +40,17 @@ namespace sqlpp
 {
   namespace mysql
   {
-    struct mysql_library_raii_t
+    struct scoped_library_initializer_t
     {
       // calls mysql_library_init
-      mysql_library_raii_t(int argc, char** argv, char** groups);
+      scoped_library_initializer_t(int argc = 0, char** argv = nullptr, char** groups = nullptr);
 
       // calls mysql_library_end
-      ~mysql_library_raii_t();
+      ~scoped_library_initializer_t();
     };
+
+    // This will also cleanup when the program shuts down
+    void global_library_init(int argc = 0, char** argv = nullptr, char** groups = nullptr);
 
     namespace detail
     {

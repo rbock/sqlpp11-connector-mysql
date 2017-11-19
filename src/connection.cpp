@@ -39,14 +39,19 @@ namespace sqlpp
 {
   namespace mysql
   {
-    mysql_library_raii_t::mysql_library_raii_t(int argc, char** argv, char** groups)
+    scoped_library_initializer_t::scoped_library_initializer_t(int argc, char** argv, char** groups)
     {
       mysql_library_init(argc, argv, groups);
     }
 
-    mysql_library_raii_t::~mysql_library_raii_t()
+    scoped_library_initializer_t::~scoped_library_initializer_t()
     {
       mysql_library_end();
+    }
+
+    void global_library_init(int argc, char** argv, char** groups)
+    {
+      static const auto global_init_and_end = scoped_library_initializer_t(argc, argv, groups);
     }
 
     namespace

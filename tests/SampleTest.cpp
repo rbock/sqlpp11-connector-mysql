@@ -31,14 +31,14 @@
 #include <iostream>
 #include <vector>
 
-const auto library_raii = sqlpp::mysql::mysql_library_raii_t{0, nullptr, nullptr};
-
 SQLPP_ALIAS_PROVIDER(left)
 SQLPP_ALIAS_PROVIDER(right)
 
 namespace mysql = sqlpp::mysql;
 int main()
 {
+  mysql::global_library_init();
+
   auto config = std::make_shared<mysql::connection_config>();
   config->user = "root";
   config->database = "sqlpp_mysql";
