@@ -26,7 +26,6 @@
 
 #include "connection_handle.h"
 #include <ciso646>
-#include <iostream>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/connection_config.h>
 
@@ -36,18 +35,18 @@ namespace sqlpp
   {
     namespace detail
     {
-      void handle_cleanup(MYSQL* handle)
+      void handle_cleanup(MYSQL* mysql)
       {
-        mysql_close(handle);
-        delete handle;
+        mysql_close(mysql);
+        delete mysql;
       }
 
       connection_handle_t::connection_handle_t(const std::shared_ptr<connection_config>& conf)
-          : config(conf), mysql(new MYSQL, handle_cleanup)
+          : config(conf), mysql(new MYSQL{}, handle_cleanup)
       {
-        if (not mysql_init(mysql.get()))
+        if (not mysql or not mysql_init(mysql.get()))
         {
-          throw sqlpp::exception("MySQL: could not init connection data structure");
+          throw sqlpp::exception("MySQL: could not init mysql data structure");
         }
 
         if (config->auto_reconnect)

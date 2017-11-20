@@ -38,7 +38,7 @@ namespace sqlpp
 
     namespace detail
     {
-      void handle_cleanup(MYSQL* handle);
+      void handle_cleanup(MYSQL* mysql);
 
       struct connection_handle_t
       {
