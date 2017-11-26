@@ -38,13 +38,12 @@ namespace sqlpp
       void handle_cleanup(MYSQL* mysql)
       {
         mysql_close(mysql);
-        delete mysql;
       }
 
       connection_handle_t::connection_handle_t(const std::shared_ptr<connection_config>& conf)
-          : config(conf), mysql(new MYSQL{}, handle_cleanup)
+          : config(conf), mysql(mysql_init(nullptr), handle_cleanup)
       {
-        if (not mysql or not mysql_init(mysql.get()))
+        if (not mysql)
         {
           throw sqlpp::exception("MySQL: could not init mysql data structure");
         }
