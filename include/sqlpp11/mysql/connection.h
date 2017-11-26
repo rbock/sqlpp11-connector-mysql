@@ -82,6 +82,10 @@ namespace sqlpp
       std::stringstream _os;
     };
 
+    std::integral_constant<char, '`'> get_quote_left(const serializer_t&);
+
+    std::integral_constant<char, '`'> get_quote_right(const serializer_t&);
+
     class connection : public sqlpp::connection
     {
       std::unique_ptr<detail::connection_handle_t> _handle;
