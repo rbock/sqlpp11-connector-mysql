@@ -26,12 +26,15 @@ cmake_minimum_required(VERSION 3.2)
 include(CheckCXXSymbolExists)
 project (sqlpp11-connector-mysql)
 enable_testing()
+
+option(ENABLE_TESTS "Build unit tests" On)
 set(CMAKE_CXX_STANDARD 11)
 
-check_cxx_symbol_exists(_LIBCPP_VERSION iostream HAS_LIBCPP_VERSION)
-if (HAS_LIBCPP_VERSION)
-	message("libc++ does not have thread_local, thus we need to wrap that via boost thread")
-	find_package(Boost COMPONENTS thread)
+find_package(Threads REQUIRED)
+
+if (APPLE)
+	message("Apple XCode does not have thread_local, thus we need to wrap that via boost thread")
+	find_package(Boost COMPONENTS thread system)
 endif()
 
 
@@ -76,7 +79,11 @@ file(GLOB_RECURSE sqlpp_headers ${include_dir}/*.h ${SQLPP11_INCLUDE_DIR}/*.h)
 include_directories(${include_dir})
 
 add_subdirectory(src)
-add_subdirectory(tests)
+
+if(ENABLE_TESTS)
+  add_subdirectory(tests)
+endif()
+
 
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/sqlpp11" DESTINATION include)
 
