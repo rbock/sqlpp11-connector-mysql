@@ -29,6 +29,8 @@
 
 #include <iostream>
 
+const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
+
 namespace sql = sqlpp::mysql;
 const auto tab = TabSample{};
 

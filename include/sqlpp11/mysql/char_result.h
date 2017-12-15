@@ -29,9 +29,9 @@
 
 #include <cstdlib>
 #include <memory>
+#include <sqlpp11/chrono.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/char_result_row.h>
-#include <sqlpp11/chrono.h>
 
 namespace sqlpp
 {
@@ -83,7 +83,7 @@ namespace sqlpp
           if (result_row)
             result_row._invalidate();
         }
-      };
+      }
 
       void _bind_boolean_result(size_t index, signed char* value, bool* is_null)
       {

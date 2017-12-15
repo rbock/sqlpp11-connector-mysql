@@ -31,12 +31,14 @@
 #include <iostream>
 #include <vector>
 
-SQLPP_ALIAS_PROVIDER(left);
-SQLPP_ALIAS_PROVIDER(right);
+SQLPP_ALIAS_PROVIDER(left)
+SQLPP_ALIAS_PROVIDER(right)
 
 namespace mysql = sqlpp::mysql;
 int main()
 {
+  mysql::global_library_init();
+
   auto config = std::make_shared<mysql::connection_config>();
   config->user = "root";
   config->database = "sqlpp_mysql";

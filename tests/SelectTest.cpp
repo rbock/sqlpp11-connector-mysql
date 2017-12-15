@@ -38,7 +38,9 @@
 #include <iostream>
 #include <vector>
 
-SQLPP_ALIAS_PROVIDER(left);
+const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
+
+SQLPP_ALIAS_PROVIDER(left)
 
 namespace sql = sqlpp::mysql;
 const auto tab = TabSample{};
