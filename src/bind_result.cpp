@@ -26,7 +26,7 @@
 
 #include "detail/prepared_statement_handle.h"
 #include <ciso646>
-#include <date.h>
+#include <date/date.h>
 #include <iostream>
 #include <mysql.h>
 #include <sqlpp11/exception.h>
@@ -280,9 +280,9 @@ namespace sqlpp
                       mysql_stmt_fetch_column(_handle->mysql_stmt, _handle->result_params.data() + r.index, r.index, 0);
                   if (err)
                     throw sqlpp::exception(std::string("MySQL: Fetch column after reallocate failed: ") +
-                                           "error-code: " + std::to_string(err) +
-                                           ", stmt-error: " + mysql_stmt_error(_handle->mysql_stmt) +
-                                           ", stmt-errno: " + std::to_string(mysql_stmt_errno(_handle->mysql_stmt)));
+                                           "error-code: " + std::to_string(err) + ", stmt-error: " +
+                                           mysql_stmt_error(_handle->mysql_stmt) + ", stmt-errno: " +
+                                           std::to_string(mysql_stmt_errno(_handle->mysql_stmt)));
                 }
                 *r.text_buffer = r.bound_text_buffer.data();
                 if (_handle->debug)
