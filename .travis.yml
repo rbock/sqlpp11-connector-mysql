@@ -39,7 +39,7 @@ install:
   - pwd
   - git clone https://github.com/HowardHinnant/date
   - cd date
-  - git checkout tags/v2.0.0
+  - git checkout tags/v2.4
   - cd ..
   - git clone https://github.com/rbock/sqlpp11
   - if [ "$BRANCH" != "master" ]; then

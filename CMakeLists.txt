@@ -47,7 +47,7 @@ set(DATE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../date/include" CACHE FILEPAT
 
 if(NOT EXISTS ${DATE_INCLUDE_DIR}/date/date.h)
 	message(SEND_ERROR "Can't find file date/date.h")
-	message("Can't find date.h in ${DATE_INCLUDE_DIR} ")
+	message("Can't find date/date.h in ${DATE_INCLUDE_DIR} ")
 	message("Please either")
 	message("  - git clone https://github.com/howardhinnant/date ${DATE_INCLUDE_DIR}")
 	message("  - set DATE_INCLUDE_DIR to point to the dir containing date/date.h from the date library")
