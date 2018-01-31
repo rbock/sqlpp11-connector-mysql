@@ -24,13 +24,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ciso646>
-#include <cctype>
-#include <iostream>
-#include <vector>
-#include <sqlpp11/mysql/char_result.h>
-#include <date.h>
 #include "detail/result_handle.h"
+#include <cctype>
+#include <ciso646>
+#include <date/date.h>
+#include <iostream>
+#include <sqlpp11/mysql/char_result.h>
+#include <vector>
 
 namespace sqlpp
 {
