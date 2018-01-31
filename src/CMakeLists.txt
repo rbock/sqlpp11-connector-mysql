@@ -5,7 +5,7 @@ add_library(sqlpp-mysql
 		bind_result.cpp
 		detail/connection_handle.cpp)
 
-if (HAS_LIBCPP_VERSION)
+if (APPLE)
 	target_link_libraries(sqlpp-mysql "${Boost_THREAD_LIBRARY}")
 endif()
 
