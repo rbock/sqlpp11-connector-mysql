@@ -42,6 +42,12 @@ namespace sqlpp
         std::cerr << "MySQL debug: Constructing bind result, using handle at " << _handle.get() << std::endl;
     }
 
+    bind_result_t::~bind_result_t()
+    {
+      if (_handle)
+        mysql_stmt_free_result(_handle->mysql_stmt);
+    }
+
     void bind_result_t::_bind_boolean_result(size_t index, signed char* value, bool* is_null)
     {
       if (_handle->debug)
