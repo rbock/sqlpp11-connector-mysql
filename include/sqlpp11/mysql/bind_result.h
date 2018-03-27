@@ -51,7 +51,7 @@ namespace sqlpp
       bind_result_t(bind_result_t&& rhs) = default;
       bind_result_t& operator=(const bind_result_t&) = delete;
       bind_result_t& operator=(bind_result_t&&) = default;
-      ~bind_result_t() = default;
+      ~bind_result_t();
 
       bool operator==(const bind_result_t& rhs) const
       {
