@@ -35,7 +35,7 @@ namespace sqlpp
   {
     namespace detail
     {
-      #if MYSQL_VERSION_ID > 80000
+      #if LIBMYSQL_VERSION_ID > 80000
         typedef bool my_bool;
       #endif
       
