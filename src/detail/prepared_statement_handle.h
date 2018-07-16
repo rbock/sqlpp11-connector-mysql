@@ -36,6 +36,10 @@ namespace sqlpp
   {
     namespace detail
     {
+      #if MYSQL_VERSION_ID > 80000
+        typedef bool my_bool;
+      #endif
+      
       struct result_meta_data_t
       {
         size_t index;
