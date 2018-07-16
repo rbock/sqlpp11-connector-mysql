@@ -24,6 +24,7 @@
  */
 
 #include "TabSample.h"
+#include <cassert>
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/insert.h>
@@ -37,55 +38,65 @@
 #include <iostream>
 #include <vector>
 
-const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{};
+const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
-namespace mysql = sqlpp::mysql;
+SQLPP_ALIAS_PROVIDER(left)
+
+namespace sql = sqlpp::mysql;
+const auto tab = TabSample{};
+
+void testPreparedStatementResult (sql::connection& db)
+{
+    auto preparedSelectAll = db.prepare(sqlpp::select(count(tab.alpha)).from(tab).unconditionally());
+    auto preparedUpdateAll = db.prepare(sqlpp::update(tab).set(tab.gamma = false).unconditionally());
+
+    uint32_t count = 0;
+    {
+        // explicit result scope
+        // if results are released update should execute without exception
+        auto result = db(preparedSelectAll);
+        count = result.front().count;
+    }
+
+    db(preparedUpdateAll);
+}
+
 int main()
 {
-  auto config = std::make_shared<mysql::connection_config>();
-  config->user = "root";
-  config->database = "sqlpp_mysql";
-  config->debug = true;
-  try
-  {
-    mysql::connection db(config);
-  }
-  catch (const sqlpp::exception& e)
-  {
-    std::cerr << "For testing, you'll need to create a database sqlpp_mysql for user root (no password)" << std::endl;
-    std::cerr << e.what() << std::endl;
-    return 1;
-  }
-
-  try
-  {
-    mysql::connection db(config);
-    db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-    db.execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) DEFAULT NULL,
+    auto config = std::make_shared<sql::connection_config>();
+    config->user = "root";
+    config->database = "sqlpp_mysql";
+    config->debug = true;
+    try
+    {
+        sql::connection db(config);
+    }
+    catch (const sqlpp::exception& e)
+    {
+        std::cerr << "For testing, you'll need to create a database sqlpp_mysql for user root (no password)" << std::endl;
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
+    try
+    {
+        sql::connection db(config);
+        db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
+        db.execute(R"(CREATE TABLE tab_sample (
+		alpha bigint(20) AUTO_INCREMENT,
 			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL
+			gamma bool DEFAULT NULL,
+			PRIMARY KEY (alpha)
+			))");
+        db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
+        db.execute(R"(CREATE TABLE tab_foo (
+		omega bigint(20) DEFAULT NULL
 			))");
 
-    const auto tab = TabSample{};
-    db(insert_into(tab).set(tab.gamma = true));
-    auto i = insert_into(tab).columns(tab.beta, tab.gamma);
-    i.values.add(tab.beta = "rhabarbertorte", tab.gamma = false);
-    i.values.add(tab.beta = "cheesecake", tab.gamma = false);
-    i.values.add(tab.beta = "kaesekuchen", tab.gamma = true);
-    db(i);
-
-    auto s = dynamic_select(db).dynamic_columns(tab.alpha).from(tab).unconditionally();
-    s.selected_columns.add(tab.beta);
-
-    for (const auto& row : db(s))
+        testPreparedStatementResult(db);
+    }
+    catch (const std::exception& e)
     {
-      std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.at("beta") << std::endl;
-    };
-  }
-  catch (const std::exception& e)
-  {
-    std::cerr << "Exception: " << e.what() << std::endl;
-    return 1;
-  }
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return 1;
+    }
 }

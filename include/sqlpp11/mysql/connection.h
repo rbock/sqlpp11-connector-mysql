@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2016, Roland Bock
+ * Copyright (c) 2013 - 2017, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -40,6 +40,18 @@ namespace sqlpp
 {
   namespace mysql
   {
+    struct scoped_library_initializer_t
+    {
+      // calls mysql_library_init
+      scoped_library_initializer_t(int argc = 0, char** argv = nullptr, char** groups = nullptr);
+
+      // calls mysql_library_end
+      ~scoped_library_initializer_t();
+    };
+
+    // This will also cleanup when the program shuts down
+    void global_library_init(int argc = 0, char** argv = nullptr, char** groups = nullptr);
+
     namespace detail
     {
       struct connection_handle_t;
@@ -70,7 +82,10 @@ namespace sqlpp
       std::stringstream _os;
     };
 
-    struct connection_config;
+    std::integral_constant<char, '`'> get_quote_left(const serializer_t&);
+
+    std::integral_constant<char, '`'> get_quote_right(const serializer_t&);
+
     class connection : public sqlpp::connection
     {
       std::unique_ptr<detail::connection_handle_t> _handle;
@@ -119,6 +134,11 @@ namespace sqlpp
       connection& operator=(const connection&) = delete;
       connection& operator=(connection&&) = default;
       connection(connection&& other);
+
+      bool is_valid();
+      void reconnect();
+      const std::shared_ptr<connection_config> get_config();
+
       bool is_transaction_active()
       {
         return _transaction_active;

@@ -15,7 +15,7 @@ Remark regarding MSVC builds on appveyor: As of now, I can neither to link again
 
 License Hint:
 -------------
-The code is distributed under BSD License, but if you build the library, then the binary will be linked dynamically to mysqlclient, which is published under GPL or commercial license as of this writing. The resulting binary might therefore fall under GPL.
+The code is distributed under BSD License, but if you build the library, then the binary will be linked dynamically to mysqlclient, which is published under GPL or commercial license as of this writing. The resulting binary might therefore fall under GPL. To avoid this, an option to link against the equivalent MariaDB connector (under LGPL) is provided: see the build instructions below.
 
 Sample Code:
 ------------
@@ -60,3 +60,29 @@ sqlpp11-connector-mysql is meant to be used with sqlpp11 (https://github.com/rbo
 __mysqlclient:__
 libmysqlclient version 5.5 and up (or the respective mariadb version)
 
+
+
+Build instructions:
+-------------------
+Download and unpack the latest release or clone the repository. Inside the directory run the following commands:
+
+```bash
+mkdir build
+cd build
+cmake ..
+make
+make install
+```
+
+In order to customize the build process, you can add the following options to the cmake command above:
+
+* CMAKE_INSTALL_PREFIX: path to the install folder
+* DATE_INCLUDE_DIR: path to the folder containing `date.h`
+* SQLPP11_INCLUDE_DIR: path to the folder containing `sqlpp11.h`
+* USE_MARIADB: force the use of the MariaDB connector instead of the GPL'd MySQL connector
+ 
+For example:
+
+```bash
+cmake -DCMAKE_INSTALL_PREFIX=/opt/sqlpp11_mariadb -DUSE_MARIADB=1 ..
+```

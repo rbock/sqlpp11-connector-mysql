@@ -26,19 +26,34 @@
 
 #include <ciso646>
 #include <iostream>
-#ifdef _LIBCPP_VERSION
+#ifdef __APPLE__
 #include <boost/thread/tss.hpp>  // libc++ does not have thread_local yet.
 #endif
-#include <sqlpp11/exception.h>
-#include <sqlpp11/mysql/connection.h>
+#include "detail/connection_handle.h"
 #include "detail/prepared_statement_handle.h"
 #include "detail/result_handle.h"
-#include "detail/connection_handle.h"
+#include <sqlpp11/exception.h>
+#include <sqlpp11/mysql/connection.h>
 
 namespace sqlpp
 {
   namespace mysql
   {
+    scoped_library_initializer_t::scoped_library_initializer_t(int argc, char** argv, char** groups)
+    {
+      mysql_library_init(argc, argv, groups);
+    }
+
+    scoped_library_initializer_t::~scoped_library_initializer_t()
+    {
+      mysql_library_end();
+    }
+
+    void global_library_init(int argc, char** argv, char** groups)
+    {
+      static const auto global_init_and_end = scoped_library_initializer_t(argc, argv, groups);
+    }
+
     namespace
     {
       struct MySqlThreadInitializer
@@ -58,13 +73,13 @@ namespace sqlpp
         }
       };
 
-#ifdef _LIBCPP_VERSION
+#ifdef __APPLE__
       boost::thread_specific_ptr<MySqlThreadInitializer> mysqlThreadInit;
 #endif
 
       void thread_init()
       {
-#ifdef _LIBCPP_VERSION
+#ifdef __APPLE__
         if (!mysqlThreadInit.get())
         {
           mysqlThreadInit.reset(new MySqlThreadInitializer);
@@ -158,6 +173,20 @@ namespace sqlpp
     {
       this->_transaction_active = other._transaction_active;
       this->_handle = std::move(other._handle);
+    }
+
+    bool connection::is_valid()
+    {
+      return _handle->is_valid();
+    }
+    void connection::reconnect()
+    {
+      return _handle->reconnect();
+    }
+
+    const std::shared_ptr<connection_config> connection::get_config()
+    {
+      return _handle->config;
     }
 
     char_result_t connection::select_impl(const std::string& statement)

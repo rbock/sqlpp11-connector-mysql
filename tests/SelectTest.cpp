@@ -38,7 +38,9 @@
 #include <iostream>
 #include <vector>
 
-SQLPP_ALIAS_PROVIDER(left);
+const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
+
+SQLPP_ALIAS_PROVIDER(left)
 
 namespace sql = sqlpp::mysql;
 const auto tab = TabSample{};
@@ -57,6 +59,19 @@ void testSelectAll(sql::connection& db, int expectedRowCount)
   assert(i == expectedRowCount);
 
   auto preparedSelectAll = db.prepare(sqlpp::select(all_of(tab)).from(tab).unconditionally());
+  std::cerr << "--------------------------------------" << std::endl;
+  i = 0;
+  for (const auto& row : db(preparedSelectAll))
+  {
+    ++i;
+    std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
+              << std::endl;
+    assert(i == row.alpha);
+  };
+  assert(i == expectedRowCount);
+
+  // Try running the same prepared statement again
+  std::cerr << "--------------------------------------" << std::endl;
   i = 0;
   for (const auto& row : db(preparedSelectAll))
   {

@@ -26,7 +26,7 @@
 
 #include "detail/prepared_statement_handle.h"
 #include <ciso646>
-#include <date.h>
+#include <date/date.h>
 #include <iostream>
 #include <mysql.h>
 #include <sqlpp11/exception.h>
@@ -42,10 +42,17 @@ namespace sqlpp
         std::cerr << "MySQL debug: Constructing bind result, using handle at " << _handle.get() << std::endl;
     }
 
+    bind_result_t::~bind_result_t()
+    {
+      if (_handle)
+        mysql_stmt_free_result(_handle->mysql_stmt);
+    }
+
     void bind_result_t::_bind_boolean_result(size_t index, signed char* value, bool* is_null)
     {
       if (_handle->debug)
-        std::cerr << "MySQL debug: binding boolean result " << *value << " at index: " << index << std::endl;
+        std::cerr << "MySQL debug: binding boolean result " << static_cast<void*>(value) << " at index: " << index
+                  << std::endl;
 
       detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
       meta_data.index = index;
@@ -65,7 +72,8 @@ namespace sqlpp
     void bind_result_t::_bind_integral_result(size_t index, int64_t* value, bool* is_null)
     {
       if (_handle->debug)
-        std::cerr << "MySQL debug: binding integral result " << *value << " at index: " << index << std::endl;
+        std::cerr << "MySQL debug: binding integral result " << static_cast<void*>(value) << " at index: " << index
+                  << std::endl;
 
       detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
       meta_data.index = index;
@@ -85,7 +93,8 @@ namespace sqlpp
     void bind_result_t::_bind_unsigned_integral_result(size_t index, uint64_t* value, bool* is_null)
     {
       if (_handle->debug)
-        std::cerr << "MySQL debug: binding unsigned integral result " << *value << " at index: " << index << std::endl;
+        std::cerr << "MySQL debug: binding unsigned integral result " << static_cast<void*>(value)
+                  << " at index: " << index << std::endl;
 
       detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
       meta_data.index = index;
@@ -105,7 +114,8 @@ namespace sqlpp
     void bind_result_t::_bind_floating_point_result(size_t index, double* value, bool* is_null)
     {
       if (_handle->debug)
-        std::cerr << "MySQL debug: binding floating point result " << *value << " at index: " << index << std::endl;
+        std::cerr << "MySQL debug: binding floating point result " << static_cast<void*>(value)
+                  << " at index: " << index << std::endl;
 
       detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
       meta_data.index = index;
@@ -125,7 +135,8 @@ namespace sqlpp
     void bind_result_t::_bind_text_result(size_t index, const char** value, size_t* len)
     {
       if (_handle->debug)
-        std::cerr << "MySQL debug: binding text result at index: " << index << std::endl;
+        std::cerr << "MySQL debug: binding text result " << static_cast<const void*>(*value) << " at index: " << index
+                  << std::endl;
 
       detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
       meta_data.index = index;
@@ -148,7 +159,8 @@ namespace sqlpp
     void bind_result_t::_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
     {
       if (_handle->debug)
-        std::cerr << "MySQL debug: binding date result at index: " << index << std::endl;
+        std::cerr << "MySQL debug: binding date result " << static_cast<void*>(value) << " at index: " << index
+                  << std::endl;
 
       detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
       meta_data.index = index;
@@ -170,7 +182,8 @@ namespace sqlpp
     void bind_result_t::_bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
     {
       if (_handle->debug)
-        std::cerr << "MySQL debug: binding date time result at index: " << index << std::endl;
+        std::cerr << "MySQL debug: binding date time result " << static_cast<void*>(value) << " at index: " << index
+                  << std::endl;
 
       detail::result_meta_data_t& meta_data = _handle->result_param_meta_data[index];
       meta_data.index = index;
@@ -192,7 +205,8 @@ namespace sqlpp
     void bind_result_t::_post_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
     {
       if (_handle->debug)
-        std::cerr << "MySQL debug: binding date result at index: " << index << std::endl;
+        std::cerr << "MySQL debug: post binding date result " << static_cast<void*>(value) << " at index: " << index
+                  << std::endl;
 
       if (not is_null)
       {
@@ -208,7 +222,8 @@ namespace sqlpp
                                                     bool* is_null)
     {
       if (_handle->debug)
-        std::cerr << "MySQL debug: binding date time result at index: " << index << std::endl;
+        std::cerr << "MySQL debug: binding date time result " << static_cast<void*>(value) << " at index: " << index
+                  << std::endl;
 
       if (not is_null)
       {
@@ -259,19 +274,27 @@ namespace sqlpp
                 if (r.bound_len > r.bound_text_buffer.size())
                 {
                   if (_handle->debug)
-                    std::cerr << "MySQL debug: Need to reallocate buffer at index " << r.index << " for handle at "
-                              << _handle.get() << std::endl;
+                    std::cerr << "MySQL debug: Need to reallocate buffer " << static_cast<const void*>(*r.text_buffer)
+                              << " at index " << r.index << " for handle at " << _handle.get() << std::endl;
                   need_to_rebind = true;
                   r.bound_text_buffer.resize(r.bound_len);
                   MYSQL_BIND& param = _handle->result_params[r.index];
                   param.buffer = r.bound_text_buffer.data();
                   param.buffer_length = r.bound_text_buffer.size();
 
-                  if (mysql_stmt_fetch_column(_handle->mysql_stmt, _handle->result_params.data() + r.index, r.index, 0))
+                  auto err =
+                      mysql_stmt_fetch_column(_handle->mysql_stmt, _handle->result_params.data() + r.index, r.index, 0);
+                  if (err)
                     throw sqlpp::exception(std::string("MySQL: Fetch column after reallocate failed: ") +
-                                           mysql_stmt_error(_handle->mysql_stmt));
+                                           "error-code: " + std::to_string(err) + ", stmt-error: " +
+                                           mysql_stmt_error(_handle->mysql_stmt) + ", stmt-errno: " +
+                                           std::to_string(mysql_stmt_errno(_handle->mysql_stmt)));
                 }
                 *r.text_buffer = r.bound_text_buffer.data();
+                if (_handle->debug)
+                  std::cerr << "MySQL debug: New buffer " << static_cast<const void*>(*r.text_buffer) << " at index "
+                            << r.index << " for handle at " << _handle.get() << std::endl;
+
                 *r.len = r.bound_len;
               }
             }

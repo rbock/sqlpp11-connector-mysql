@@ -39,7 +39,7 @@
 
 #include "detail/prepared_statement_handle.h"
 #include <ciso646>
-#include <date.h>
+#include <date/date.h>
 #include <iostream>
 #include <sqlpp11/mysql/prepared_statement.h>
 #include <string>
@@ -90,8 +90,8 @@ namespace sqlpp
     void prepared_statement_t::_bind_unsigned_integral_parameter(size_t index, const uint64_t* value, bool is_null)
     {
       if (_handle->debug)
-        std::cerr << "MySQL debug: binding unsigned integral parameter " << *value << " at index: " << index << ", being "
-                  << (is_null ? "" : "not ") << "null" << std::endl;
+        std::cerr << "MySQL debug: binding unsigned integral parameter " << *value << " at index: " << index
+                  << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
       _handle->stmt_param_is_null[index] = is_null;
       MYSQL_BIND& param = _handle->stmt_params[index];
       param.buffer_type = MYSQL_TYPE_LONGLONG;
