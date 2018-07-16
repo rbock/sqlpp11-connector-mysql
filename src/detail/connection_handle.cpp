@@ -35,6 +35,10 @@ namespace sqlpp
   {
     namespace detail
     {
+      #if LIBMYSQL_VERSION_ID > 80000
+        typedef bool my_bool;
+      #endif
+      
       void handle_cleanup(MYSQL* mysql)
       {
         mysql_close(mysql);
