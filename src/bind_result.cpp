@@ -64,9 +64,9 @@ namespace sqlpp
       param.buffer = value;
       param.buffer_length = sizeof(*value);
       param.length = &meta_data.bound_len;
-      param.is_null = &meta_data.bound_is_null;
+      param.is_null = reinterpret_cast<decltype(param.is_null)>(&meta_data.bound_is_null);
       param.is_unsigned = false;
-      param.error = &meta_data.bound_error;
+      param.error = reinterpret_cast<decltype(param.error)>(&meta_data.bound_error);
     }
 
     void bind_result_t::_bind_integral_result(size_t index, int64_t* value, bool* is_null)
@@ -85,9 +85,9 @@ namespace sqlpp
       param.buffer = value;
       param.buffer_length = sizeof(*value);
       param.length = &meta_data.bound_len;
-      param.is_null = &meta_data.bound_is_null;
+      param.is_null = reinterpret_cast<decltype(param.is_null)>(&meta_data.bound_is_null);
       param.is_unsigned = false;
-      param.error = &meta_data.bound_error;
+      param.error = reinterpret_cast<decltype(param.error)>(&meta_data.bound_error);
     }
 
     void bind_result_t::_bind_unsigned_integral_result(size_t index, uint64_t* value, bool* is_null)
@@ -106,9 +106,9 @@ namespace sqlpp
       param.buffer = value;
       param.buffer_length = sizeof(*value);
       param.length = &meta_data.bound_len;
-      param.is_null = &meta_data.bound_is_null;
+      param.is_null = reinterpret_cast<decltype(param.is_null)>(&meta_data.bound_is_null);
       param.is_unsigned = true;
-      param.error = &meta_data.bound_error;
+      param.error = reinterpret_cast<decltype(param.error)>(&meta_data.bound_error);
     }
 
     void bind_result_t::_bind_floating_point_result(size_t index, double* value, bool* is_null)
@@ -127,9 +127,9 @@ namespace sqlpp
       param.buffer = value;
       param.buffer_length = sizeof(*value);
       param.length = &meta_data.bound_len;
-      param.is_null = &meta_data.bound_is_null;
+      param.is_null = reinterpret_cast<decltype(param.is_null)>(&meta_data.bound_is_null);
       param.is_unsigned = false;
-      param.error = &meta_data.bound_error;
+      param.error = reinterpret_cast<decltype(param.error)>(&meta_data.bound_error);
     }
 
     void bind_result_t::_bind_text_result(size_t index, const char** value, size_t* len)
@@ -151,9 +151,9 @@ namespace sqlpp
       param.buffer = meta_data.bound_text_buffer.data();
       param.buffer_length = meta_data.bound_text_buffer.size();
       param.length = &meta_data.bound_len;
-      param.is_null = &meta_data.bound_is_null;
+      param.is_null = reinterpret_cast<decltype(param.is_null)>(&meta_data.bound_is_null);
       param.is_unsigned = false;
-      param.error = &meta_data.bound_error;
+      param.error = reinterpret_cast<decltype(param.error)>(&meta_data.bound_error);
     }
 
     void bind_result_t::_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
@@ -174,9 +174,9 @@ namespace sqlpp
       param.buffer = meta_data.bound_text_buffer.data();
       param.buffer_length = meta_data.bound_text_buffer.size();
       param.length = &meta_data.bound_len;
-      param.is_null = &meta_data.bound_is_null;
+      param.is_null = reinterpret_cast<decltype(param.is_null)>(&meta_data.bound_is_null);
       param.is_unsigned = false;
-      param.error = &meta_data.bound_error;
+      param.error = reinterpret_cast<decltype(param.error)>(&meta_data.bound_error);
     }
 
     void bind_result_t::_bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
@@ -197,9 +197,9 @@ namespace sqlpp
       param.buffer = meta_data.bound_text_buffer.data();
       param.buffer_length = meta_data.bound_text_buffer.size();
       param.length = &meta_data.bound_len;
-      param.is_null = &meta_data.bound_is_null;
+      param.is_null = reinterpret_cast<decltype(param.is_null)>(&meta_data.bound_is_null);
       param.is_unsigned = false;
-      param.error = &meta_data.bound_error;
+      param.error = reinterpret_cast<decltype(param.error)>(&meta_data.bound_error);
     }
 
     void bind_result_t::_post_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
