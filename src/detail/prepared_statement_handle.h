@@ -34,6 +34,9 @@ namespace sqlpp
 {
   namespace mysql
   {
+    #if LIBMYSQL_VERSION_ID > 80000
+      using my_bool = int;
+    #endif
     namespace detail
     {
       struct result_meta_data_t
