@@ -28,7 +28,7 @@
 #include <ciso646>
 #include <date/date.h>
 #include <iostream>
-#include <mysql.h>
+#include "sqlpp_mysql.h"
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/bind_result.h>
 

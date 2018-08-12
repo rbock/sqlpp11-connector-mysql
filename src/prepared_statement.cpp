@@ -66,7 +66,7 @@ namespace sqlpp
       param.buffer = const_cast<signed char*>(value);
       param.buffer_length = sizeof(*value);
       param.length = &param.buffer_length;
-      param.is_null = &_handle->stmt_param_is_null[index];
+      param.is_null = &_handle->stmt_param_is_null[index].value;
       param.is_unsigned = false;
       param.error = nullptr;
     }
@@ -82,7 +82,7 @@ namespace sqlpp
       param.buffer = const_cast<int64_t*>(value);
       param.buffer_length = sizeof(*value);
       param.length = &param.buffer_length;
-      param.is_null = &_handle->stmt_param_is_null[index];
+      param.is_null = &_handle->stmt_param_is_null[index].value;
       param.is_unsigned = false;
       param.error = nullptr;
     }
@@ -98,7 +98,7 @@ namespace sqlpp
       param.buffer = const_cast<uint64_t*>(value);
       param.buffer_length = sizeof(*value);
       param.length = &param.buffer_length;
-      param.is_null = &_handle->stmt_param_is_null[index];
+      param.is_null = &_handle->stmt_param_is_null[index].value;
       param.is_unsigned = true;
       param.error = nullptr;
     }
@@ -114,7 +114,7 @@ namespace sqlpp
       param.buffer = const_cast<double*>(value);
       param.buffer_length = sizeof(*value);
       param.length = &param.buffer_length;
-      param.is_null = &_handle->stmt_param_is_null[index];
+      param.is_null = &_handle->stmt_param_is_null[index].value;
       param.is_unsigned = false;
       param.error = nullptr;
     }
@@ -130,7 +130,7 @@ namespace sqlpp
       param.buffer = const_cast<char*>(value->data());
       param.buffer_length = value->size();
       param.length = &param.buffer_length;
-      param.is_null = &_handle->stmt_param_is_null[index];
+      param.is_null = &_handle->stmt_param_is_null[index].value;
       param.is_unsigned = false;
       param.error = nullptr;
     }
@@ -159,7 +159,7 @@ namespace sqlpp
       param.buffer = &bound_time;
       param.buffer_length = sizeof(MYSQL_TIME);
       param.length = &param.buffer_length;
-      param.is_null = &_handle->stmt_param_is_null[index];
+      param.is_null = &_handle->stmt_param_is_null[index].value;
       param.is_unsigned = false;
       param.error = nullptr;
     }
@@ -196,7 +196,7 @@ namespace sqlpp
       param.buffer = &bound_time;
       param.buffer_length = sizeof(MYSQL_TIME);
       param.length = &param.buffer_length;
-      param.is_null = &_handle->stmt_param_is_null[index];
+      param.is_null = &_handle->stmt_param_is_null[index].value;
       param.is_unsigned = false;
       param.error = nullptr;
     }

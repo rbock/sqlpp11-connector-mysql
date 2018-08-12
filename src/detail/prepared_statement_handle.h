@@ -27,7 +27,7 @@
 #ifndef SQLPP_MYSQL_DETAIL_PREPARED_STATEMENT_HANDLE_H
 #define SQLPP_MYSQL_DETAIL_PREPARED_STATEMENT_HANDLE_H
 
-#include <mysql.h>
+#include "../sqlpp_mysql.h"
 #include <vector>
 
 namespace sqlpp
@@ -50,10 +50,27 @@ namespace sqlpp
 
       struct prepared_statement_handle_t
       {
+        struct wrapped_bool
+        {
+          my_bool value;
+
+          wrapped_bool() : value(false)
+          {
+          }
+          wrapped_bool(bool v) : value(v)
+          {
+          }
+          wrapped_bool(const wrapped_bool&) = default;
+          wrapped_bool(wrapped_bool&&) = default;
+          wrapped_bool& operator=(const wrapped_bool&) = default;
+          wrapped_bool& operator=(wrapped_bool&&) = default;
+          ~wrapped_bool() = default;
+        };
+
         MYSQL_STMT* mysql_stmt;
         std::vector<MYSQL_BIND> stmt_params;
         std::vector<MYSQL_TIME> stmt_date_time_param_buffer;
-        std::vector<my_bool> stmt_param_is_null;
+        std::vector<wrapped_bool> stmt_param_is_null; // my_bool is bool after 8.0, and vector<bool> is bad
         std::vector<MYSQL_BIND> result_params;
         std::vector<result_meta_data_t> result_param_meta_data;
         bool debug;

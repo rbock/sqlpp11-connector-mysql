@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2015, Roland Bock
+ * Copyright (c) 2018 - 2018, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,43 +24,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MYSQL_DETAIL_RESULT_HANDLE_H
-#define SQLPP_MYSQL_DETAIL_RESULT_HANDLE_H
+#ifndef SQLPP_MYSQL_MYSQL_H
+#define SQLPP_MYSQL_MYSQL_H
 
-#include "../sqlpp_mysql.h"
+#include <mysql.h>
 
 namespace sqlpp
 {
   namespace mysql
   {
-    namespace detail
-    {
-      struct result_handle
-      {
-        MYSQL_RES* mysql_res;
-        bool debug;
-
-        result_handle(MYSQL_RES* res, bool debug_) : mysql_res(res), debug(debug_)
-        {
-        }
-
-        result_handle(const result_handle&) = delete;
-        result_handle(result_handle&&) = default;
-        result_handle& operator=(const result_handle&) = delete;
-        result_handle& operator=(result_handle&&) = default;
-
-        ~result_handle()
-        {
-          if (mysql_res)
-            mysql_free_result(mysql_res);
-        }
-
-        bool operator!() const
-        {
-          return !mysql_res;
-        }
-      };
-    }
+#if LIBMYSQL_VERSION_ID >= 80000
+    using my_bool = bool;
+#endif
   }
 }
 
