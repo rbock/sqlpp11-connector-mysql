@@ -283,7 +283,7 @@ namespace sqlpp
                   param.buffer_length = r.bound_text_buffer.size();
 
                   auto err =
-                      mysql_stmt_fetch_column(_handle->mysql_stmt, _handle->result_params.data() + r.index, r.index, 0);
+                      mysql_stmt_fetch_column(_handle->mysql_stmt, &param, r.index, 0);
                   if (err)
                     throw sqlpp::exception(std::string("MySQL: Fetch column after reallocate failed: ") +
                                            "error-code: " + std::to_string(err) + ", stmt-error: " +
