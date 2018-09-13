@@ -28,7 +28,7 @@
 #define SQLPP_MYSQL_CONNECTION_HANDLE_H
 
 #include <memory>
-#include <mysql.h>
+#include "../sqlpp_mysql.h"
 
 namespace sqlpp
 {
