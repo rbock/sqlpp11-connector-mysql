@@ -78,11 +78,14 @@ int main()
 
   try
   {
+    using days_type = std::chrono::duration<int, std::ratio<60*60*24>>;
+
     mysql::connection db(config);
     db.execute(R"(DROP TABLE IF EXISTS tab_date_time)");
     db.execute(R"(CREATE TABLE tab_date_time (
 		col_day_point date,
-			col_time_point datetime(3)
+			col_time_point datetime(3),
+			col_date_time_point datetime DEFAULT CURRENT_TIMESTAMP
 			))");
 
     const auto tab = TabDateTime{};
@@ -93,6 +96,14 @@ int main()
       require_equal(__LINE__, row.colDayPoint.value(), ::sqlpp::chrono::day_point{});
       require_equal(__LINE__, row.colTimePoint.is_null(), true);
       require_equal(__LINE__, row.colTimePoint.value(), ::sqlpp::chrono::microsecond_point{});
+      require_equal(__LINE__, std::chrono::time_point_cast<days_type>(row.colDateTimePoint.value()), std::chrono::time_point_cast<days_type>(std::chrono::system_clock::now()));
+    }
+
+    auto statement = db.prepare(select(tab.colDateTimePoint).from(tab).unconditionally());
+    for (const auto& row : db(statement))
+    {
+      require_equal(__LINE__, row.colDateTimePoint.is_null(), false);
+      require_equal(__LINE__, std::chrono::time_point_cast<days_type>(row.colDateTimePoint.value()), std::chrono::time_point_cast<days_type>(std::chrono::system_clock::now()));
     }
 
     db(update(tab).set(tab.colDayPoint = today, tab.colTimePoint = now).unconditionally());
