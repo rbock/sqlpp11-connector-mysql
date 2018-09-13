@@ -208,7 +208,7 @@ namespace sqlpp
         std::cerr << "MySQL debug: post binding date result " << static_cast<void*>(value) << " at index: " << index
                   << std::endl;
 
-      if (not is_null)
+      if (not *is_null)
       {
         const auto& dt =
             *reinterpret_cast<const MYSQL_TIME*>(_handle->result_param_meta_data[index].bound_text_buffer.data());
@@ -225,7 +225,7 @@ namespace sqlpp
         std::cerr << "MySQL debug: binding date time result " << static_cast<void*>(value) << " at index: " << index
                   << std::endl;
 
-      if (not is_null)
+      if (not *is_null)
       {
         const auto& dt =
             *reinterpret_cast<const MYSQL_TIME*>(_handle->result_param_meta_data[index].bound_text_buffer.data());
