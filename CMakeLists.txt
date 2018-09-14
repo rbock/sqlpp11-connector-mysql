@@ -75,10 +75,12 @@ endif()
 include_directories("${SQLPP11_INCLUDE_DIR}")
 include_directories("${DATE_INCLUDE_DIR}")
 include_directories("${MYSQL_INCLUDE_DIRS}")
-include_directories("${Boost_INCLUDE_DIRS}")
 set(include_dir "${PROJECT_SOURCE_DIR}/include")
 file(GLOB_RECURSE sqlpp_headers ${include_dir}/*.h ${SQLPP11_INCLUDE_DIR}/*.h)
 include_directories(${include_dir})
+if (APPLE)
+include_directories("${Boost_INCLUDE_DIR}")
+endif()
 
 add_subdirectory(src)
 
