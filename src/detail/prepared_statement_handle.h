@@ -29,6 +29,7 @@
 
 #include "../sqlpp_mysql.h"
 #include <vector>
+#include <stdint.h>
 
 namespace sqlpp
 {
@@ -42,8 +43,10 @@ namespace sqlpp
         unsigned long bound_len;
         my_bool bound_is_null;
         my_bool bound_error;
-        std::vector<char> bound_text_buffer;  // also for blobs
+        std::vector<char> bound_text_buffer;
         const char** text_buffer;
+        std::vector<uint8_t> bound_blob_buffer;
+        const uint8_t** blob_buffer;
         size_t* len;
         bool* is_null;
       };

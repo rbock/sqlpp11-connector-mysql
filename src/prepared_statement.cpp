@@ -135,6 +135,24 @@ namespace sqlpp
       param.error = nullptr;
     }
 
+    void prepared_statement_t::_bind_blob_parameter(size_t index, const std::vector<uint8_t>* value, bool is_null)
+    {
+      std::string value_str(value->begin(), value->end());
+      if (_handle->debug)
+        std::cerr << "MySQL debug: binding blob parameter " << value_str
+                  << " at index: " << index << ", being "
+                  << (is_null ? "" : "not ") << "null" << std::endl;
+      _handle->stmt_param_is_null[index] = is_null;
+      MYSQL_BIND& param = _handle->stmt_params[index];
+      param.buffer_type = MYSQL_TYPE_BLOB;
+      param.buffer = (const_cast<uint8_t*>(value->data()));
+      param.buffer_length = value->size();
+      param.length = &param.buffer_length;
+      param.is_null = &_handle->stmt_param_is_null[index].value;
+      param.is_unsigned = false;
+      param.error = nullptr;
+    }
+
     void prepared_statement_t::_bind_date_parameter(size_t index, const ::sqlpp::chrono::day_point* value, bool is_null)
     {
       if (_handle->debug)
