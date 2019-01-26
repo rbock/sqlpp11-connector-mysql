@@ -57,7 +57,6 @@ namespace sqlpp
     {
       const auto date_digits = std::vector<char>{1, 1, 1, 1, 0, 1, 1, 0, 1, 1};  // 2015-10-28
       const auto time_digits = std::vector<char>{0, 1, 1, 0, 1, 1, 0, 1, 1};     // T23:00:12
-      const auto ms_digits = std::vector<char>{0, 1, 1, 1};                      // .123
 
       auto check_digits(const char* text, const std::vector<char>& digitFlags) -> bool
       {
@@ -153,14 +152,17 @@ namespace sqlpp
       {
         return;
       }
-      const auto ms_string = time_string + 9;
-      if (check_digits(ms_string, ms_digits) and ms_string[4] == '\0')
-      {
-        *value += ::std::chrono::milliseconds(std::atoi(ms_string + 1));
-      }
-      else
+
+      const auto mu_string = time_string + 9;
+      std::cerr << "my_string: " << mu_string << std::endl;
+      if (mu_string[0] == '\0')
       {
         return;
+      }
+      auto factor = 100 * 1000;
+      for (auto i = 1u; i <= 6u and std::isdigit(mu_string[i]); ++i, factor /= 10)
+      {
+        *value += ::std::chrono::microseconds(factor * (mu_string[i] - '0'));
       }
     }
 
