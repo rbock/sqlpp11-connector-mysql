@@ -72,6 +72,11 @@ else()
 	message("including sqlpp11 from ${SQLPP11_INCLUDE_DIR}")
 endif()
 
+
+IF(MSVC)
+    add_definitions(-DNOMINMAX)
+ENDIF()
+
 include_directories("${SQLPP11_INCLUDE_DIR}")
 include_directories("${DATE_INCLUDE_DIR}")
 include_directories("${MYSQL_INCLUDE_DIRS}")
