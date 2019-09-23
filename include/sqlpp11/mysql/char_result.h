@@ -29,7 +29,9 @@
 
 #include <ciso646>
 #include <cstdlib>
+#include <stdint.h>
 #include <memory>
+#include <iostream>
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/char_result_row.h>
@@ -115,6 +117,13 @@ namespace sqlpp
       {
         bool is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
         *value = (is_null ? nullptr : _char_result_row.data[index]);
+        *len = (is_null ? 0 : _char_result_row.len[index]);
+      }
+
+      void _bind_blob_result(size_t index, const uint8_t** value, size_t* len)
+      {
+        bool is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+        *value = (is_null ? nullptr : ((const uint8_t*)(_char_result_row.data[index])));
         *len = (is_null ? 0 : _char_result_row.len[index]);
       }
 

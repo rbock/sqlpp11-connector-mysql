@@ -28,6 +28,7 @@
 #define SQLPP_MYSQL_BIND_RESULT_H
 
 #include <memory>
+#include <stdint.h>
 #include <sqlpp11/chrono.h>
 
 namespace sqlpp
@@ -93,6 +94,7 @@ namespace sqlpp
       void _bind_integral_result(size_t index, int64_t* value, bool* is_null);
       void _bind_unsigned_integral_result(size_t index, uint64_t* value, bool* is_null);
       void _bind_text_result(size_t index, const char** text, size_t* len);
+      void _bind_blob_result(size_t index, const uint8_t** text, size_t* len);
       void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null);
       void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null);
 
@@ -109,6 +111,9 @@ namespace sqlpp
       {
       }
       void _post_bind_text_result(size_t /* index */, const char** /* text */, size_t* /* len */)
+      {
+      }
+      void _post_bind_blob_result(size_t /* index */, const uint8_t** /* text */, size_t* /* len */)
       {
       }
       void _post_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null);
