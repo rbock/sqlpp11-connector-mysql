@@ -61,7 +61,7 @@ namespace sqlpp
       template <typename ResultRow>
       void next(ResultRow& result_row)
       {
-        if (!_handle)
+        if (_invalid())
         {
           result_row._invalidate();
           return;
@@ -87,6 +87,8 @@ namespace sqlpp
             result_row._invalidate();
         }
       }
+
+      bool _invalid() const;
 
       void _bind_boolean_result(size_t index, signed char* value, bool* is_null);
       void _bind_floating_point_result(size_t index, double* value, bool* is_null);

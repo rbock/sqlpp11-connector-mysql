@@ -42,7 +42,7 @@ namespace sqlpp
 
     char_result_t::char_result_t(std::unique_ptr<detail::result_handle>&& handle) : _handle(std::move(handle))
     {
-      if (!_handle)
+      if (_invalid())
         throw sqlpp::exception("MySQL: Constructing char_result without valid handle");
 
       if (_handle->debug)
@@ -80,6 +80,11 @@ namespace sqlpp
         }
         return true;
       }
+    }
+
+    bool char_result_t::_invalid() const
+    {
+      return !_handle->debug or !*_handle;
     }
 
     void char_result_t::_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
