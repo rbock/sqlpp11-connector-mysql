@@ -84,7 +84,7 @@ namespace sqlpp
 
     bool char_result_t::_invalid() const
     {
-      return !_handle->debug or !*_handle;
+      return !_handle or !*_handle;
     }
 
     void char_result_t::_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
