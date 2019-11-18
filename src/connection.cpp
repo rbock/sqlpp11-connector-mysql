@@ -154,15 +154,6 @@ namespace sqlpp
     connection::connection(const std::shared_ptr<connection_config>& config)
         : _handle(new detail::connection_handle_t(config))
     {
-      if (mysql_set_character_set(_handle->mysql.get(), _handle->config->charset.c_str()))
-      {
-        throw sqlpp::exception("MySQL error: can't set character set " + _handle->config->charset);
-      }
-
-      if (mysql_select_db(_handle->mysql.get(), _handle->config->database.c_str()))
-      {
-        throw sqlpp::exception("MySQL error: can't select database '" + _handle->config->database + "'");
-      }
     }
 
     connection::~connection()

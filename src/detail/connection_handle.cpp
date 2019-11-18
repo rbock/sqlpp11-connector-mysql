@@ -35,6 +35,27 @@ namespace sqlpp
   {
     namespace detail
     {
+      void connect(MYSQL* mysql, const connection_config& config)
+      {
+        if (!mysql_real_connect(mysql, config.host.empty() ? nullptr : config.host.c_str(),
+                                config.user.empty() ? nullptr : config.user.c_str(),
+                                config.password.empty() ? nullptr : config.password.c_str(), nullptr, config.port,
+                                config.unix_socket.empty() ? nullptr : config.unix_socket.c_str(), config.client_flag))
+        {
+          throw sqlpp::exception("MySQL: could not connect to server: " + std::string(mysql_error(mysql)));
+        }
+
+        if (mysql_set_character_set(mysql, config.charset.c_str()))
+        {
+          throw sqlpp::exception("MySQL error: can't set character set " + config.charset);
+        }
+
+        if (mysql_select_db(mysql, config.database.c_str()))
+        {
+          throw sqlpp::exception("MySQL error: can't select database '" + config.database + "'");
+        }
+      }
+
       void handle_cleanup(MYSQL* mysql)
       {
         mysql_close(mysql);
@@ -57,14 +78,7 @@ namespace sqlpp
           }
         }
 
-        if (!mysql_real_connect(mysql.get(), config->host.empty() ? nullptr : config->host.c_str(),
-                                config->user.empty() ? nullptr : config->user.c_str(),
-                                config->password.empty() ? nullptr : config->password.c_str(), nullptr, config->port,
-                                config->unix_socket.empty() ? nullptr : config->unix_socket.c_str(),
-                                config->client_flag))
-        {
-          throw sqlpp::exception("MySQL: could not connect to server: " + std::string(mysql_error(mysql.get())));
-        }
+        connect(mysql.get(), *config);
       }
 
       connection_handle_t::~connection_handle_t()
@@ -78,14 +92,7 @@ namespace sqlpp
 
       void connection_handle_t::reconnect()
       {
-        if (!mysql_real_connect(mysql.get(), config->host.empty() ? nullptr : config->host.c_str(),
-                                config->user.empty() ? nullptr : config->user.c_str(),
-                                config->password.empty() ? nullptr : config->password.c_str(), nullptr, config->port,
-                                config->unix_socket.empty() ? nullptr : config->unix_socket.c_str(),
-                                config->client_flag))
-        {
-          throw sqlpp::exception("MySQL: could not connect to server: " + std::string(mysql_error(mysql.get())));
-        }
+        connect(mysql.get(), *config);
       }
     }
   }
