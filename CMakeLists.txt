@@ -72,12 +72,20 @@ else()
 	message("including sqlpp11 from ${SQLPP11_INCLUDE_DIR}")
 endif()
 
+
+IF(MSVC)
+    add_definitions(-DNOMINMAX)
+ENDIF()
+
 include_directories("${SQLPP11_INCLUDE_DIR}")
 include_directories("${DATE_INCLUDE_DIR}")
 include_directories("${MYSQL_INCLUDE_DIRS}")
 set(include_dir "${PROJECT_SOURCE_DIR}/include")
 file(GLOB_RECURSE sqlpp_headers ${include_dir}/*.h ${SQLPP11_INCLUDE_DIR}/*.h)
 include_directories(${include_dir})
+if (APPLE)
+include_directories("${Boost_INCLUDE_DIR}")
+endif()
 
 add_subdirectory(src)
 
