@@ -42,7 +42,7 @@ namespace sqlpp
 
     char_result_t::char_result_t(std::unique_ptr<detail::result_handle>&& handle) : _handle(std::move(handle))
     {
-      if (!_handle)
+      if (_invalid())
         throw sqlpp::exception("MySQL: Constructing char_result without valid handle");
 
       if (_handle->debug)
@@ -57,7 +57,6 @@ namespace sqlpp
     {
       const auto date_digits = std::vector<char>{1, 1, 1, 1, 0, 1, 1, 0, 1, 1};  // 2015-10-28
       const auto time_digits = std::vector<char>{0, 1, 1, 0, 1, 1, 0, 1, 1};     // T23:00:12
-      const auto ms_digits = std::vector<char>{0, 1, 1, 1};                      // .123
 
       auto check_digits(const char* text, const std::vector<char>& digitFlags) -> bool
       {
@@ -81,6 +80,11 @@ namespace sqlpp
         }
         return true;
       }
+    }
+
+    bool char_result_t::_invalid() const
+    {
+      return !_handle or !*_handle;
     }
 
     void char_result_t::_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
@@ -153,14 +157,17 @@ namespace sqlpp
       {
         return;
       }
-      const auto ms_string = time_string + 9;
-      if (check_digits(ms_string, ms_digits) and ms_string[4] == '\0')
-      {
-        *value += ::std::chrono::milliseconds(std::atoi(ms_string + 1));
-      }
-      else
+
+      const auto mu_string = time_string + 9;
+      std::cerr << "my_string: " << mu_string << std::endl;
+      if (mu_string[0] == '\0')
       {
         return;
+      }
+      auto factor = 100 * 1000;
+      for (auto i = 1u; i <= 6u and std::isdigit(mu_string[i]); ++i, factor /= 10)
+      {
+        *value += ::std::chrono::microseconds(factor * (mu_string[i] - '0'));
       }
     }
 

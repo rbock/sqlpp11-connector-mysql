@@ -185,7 +185,7 @@ namespace sqlpp
       execute_statement(*_handle, statement);
       std::unique_ptr<detail::result_handle> result_handle(
           new detail::result_handle(mysql_store_result(_handle->mysql.get()), _handle->config->debug));
-      if (!result_handle)
+      if (!*result_handle)
       {
         throw sqlpp::exception("MySQL error: Could not store result set: " +
                                std::string(mysql_error(_handle->mysql.get())));

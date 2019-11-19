@@ -48,6 +48,11 @@ namespace sqlpp
         mysql_stmt_free_result(_handle->mysql_stmt);
     }
 
+    bool bind_result_t::_invalid() const
+    {
+      return !_handle or !*_handle;
+    }
+
     void bind_result_t::_bind_boolean_result(size_t index, signed char* value, bool* is_null)
     {
       if (_handle->debug)
