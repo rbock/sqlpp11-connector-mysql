@@ -13,6 +13,7 @@ macro (build_and_run arg)
 	add_test(${arg} Sqlpp11MySQL${arg})
 endmacro ()
 
+build_and_run(JsonTest)
 build_and_run(DateTimeTest)
 build_and_run(SampleTest)
 build_and_run(SelectTest)
