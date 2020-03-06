@@ -30,8 +30,7 @@
 #if LIBMYSQL_VERSION_ID < 50708
 int main()
 {
-  std::cerr << "Warning: not testing Json, because the version id is less than 50708: " << LIBMYSQL_VERSION_ID
-            << std::endl;
+  std::cerr << "Warning: not testing Json, because the version id is less than 50708" << std::endl;
 }
 #else
 
