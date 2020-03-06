@@ -159,7 +159,6 @@ namespace sqlpp
       }
 
       const auto mu_string = time_string + 9;
-      std::cerr << "my_string: " << mu_string << std::endl;
       if (mu_string[0] == '\0')
       {
         return;
