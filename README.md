@@ -53,6 +53,7 @@ sqlpp11-connector-mysql makes use of C++11 and requires a recent compiler and ST
   * clang-3.4 on Ubuntu-12.4 (requires thread_local)
   * g++-4.8 on Ubuntu-12.4
   * MSVC 2015 Update 2 on appveyor
+  * AppleClang 8 (Xcode 8 and upwards, since prior versions do not support `thread_local`)
 
 __C++ SQL Layer:__
 sqlpp11-connector-mysql is meant to be used with sqlpp11 (https://github.com/rbock/sqlpp11).
@@ -80,7 +81,7 @@ In order to customize the build process, you can add the following options to th
 * DATE_INCLUDE_DIR: path to the folder containing `date.h`
 * SQLPP11_INCLUDE_DIR: path to the folder containing `sqlpp11.h`
 * USE_MARIADB: force the use of the MariaDB connector instead of the GPL'd MySQL connector
- 
+
 For example:
 
 ```bash
