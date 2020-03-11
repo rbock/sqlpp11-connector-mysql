@@ -32,12 +32,6 @@ set(CMAKE_CXX_STANDARD 11)
 
 find_package(Threads REQUIRED)
 
-if (APPLE)
-	message("Apple XCode does not have thread_local, thus we need to wrap that via boost thread")
-	find_package(Boost COMPONENTS thread system)
-endif()
-
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(MySql REQUIRED)
 
@@ -83,9 +77,6 @@ include_directories("${MYSQL_INCLUDE_DIRS}")
 set(include_dir "${PROJECT_SOURCE_DIR}/include")
 file(GLOB_RECURSE sqlpp_headers ${include_dir}/*.h ${SQLPP11_INCLUDE_DIR}/*.h)
 include_directories(${include_dir})
-if (APPLE)
-include_directories("${Boost_INCLUDE_DIR}")
-endif()
 
 add_subdirectory(src)
 
