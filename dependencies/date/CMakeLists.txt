@@ -22,37 +22,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.2)
-include(CheckCXXSymbolExists)
-project (sqlpp11-connector-mysql)
-enable_testing()
-
-option(ENABLE_TESTS "Build unit tests" On)
-set(CMAKE_CXX_STANDARD 11)
-
-find_package(Threads REQUIRED)
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-find_package(MySql REQUIRED)
-
-message(STATUS "Using ${CMAKE_CXX_COMPILER} (compiler id: ${CMAKE_CXX_COMPILER_ID})")
-
-add_subdirectory(dependencies)
-
-IF(MSVC)
-    add_definitions(-DNOMINMAX)
-ENDIF()
-
-include_directories("${MYSQL_INCLUDE_DIRS}")
-set(include_dir "${PROJECT_SOURCE_DIR}/include")
-file(GLOB_RECURSE sqlpp_headers ${include_dir}/*.h ${SQLPP11_INCLUDE_DIR}/*.h)
-include_directories(${include_dir})
-
-add_subdirectory(src)
-
-if(ENABLE_TESTS)
-  add_subdirectory(tests)
+FetchContent_GetProperties(date)
+if (NOT date_POPULATED)
+    FetchContent_Populate(date)
+    add_subdirectory(${date_SOURCE_DIR} ${date_BINARY_DIR})
 endif()
-
-
-install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/sqlpp11" DESTINATION include)
