@@ -24,7 +24,7 @@
 
 cmake_minimum_required(VERSION 3.2)
 include(CheckCXXSymbolExists)
-project (sqlpp11-connector-mysql)
+project (sqlpp11-connector-mysql VERSION 0.29)
 enable_testing()
 
 option(ENABLE_TESTS "Build unit tests" On)
