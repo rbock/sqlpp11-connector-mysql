@@ -17,8 +17,8 @@ License Hint:
 -------------
 The code is distributed under BSD License, but if you build the library, then the binary will be linked dynamically to mysqlclient, which is published under GPL or commercial license as of this writing. The resulting binary might therefore fall under GPL. To avoid this, an option to link against the equivalent MariaDB connector (under LGPL) is provided: see the build instructions below.
 
-Adding in you project:
-----------------------
+Adding in you project (CMakeLists.txt):
+---------------------------------------
 ```
 include(FetchContent)
 
