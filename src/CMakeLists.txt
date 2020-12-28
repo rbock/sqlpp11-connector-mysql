@@ -1,5 +1,5 @@
 
-add_library(sqlpp-mysql SHARED)
+add_library(sqlpp-mysql )
 add_library(sqlpp11::mysql ALIAS sqlpp-mysql)
 
 target_sources(sqlpp-mysql
