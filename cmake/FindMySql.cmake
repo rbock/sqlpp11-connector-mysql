@@ -45,12 +45,6 @@ else()
 	MESSAGE("LIB: ${MYSQL_LIBRARY}")
 endif()
 
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(MYSQL
-  FOUND_VAR MYSQL_FOUND
-  REQUIRED_VARS MYSQL_LIBRARY MYSQL_INCLUDE_DIR
-  )
-
 mark_as_advanced(
   MYSQL_LIBRARY
   MYSQL_INCLUDE_DIR
@@ -58,3 +52,9 @@ mark_as_advanced(
 
 set(MYSQL_INCLUDE_DIRS ${MYSQL_INCLUDE_DIR})
 set(MYSQL_LIBRARIES ${MYSQL_LIBRARY})
+if(NOT TARGET MySQL::MySQL)
+	add_library(MySQL::MySQL UNKNOWN IMPORTED)
+	set_target_properties(MySQL::MySQL PROPERTIES
+		IMPORTED_LOCATION				"${MYSQL_LIBRARY}"
+		INTERFACE_INCLUDE_DIRECTORIES	"${MYSQL_INCLUDE_DIRS}")
+endif()

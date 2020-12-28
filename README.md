@@ -17,6 +17,21 @@ License Hint:
 -------------
 The code is distributed under BSD License, but if you build the library, then the binary will be linked dynamically to mysqlclient, which is published under GPL or commercial license as of this writing. The resulting binary might therefore fall under GPL. To avoid this, an option to link against the equivalent MariaDB connector (under LGPL) is provided: see the build instructions below.
 
+Adding in you project:
+----------------------
+```
+include(FetchContent)
+
+FetchContent_Declare(sqlpp_mysql
+    GIT_REPOSITORY  https://github.com/GCarneiroA/sqlpp11-connector-mysql
+    GIT_TAG         origin/master
+)
+FetchContent_MakeAvailable(sqlpp_mysql)
+
+# Add link libraries to target "just_an_example"
+target_link_libraries(just_an_example sqlpp11::mysql)
+```
+
 Sample Code:
 ------------
 See for instance test/SampleTest.cpp
