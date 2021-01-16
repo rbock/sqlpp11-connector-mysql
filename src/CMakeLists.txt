@@ -7,7 +7,7 @@ include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/cmake/sqlpp11-connector-mysqlConfigVersion.cmake"
-  VERSION ${PROJECT_VERSION}
+  VERSION ${VERSION}
   COMPATIBILITY AnyNewerVersion)
 
 export(

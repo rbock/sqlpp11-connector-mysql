@@ -24,7 +24,7 @@
 
 cmake_minimum_required(VERSION 3.2)
 include(CheckCXXSymbolExists)
-project (sqlpp11-connector-mysql VERSION 0.29)
+project (sqlpp11-connector-mysql)
 enable_testing()
 
 option(ENABLE_TESTS "Build unit tests" On)
@@ -33,6 +33,10 @@ set(CMAKE_CXX_STANDARD 11)
 find_package(Threads REQUIRED)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+include(GetGitRevisionDescription)
+git_describe(VERSION --tags)
+
 find_package(MySql REQUIRED)
 
 message(STATUS "Using ${CMAKE_CXX_COMPILER} (compiler id: ${CMAKE_CXX_COMPILER_ID})")
