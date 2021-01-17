@@ -34,8 +34,13 @@ find_package(Threads REQUIRED)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-include(GetGitRevisionDescription)
-git_describe(VERSION --tags)
+execute_process(
+	COMMAND git describe --tags
+	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+	OUTPUT_VARIABLE TAG
+	ERROR_QUIET
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
 find_package(MySql REQUIRED)
 
