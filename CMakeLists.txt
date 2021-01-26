@@ -42,6 +42,10 @@ execute_process(
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+if (TAG STREQUAL "")
+	set(TAG 0.29)
+endif()
+
 find_package(MySql REQUIRED)
 
 message(STATUS "Using ${CMAKE_CXX_COMPILER} (compiler id: ${CMAKE_CXX_COMPILER_ID})")
