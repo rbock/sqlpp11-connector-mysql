@@ -11,6 +11,7 @@ macro (build_and_run arg)
 endmacro ()
 
 build_and_run(JsonTest)
+build_and_run(CustomQuery)
 build_and_run(DateTimeTest)
 build_and_run(SampleTest)
 build_and_run(SelectTest)
