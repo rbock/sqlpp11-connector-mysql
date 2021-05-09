@@ -2,10 +2,9 @@ language: cpp
 
 os:
   - linux
-  - osx
 
 sudo: required
-dist: trusty
+dist: bionic
 
 services:
   - mysql
@@ -46,12 +45,6 @@ install:
       cd sqlpp11
       && git checkout develop
       && cd ..
-      ;
-    fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      brew update
-      && brew install mysql
-      && brew services start mysql
       ;
     fi
   - mysql --version
