@@ -36,6 +36,12 @@
 #include <sstream>
 #include <string>
 
+#if LIBMYSQL_VERSION_ID < 80000
+typedef struct st_mysql MYSQL;
+#else
+struct MYSQL;
+#endif
+
 namespace sqlpp
 {
   namespace mysql
@@ -294,6 +300,8 @@ namespace sqlpp
 
       //! report a rollback failure (will be called by transactions in case of a rollback failure in the destructor)
       void report_rollback_failure(const std::string message) noexcept;
+
+      MYSQL* get_handle();
     };
 
     inline std::string serializer_t::escape(std::string arg)
