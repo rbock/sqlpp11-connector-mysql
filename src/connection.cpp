@@ -280,5 +280,9 @@ namespace sqlpp
     {
       std::cerr << "MySQL message:" << message << std::endl;
     }
+
+    MYSQL* connection::get_handle(){
+      return _handle->mysql.get();
+    }
   }
 }
