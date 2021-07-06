@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2015, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,12 +24,51 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MYSQL_H
-#define SQLPP_MYSQL_H
+#ifndef SQLPP11_MYSQL_UPDATE_H
+#define SQLPP11_MYSQL_UPDATE_H
 
-#include <sqlpp11/mysql/connection.h>
-#include <sqlpp11/mysql/char_result.h>
-#include <sqlpp11/mysql/remove.h>
-#include <sqlpp11/mysql/update.h>
+#include <sqlpp11/update.h>
+#include <sqlpp11/limit.h>
+#include <sqlpp11/order_by.h>
+
+namespace sqlpp
+{
+  namespace mysql{
+    struct update_name_t
+    {
+    };
+
+    template <typename Database>
+    using blank_update_t = statement_t<Database, update_t, no_single_table_t, no_update_list_t, no_where_t<true>, no_order_by_t, no_limit_t>;
+
+    template <typename Table>
+    constexpr auto update(Table table) -> decltype(blank_update_t<void>().single_table(table))
+    {
+      return {blank_update_t<void>().single_table(table)};
+    }
+
+    template <typename Database, typename Table>
+    constexpr auto dynamic_update(const Database& /*unused*/, Table table)
+        -> decltype(blank_update_t<Database>().single_table(table))
+    {
+      static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
+      return {blank_update_t<Database>().single_table(table)};
+    }
+  }  // namespace mysql
+
+  template <typename Context>
+  struct serializer_t<Context, mysql::update_name_t>
+  {
+    using _serialize_check = consistent_t;
+    using T = update_name_t;
+
+    static Context& _(const T& /*unused*/, Context& context)
+    {
+      context << "UPDATE ";
+
+      return context;
+    }
+  };
+}  // namespace sqlpp
 
 #endif
