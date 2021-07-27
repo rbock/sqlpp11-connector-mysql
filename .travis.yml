@@ -4,7 +4,7 @@ os:
   - linux
 
 sudo: required
-dist: bionic
+dist: focal
 
 services:
   - mysql
@@ -38,30 +38,53 @@ install:
   - pwd
   - git clone https://github.com/HowardHinnant/date
   - cd date
-  - git checkout tags/v2.4
-  - cd ..
-  - git clone https://github.com/rbock/sqlpp11
-  - if [ "$BRANCH" != "master" ]; then
-      cd sqlpp11
-      && git checkout develop
-      && cd ..
-      ;
-    fi
+  - git checkout tags/v3.0.1
+  - mkdir build && mkdir prefix && cd build
+  - >
+    cmake \
+      -D CMAKE_INSTALL_PREFIX=`pwd`/../prefix \
+      -D BUILD_TZ_LIB=OFF \
+      ..
+  - cmake --build . --target install
+  - cd ../..
+  - git clone https://github.com/kovdan01/sqlpp11.git
+  - cd sqlpp11
+  - git checkout enhance_dependencies_resolution
+  - mkdir build && mkdir prefix && cd build
+  - >
+    cmake \
+      -D CMAKE_INSTALL_PREFIX=`pwd`/../prefix \
+      -D CMAKE_PREFIX_PATH=`pwd`/../../date/prefix \
+      -D BUILD_TESTING=OFF \
+      ..
+  - cmake --build . --target install
+  - cd ../..
   - mysql --version
   - (while !  mysqladmin -u root status ; do sleep 1; done) # wait for mysql to start
   - mysqladmin -u root create sqlpp_mysql
   - cd "$PROJECT_DIR"
 
 before_script:
-   - mkdir build
-   - cd build
+   - mkdir build && mkdir prefix && cd build
    - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
-   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG
+   - >
+     cmake \
+       -D CMAKE_BUILD_TYPE=$CONFIG \
+       -D CMAKE_PREFIX_PATH="`pwd`/../../sqlpp11/prefix;`pwd`/../../date/prefix" \
+       -D CMAKE_INSTALL_PREFIX=`pwd`/../prefix \
+       -D CMAKE_VERBOSE_MAKEFILE=ON \
+       ..
 
 script:
-   - make VERBOSE=1
-   - cmake --build . --config $CONFIG
+   - cmake --build . --target install
    - ctest --output-on-failure
+   - cd ../test-install
+   - mkdir build && cd build
+   - >
+     cmake \
+       -D CMAKE_PREFIX_PATH="`pwd`/../../prefix;`pwd`/../../../sqlpp11/prefix;`pwd`/../../../date/prefix" \
+       ..
+   - cmake --build . --target all
 
 after_script:
   - ../coveralls

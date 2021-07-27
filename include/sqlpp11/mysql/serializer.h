@@ -53,7 +53,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = insert_default_values_data_t;
 
-    static mysql::serializer_t& _(const T& t, mysql::serializer_t& context)
+    static mysql::serializer_t& _(const T& /* t */, mysql::serializer_t& context)
     {
       context << " () VALUES()";
       return context;
