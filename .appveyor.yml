@@ -28,9 +28,9 @@ build_script:
   - cmake -DCMAKE_INSTALL_PREFIX="%cd%\..\prefix" -DBUILD_TZ_LIB=OFF ..
   - cmake --build . --target install
   - cd ..\..
-  - git clone https://github.com/kovdan01/sqlpp11.git
+  - git clone https://github.com/rbock/sqlpp11.git
   - cd sqlpp11
-  - git checkout enhance_dependencies_resolution
+  - git checkout tags/0.60
   - mkdir build && mkdir prefix && cd build
   - cmake -DCMAKE_INSTALL_PREFIX="%cd%\..\prefix" -DCMAKE_PREFIX_PATH="%cd%\..\..\date\prefix" -DBUILD_TESTING=OFF ..
   - cmake --build . --target install
