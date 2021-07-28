@@ -1,4 +1,4 @@
-os: Visual Studio 2015
+os: Visual Studio 2019
 
 platform:
   - x64
@@ -14,34 +14,36 @@ matrix:
   fast_finish: true
 
 build_script:
-  - cmake --version
-  - SET PATH=%PATH%;"C:\Program Files\MySql\MySQL Server 5.7\bin"
+  - SET PATH=%PATH%;C:\Program Files\MySQL\MySQL Server 5.7\bin
   - set MYSQL_PWD=Password12!
   - SET
   - mysql -e "create database sqlpp_mysql;" --user=root
   - CD
   - cd ..
   - CD
-  - git clone https://github.com/MariaDB/mariadb-connector-c
-  - cd mariadb-connector-c
-  - mkdir build
-  - cd build
-  - cmake .. -DCMAKE_GENERATOR_PLATFORM=x64
-  - cmake --build . --config %configuration% --target install
-  - CD ..
-  - CD ..
-  - CD
   - git clone https://github.com/HowardHinnant/date
   - cd date
-  - git checkout tags/v2.4
-  - cd ..
-  - git clone https://github.com/rbock/sqlpp11
+  - git checkout tags/v3.0.1
+  - mkdir build && mkdir prefix && cd build
+  - cmake -DCMAKE_INSTALL_PREFIX="%cd%\..\prefix" -DBUILD_TZ_LIB=OFF ..
+  - cmake --build . --target install
+  - cd ..\..
+  - git clone https://github.com/rbock/sqlpp11.git
+  - cd sqlpp11
+  - git checkout tags/0.60
+  - mkdir build && mkdir prefix && cd build
+  - cmake -DCMAKE_INSTALL_PREFIX="%cd%\..\prefix" -DCMAKE_PREFIX_PATH="%cd%\..\..\date\prefix" -DBUILD_TESTING=OFF ..
+  - cmake --build . --target install
+  - cd ..\..
   - cd sqlpp11-connector-mysql
   - CD
   - echo %configuration%
-  - mkdir build
-  - cd build
-  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_GENERATOR_PLATFORM=x64
-  - cmake --build . --config %configuration%
-  #- ctest . --output-on-failure --build-config %configuration%
-
+  - mkdir build && mkdir prefix && cd build
+  - cmake -DCMAKE_PREFIX_PATH="%cd%\..\..\sqlpp11\prefix;%cd%\..\..\date\prefix" -DCMAKE_INSTALL_PREFIX="%cd%\..\prefix" -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_GENERATOR_PLATFORM=%platform% ..
+  - cmake --build . --config %configuration% --target install
+  - SET PATH=%PATH%;C:\Program Files\MySQL\MySQL Server 5.7\lib
+  - ctest --output-on-failure --build-config %configuration%
+  - cd ..\test-install
+  - mkdir build && cd build
+  - cmake -DCMAKE_PREFIX_PATH="%cd%\..\..\prefix;%cd%\..\..\..\sqlpp11\prefix;%cd%\..\..\..\date\prefix" -DCMAKE_CXX_FLAGS="/EHsc" -DCMAKE_GENERATOR_PLATFORM=%platform% ..
+  - cmake --build . --config %configuration% --target ALL_BUILD
