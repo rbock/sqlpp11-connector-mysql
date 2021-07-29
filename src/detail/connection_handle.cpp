@@ -50,7 +50,7 @@ namespace sqlpp
           throw sqlpp::exception("MySQL error: can't set character set " + config.charset);
         }
 
-        if (mysql_select_db(mysql, config.database.c_str()))
+        if (not config.database.empty() and mysql_select_db(mysql, config.database.c_str()))
         {
           throw sqlpp::exception("MySQL error: can't select database '" + config.database + "'");
         }
