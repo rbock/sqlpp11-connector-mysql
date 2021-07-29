@@ -10,8 +10,6 @@ Branch / Compiler | clang,  gcc | MSVC
 master | [![Build Status](https://travis-ci.org/rbock/sqlpp11-connector-mysql.svg?branch=master)](https://travis-ci.org/rbock/sqlpp11-connector-mysql?branch=master) | [![Build status](https://ci.appveyor.com/api/projects/status/8yo0sbopv63kb2t7/branch/master?svg=true)](https://ci.appveyor.com/project/rbock/sqlpp11-connector-mysql/branch/master)
 develop | [![Build Status](https://travis-ci.org/rbock/sqlpp11-connector-mysql.svg?branch=develop)](https://travis-ci.org/rbock/sqlpp11-connector-mysql?branch=develop) | [![Build status](https://ci.appveyor.com/api/projects/status/8yo0sbopv63kb2t7/branch/develop?svg=true)](https://ci.appveyor.com/project/rbock/sqlpp11-connector-mysql/branch/develop) |
 
-Remark regarding MSVC builds on appveyor: As of now, I can neither to link against the provided mysql-connector-c library nor build it from scratch. I am currently compiling the mariadb client and link against that one. Build is fine, tests fail. Help is appreciated.
-
 
 License Hint:
 -------------
@@ -61,6 +59,8 @@ sqlpp11-connector-mysql is meant to be used with sqlpp11 (https://github.com/rbo
 __mysqlclient:__
 libmysqlclient version 5.5 and up (or the respective mariadb version)
 
+__date library by Howard Hinnant:__
+https://github.com/howardhinnant/date
 
 
 Build instructions:
@@ -71,16 +71,15 @@ Download and unpack the latest release or clone the repository. Inside the direc
 mkdir build
 cd build
 cmake ..
-make
-make install
+cmake --build . --target install
 ```
 
 In order to customize the build process, you can add the following options to the cmake command above:
 
 * CMAKE_INSTALL_PREFIX: path to the install folder
-* DATE_INCLUDE_DIR: path to the folder containing `date.h`
-* SQLPP11_INCLUDE_DIR: path to the folder containing `sqlpp11.h`
-* USE_MARIADB: force the use of the MariaDB connector instead of the GPL'd MySQL connector
+* CMAKE_PREFIX_PATH: if sqlpp11 and/or date library are installed in non-system prefix, provide their prefixes as a semicolon-separated list
+* USE_MARIADB (default OFF): force the use of the MariaDB connector instead of the GPL'd MySQL connector
+* ENABLE_TESTS (default ON): build unit tests
 
 For example:
 
