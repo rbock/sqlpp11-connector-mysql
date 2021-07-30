@@ -28,7 +28,6 @@
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/insert.h>
-#include <sqlpp11/multi_column.h>
 #include <sqlpp11/mysql/connection.h>
 #include <sqlpp11/remove.h>
 #include <sqlpp11/select.h>
@@ -122,18 +121,6 @@ int main()
     testSelectAll(db, 2);
     db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheesecake"));
     testSelectAll(db, 3);
-
-    // selecting two multicolumns
-    for (const auto& row :
-         db(select(multi_column(tab.alpha, tab.beta, tab.gamma).as(left), multi_column(all_of(tab)).as(tab))
-                .from(tab)
-                .unconditionally()))
-    {
-      std::cerr << "row.left.alpha: " << row.left.alpha << ", row.left.beta: " << row.left.beta
-                << ", row.left.gamma: " << row.left.gamma << std::endl;
-      std::cerr << "row.tabSample.alpha: " << row.tabSample.alpha << ", row.tabSample.beta: " << row.tabSample.beta
-                << ", row.tabSample.gamma: " << row.tabSample.gamma << std::endl;
-    };
 
     // test functions and operators
     db(select(all_of(tab)).from(tab).where(tab.alpha.is_null()));

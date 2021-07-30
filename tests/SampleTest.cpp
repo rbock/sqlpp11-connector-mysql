@@ -93,18 +93,6 @@ int main()
       std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
                 << std::endl;
     };
-    // selecting two multicolumns
-    for (const auto& row :
-         db(select(tab.alpha, multi_column(tab.alpha, tab.beta, tab.gamma).as(left), multi_column(all_of(tab)).as(tab))
-                .from(tab)
-                .unconditionally()))
-    {
-      std::cerr << "row.left.alpha: " << row.left.alpha << ", row.left.beta: " << row.left.beta
-                << ", row.left.gamma: " << row.left.gamma << std::endl;
-      std::cerr << "row.tabSample.alpha: " << row.tabSample.alpha << ", row.tabSample.beta: " << row.tabSample.beta
-                << ", row.tabSample.gamma: " << row.tabSample.gamma << std::endl;
-    };
-
     // insert
     db(insert_into(tab).default_values());
     const auto x = select(all_of(tab)).from(tab).unconditionally();

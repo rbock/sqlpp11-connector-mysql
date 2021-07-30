@@ -28,7 +28,6 @@
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/insert.h>
-#include <sqlpp11/multi_column.h>
 #include <sqlpp11/mysql/connection.h>
 #include <sqlpp11/remove.h>
 #include <sqlpp11/select.h>
