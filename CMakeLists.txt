@@ -23,10 +23,14 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 3.8.0 FATAL_ERROR)
-project(sqlpp11-connector-mysql
-    LANGUAGES CXX
-    VERSION 0.29
-)
+project(sqlpp11-connector-mysql LANGUAGES CXX)
+
+file(READ ${CMAKE_CURRENT_LIST_DIR}/include/sqlpp11/mysql/mysql.h mysql_h_contents)
+string(REGEX MATCH "#define SQLPP11_MYSQL_VERSION_MAJOR *([0-9a-zA-Z_]*)" NULL_OUT ${mysql_h_contents})
+set(VERSION_MAJOR ${CMAKE_MATCH_1})
+string(REGEX MATCH "#define SQLPP11_MYSQL_VERSION_MINOR *([0-9a-zA-Z_]*)" NULL_OUT ${mysql_h_contents})
+set(VERSION_MINOR ${CMAKE_MATCH_1})
+set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
