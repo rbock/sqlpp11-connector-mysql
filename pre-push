@@ -12,4 +12,11 @@ minor=${BASH_REMATCH[1]}
 
 version="$major.$minor"
 
-git tag -a $version -m "Version $version"
+git tag | grep -Fx $version > /dev/null
+found=$?
+if [[ $found == 0 ]]; then
+    echo "Tag $version already exists"
+else
+    echo "Create new tag $version"
+    git tag -a $version -m "Version $version" || exit 1
+fi

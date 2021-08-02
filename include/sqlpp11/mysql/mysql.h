@@ -31,6 +31,6 @@
 #include <sqlpp11/mysql/char_result.h>
 
 #define SQLPP11_MYSQL_VERSION_MAJOR    0
-#define SQLPP11_MYSQL_VERSION_MINOR   30
+#define SQLPP11_MYSQL_VERSION_MINOR   29
 
 #endif
