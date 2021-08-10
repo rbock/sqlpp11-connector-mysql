@@ -49,6 +49,11 @@ namespace sqlpp
         std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
     }
 
+    int char_result_t::size()
+    {
+      return mysql_num_rows(_handle->mysql_res);
+    }
+
     char_result_t::~char_result_t() = default;
     char_result_t::char_result_t(char_result_t&& rhs) = default;
     char_result_t& char_result_t::operator=(char_result_t&&) = default;

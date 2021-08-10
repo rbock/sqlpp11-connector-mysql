@@ -56,6 +56,7 @@ namespace sqlpp
       char_result_t& operator=(const char_result_t&) = delete;
       char_result_t& operator=(char_result_t&&);
       ~char_result_t();
+      int size();
 
       bool operator==(const char_result_t& rhs) const
       {
