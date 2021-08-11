@@ -122,6 +122,9 @@ int main()
     db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheesecake"));
     testSelectAll(db, 3);
 
+    auto result_all = db(select(all_of(tab)).from(tab).unconditionally());
+    assert(result_all.size() == 3);
+
     // test functions and operators
     db(select(all_of(tab)).from(tab).where(tab.alpha.is_null()));
     db(select(all_of(tab)).from(tab).where(tab.alpha.is_not_null()));

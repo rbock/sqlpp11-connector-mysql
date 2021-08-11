@@ -48,7 +48,7 @@ namespace sqlpp
         mysql_stmt_free_result(_handle->mysql_stmt);
     }
 
-    int bind_result_t::size()
+    int bind_result_t::size() const
     {
       return mysql_stmt_num_rows(_handle->mysql_stmt);
     }
@@ -165,6 +165,7 @@ namespace sqlpp
       param.is_unsigned = false;
       param.error = &meta_data.bound_error;
     }
+
     void bind_result_t::_bind_blob_result(size_t index, const char** value, size_t* len)
     {
       if (_handle->debug)
