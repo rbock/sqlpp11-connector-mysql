@@ -54,7 +54,6 @@ void testPreparedStatementResult (sql::connection& db)
         // explicit result scope
         // if results are released update should execute without exception
         auto result = db(preparedSelectAll);
-        assert(result.size() == 0);
         count = result.front().count;
     }
 

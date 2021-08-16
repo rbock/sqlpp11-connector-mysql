@@ -48,11 +48,6 @@ namespace sqlpp
         mysql_stmt_free_result(_handle->mysql_stmt);
     }
 
-    int bind_result_t::size() const
-    {
-      return mysql_stmt_num_rows(_handle->mysql_stmt);
-    }
-
     bool bind_result_t::_invalid() const
     {
       return !_handle or !*_handle;
