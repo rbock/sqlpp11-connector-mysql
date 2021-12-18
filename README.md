@@ -4,8 +4,8 @@ sqlpp11-connector-mysql
 A C++ wrapper for mysql meant to be used in combination with sqlpp11 (https://github.com/rbock/sqlpp11).
 
 ```diff
-!If you are using the develop branch of sqlpp11 or version 0.61 or later:
-!The mysql connector is included in the sqlpp11 library directly and
+!If you are using the sqlpp11 version 0.61 or later:
+!The mariadb/mysql connector is included in the sqlpp11 library directly and
 !you do not need this repository.
 ```
 
